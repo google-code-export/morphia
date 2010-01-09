@@ -4,3 +4,152 @@
 = Annotate your Java classes =
 
 Let's imagine we have the following simple classes:
+
+{{{
+public class Hotel {
+
+    private String name;
+    private int stars;
+    private Address address;
+
+    // ... getters and setters
+}
+}}}
+
+and
+
+{{{
+public class Address {
+
+    private String street;
+    private String city;
+    private String postCode;
+    private String country;
+
+    // ... getters and setters
+}
+}}}
+
+We want to save instances of these objects to MongoDB. All we need to do is add the Morphia annotations to the class fields we want to persist:
+
+{{{
+import com.google.code.morphia.annotations.MongoCollectionName;
+import com.google.code.morphia.annotations.MongoEmbedded;
+import com.google.code.morphia.annotations.MongoID;
+import com.google.code.morphia.annotations.MongoValue;
+
+public class Hotel {
+
+    @MongoID
+    private String id;
+    @MongoCollectionName
+    private String collectionName;
+
+    @MongoValue
+    private String name;
+    @MongoValue
+    private int stars;
+    @MongoEmbedded
+    private Address address;
+
+    // ... getters and setters
+}
+}}}
+
+and
+
+{{{
+import com.google.code.morphia.annotations.MongoValue;
+
+public class Address {
+
+    @MongoValue
+    private String street;
+    @MongoValue
+    private String city;
+    @MongoValue
+    private String postCode;
+    @MongoValue
+    private String country;
+
+    // ... getters and setters
+}
+}}}
+
+You can see that all basic values are marked as @MongoValue, and as the Address is an embedded object in the Hotel class, it is marked as @MongoEmbedded.
+
+Also note that we had to add two new fields (id and collectionName) to our Hotel class. Morphia provides an abstract class that has these fields. Using that class, the Hotel class becomes even simpler:
+
+{{{
+import com.google.code.morphia.AbstractMongoEntity;
+import com.google.code.morphia.annotations.MongoEmbedded;
+import com.google.code.morphia.annotations.MongoValue;
+
+public class Hotel extends AbstractMongoEntity {
+
+    @MongoValue
+    private String name;
+    @MongoValue
+    private int stars;
+    @MongoEmbedded
+    private Address address;
+
+    // ... getters and setters
+}
+}}}
+
+= Create a Morphia instance and add the classes =
+
+Next, we create an instance of Morphia, and map the classes we have annotated:
+
+{{{
+import com.google.code.morphia.Morphia;
+...
+Morphia morphia = new Morphia();
+morphia.map(Hotel.class);
+...
+}}}
+
+Note that mapping the Hotel class will automatically map the Address class, since it is referenced from Hotel.
+
+= Map to/from MongoDB objects =
+
+Now we can use the Morphia instance to map our classes to/from MongoDB objects. To save a Hotel in Mongo:
+
+{{{
+Hotel hotel = new Hotel();
+hotel.setName("My Hotel");
+hotel.setStars(4);
+
+Address address = new Address();
+address.setStreet("123 Some street");
+address.setCity("Some city");
+address.setPostCode("123 456");
+address.setCountry("Some country");
+
+Mongo mongo = ...;
+Morphia morphia = ...;
+DB db = mongo.getDB("morphia_test");
+
+// map the hotel to a Mongo DBObject
+DBObject hotelDbObj = morphia.toDBObject(hotel);
+
+// and then save that DBObject in a Mongo collection
+db.getCollection("hotels").save(hotelDbObj);
+}}}
+
+Loading a Hotel from Mongo is also simple:
+
+{{{
+Mongo mongo = ...;
+Morphia morphia = ...;
+DB db = mongo.getDB("morphia_test");
+
+String hotelId = ...; // the ID of the hotel we want to load
+
+// load the DBObject from a Mongo collection
+BasicDBObject hotelDbObj = (BasicDBObject) db.getCollection("hotels").findOne(new BasicDBObject("_id", new ObjectId(hotelId));
+
+// and then map it to our Hotel object
+Hotel hotel = morphia.fromDBObject(Hotel.class, hotelDbObj);
+}}}
