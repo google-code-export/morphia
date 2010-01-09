@@ -1,0 +1,10 @@
+#summary TOC for the Morphia documentation
+
+= Introduction =
+*Morphia* is a lightweight library for mapping Java objects to/from MongoDB (see http://mongodb.org). Morphia relies on annotations only, so there are no XML configuration files involved.
+
+Morphia adds an abstraction layer on top of the Mongo Java driver, removing the error prone boiler plate code for mapping your plain old java object to/from the Mongo DBObject.
+
+It works well with Guice and Spring, and provides (on top of MongoDB) an attractive persistence solution for users of the Google Web Toolkit (GWT).
+
+  * [QuickStart Quick Start]
