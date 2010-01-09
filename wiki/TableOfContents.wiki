@@ -1,3 +1,9 @@
 #summary Morphia documentation outline for the docreader.
   * [QuickStart The 2 minute intro]
   * User's Guide
+    * [Motivation Motivation]
+    * [GettingStarted Getting Started]
+    * Annotating classes
+      * [MongoValue Primitive and basic types]
+      * [MongoEmbedded Embedding objects]
+      * [MongoReference Referencing objects]
