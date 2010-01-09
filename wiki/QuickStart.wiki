@@ -1,5 +1,4 @@
 #summary A quick 2 minute intro to Morphia.
-#labels Featured
 
 = Annotate your Java classes =
 
