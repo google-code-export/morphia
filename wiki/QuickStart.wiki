@@ -153,3 +153,48 @@ BasicDBObject hotelDbObj = (BasicDBObject) db.getCollection("hotels").findOne(ne
 // and then map it to our Hotel object
 Hotel hotel = morphia.fromDBObject(Hotel.class, hotelDbObj);
 }}}
+
+= Data Access Object (DAO) Support =
+
+Take advantage of the Morphia DAO support:
+
+{{{
+import com.google.code.morphia.Morphia;
+import com.google.code.morphia.dao.AbstractMongoDAO;
+import com.mongodb.DBCollection;
+import com.mongodb.Mongo;
+
+public class HotelDAO extends AbstractMongoDAO<Hotel> {
+
+    private final Mongo mongo;
+
+    public HotelDAO( Morphia morphia, Mongo mongo ) {
+        super(Hotel.class, morphia);
+        this.mongo = mongo;
+    }
+
+    @Override
+    protected DBCollection collection() {
+        return mongo.getDB("morphia_test").getCollection("hotels");
+    }
+}
+}}}
+
+Creating a DAO object abstracts all the mapping, and the direct use of Morphia. This gives us a much cleaner approach:
+
+{{{
+Mongo mongo = ...;
+Morphia morphia = ...;
+
+HotelDAO hotelDAO = new HotelDAO(morphia, mongo);
+
+Hotel hotel = ...;
+hotelDAO.save(hotel);
+
+String someHotelId = ...;
+Hotel someHotelId = hotelDAO.get(someHotelId); 
+}}}
+
+As we can see, the AbstractMongoDAO (that our HotelDAO extends) has lots of methods already implemented for us.
+
+In a web application environment, we would probably inject the Mongo and Morphia instances into the DAO, and then inject the DAO into a controller, so the controller would never directly deal with Mongo or Morphia.
