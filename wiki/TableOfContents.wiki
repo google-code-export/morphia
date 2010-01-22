@@ -7,3 +7,7 @@
       * [MongoValue Primitive and basic types]
       * [MongoEmbedded Embedding objects]
       * [MongoReference Referencing objects]
+    * Mapping objects to/from Mongo
+      * [MappingObjects Using the Morphia instance]
+      * [UsingInterfaces Programming to interfaces]
+      * [DAOSupport DAO Support]
