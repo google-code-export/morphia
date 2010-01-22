@@ -20,7 +20,7 @@ public class BlogEntryDAO extends AbstractMongoDAO<BlogEntry> {
 
     private final Mongo mongo;
 
-    public HotelDAO( Morphia morphia, Mongo mongo ) {
+    public BlogEntryDAO( Morphia morphia, Mongo mongo ) {
         super(BlogEntry.class, morphia);
         this.mongo = mongo;
     }
@@ -40,3 +40,28 @@ Since all the methods are implemented for us, we only need to do two things:
  # Implement the collection() method. This should return the Mongo DB collection that objects should be persisted to.
 
 Now, we can use this class to persist and load blog entries:
+
+{{{
+...
+BlogEntryDAO blogEntryDAO = new BlogEntryDAO(morphia, mongo);
+
+// get one specific blog entry
+String blogEntryId = ...;
+BlogEntry myBlogEntry = blogEntryDAO.get(blogEntryId);
+
+// update it
+myBlogEntry.setTitle("My Blog Entry");
+blogEntryDAO.save(myBlogEntry);
+
+// or just remove it
+blogEntryDAO.removeById(myBlogEntry.getId());
+...
+}}}
+
+In a web application environment, we would probably use a dependency injection framework (like Guice or Spring) to inject the Mongo and Morphia instances into the DAO, and then inject the DAO into a controller, so the controller would never directly deal with Mongo or Morphia.
+
+This approach is highly recommended, as it keeps your code tidy and less prone to errors.
+
+== Custom finder methods ==
+
+asdf
