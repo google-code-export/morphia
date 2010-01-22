@@ -1,0 +1,18 @@
+#summary Things you need to do before you can start using Morphia.
+
+= Getting Started =
+
+As Morphia is annotation based, you will need Java SE 5 or higher. You will also need access to a Mongo database (http://mongodb.org).
+
+To use Morphia in your project, you'll need the Morphia jar in your classpath. There are a few ways you can achieve this:
+
+  * Download it directly from http://code.google.com/p/morphia/downloads/list (note that you will need to download the external [Dependencies dependencies] as well)
+  * If you use Maven2 to manage your project, you can reference Morphia as a dependency:
+  {{{
+  <dependency>
+	<groupId>com.google.code</groupId>
+	<artifactId>morphia</artifactId>
+	<version>0.91</version>
+  </dependency>
+  }}}
+  * Finally, you can check out from subversion and build it yourself. You will need [http://maven.apache.org Maven2] for this. After you've [http://code.google.com/p/morphia/source/checkout checked out] the project, cd into the morphia folder, and run "mvn install".
