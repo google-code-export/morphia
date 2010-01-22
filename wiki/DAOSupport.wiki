@@ -9,3 +9,34 @@ Morphia supports this methodology by providing a MongoDAO interface, and an abst
 This means that by having your DAO class extend the AbstractMongoDAO class, you would normally only need to implement finder methods to return query results.
 
 Let's look at how we could use the DAO support to manage blog entries. First of all, we would need to create a DAO class that extends AbstractJcrDAO:
+
+{{{
+import com.google.code.morphia.Morphia;
+import com.google.code.morphia.dao.AbstractMongoDAO;
+import com.mongodb.DBCollection;
+import com.mongodb.Mongo;
+
+public class BlogEntryDAO extends AbstractMongoDAO<BlogEntry> {
+
+    private final Mongo mongo;
+
+    public HotelDAO( Morphia morphia, Mongo mongo ) {
+        super(BlogEntry.class, morphia);
+        this.mongo = mongo;
+    }
+
+    @Override
+    protected DBCollection collection() {
+        return mongo.getDB("BlogSite").getCollection("BlogEntries");
+    }
+}
+}}}
+
+Note that AbstractMongoDAO uses generics to define a parameter class. This means you don't have to do any casting when using the DAO methods.
+
+Since all the methods are implemented for us, we only need to do two things: 
+
+ # Implement a constructor. The constructor passes information on to the AbstractMongoDAO superclass. 
+ # Implement the collection() method. This should return the Mongo DB collection that objects should be persisted to.
+
+Now, we can use this class to persist and load blog entries:
