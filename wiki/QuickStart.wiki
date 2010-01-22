@@ -4,7 +4,7 @@
 
 Morphia makes that very easy. Here's what you need to do.
 
-= Annotate your Java classes =
+== Annotate your Java classes ==
 
 Let's imagine we have the following simple classes:
 
@@ -101,7 +101,7 @@ public class Hotel extends AbstractMongoEntity {
 }
 }}}
 
-= Create a Morphia instance and add the classes =
+== Create a Morphia instance and add the classes ==
 
 Next, we create an instance of Morphia, and map the classes we have annotated:
 
@@ -115,7 +115,7 @@ morphia.map(Hotel.class);
 
 Note that mapping the Hotel class will automatically map the Address class, since it is referenced from Hotel.
 
-= Map to/from MongoDB objects =
+== Map to/from MongoDB objects ==
 
 Now we can use the Morphia instance to map our classes to/from MongoDB objects. To save a Hotel in Mongo:
 
@@ -157,7 +157,7 @@ BasicDBObject hotelDbObj = (BasicDBObject) db.getCollection("hotels").findOne(ne
 Hotel hotel = morphia.fromDBObject(Hotel.class, hotelDbObj);
 }}}
 
-= Data Access Object (DAO) Support =
+== Data Access Object (DAO) Support ==
 
 Take advantage of the Morphia DAO support:
 
