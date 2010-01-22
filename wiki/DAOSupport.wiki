@@ -1,0 +1,11 @@
+#summary Describes the Morphia DAO support classes.
+
+= Using Data Access Objects (DAO) =
+
+It is considered good practice to abstract the underlying persistence strategy away from the calling code, by encapsulating the persistence calls within Data Access Objects (DAOs). That means that your controller (or action) classes can have a DAO object injected, and use it, without having to worry whether the object is being persisted to a database, XML, or Mongo.
+
+Morphia supports this methodology by providing a MongoDAO interface, and an abstract DAO implementation that uses Morphia to map objects to/from Mongo. This abstract class, AbstractMongoDAO, implements all the basic DAO methods you need to create/update, read, and delete objects in Mongo.
+
+This means that by having your DAO class extend the AbstractMongoDAO class, you would normally only need to implement finder methods to return query results.
+
+Let's look at how we could use the DAO support to manage blog entries. First of all, we would need to create a DAO class that extends AbstractJcrDAO:
