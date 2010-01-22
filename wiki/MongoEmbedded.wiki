@@ -1,0 +1,86 @@
+#summary Describes how to annotate fields with embedded objects.
+
+= Embedding Objects =
+
+We're often dealing with an object structure that does not just have a flat list of fields, but rather a tree of objects. For example, look at the following classes:
+
+{{{
+public class Hotel {
+
+    private String name;
+    private int stars;
+    private Address address;
+
+    // ... getters and setters
+}
+}}}
+
+where the Address class looks like this:
+
+{{{
+public class Address {
+
+    private String street;
+    private String city;
+    private String postCode;
+    private String country;
+
+    // ... getters and setters
+}
+}}}
+
+The question is, how do we annotate the following field in Hotel:
+
+{{{
+    private Address address;
+}}}
+
+This is where the @MongoEmbedded annotation comes into play.
+
+As a rule of thumb, you should @MongoEmbedded for objects that are dependent on the parent object (and therefore have no life outside it), and are not shared between objects. If you need to reference another collection object, look at @MongoReference instead.
+
+We just annotate the above classes with @MongoValue and @MongoEmbedded:
+
+{{{
+import com.google.code.morphia.annotations.MongoCollectionName;
+import com.google.code.morphia.annotations.MongoEmbedded;
+import com.google.code.morphia.annotations.MongoID;
+import com.google.code.morphia.annotations.MongoValue;
+
+public class Hotel {
+
+    @MongoID
+    private String id;
+    @MongoCollectionName
+    private String collectionName;
+
+    @MongoValue
+    private String name;
+    @MongoValue
+    private int stars;
+    *@MongoEmbedded
+    private Address address;*
+
+    // ... getters and setters
+}
+
+...
+
+import com.google.code.morphia.annotations.MongoValue;
+
+public class Address {
+
+    @MongoValue
+    private String street;
+    @MongoValue
+    private String city;
+    @MongoValue
+    private String postCode;
+    @MongoValue
+    private String country;
+
+    // ... getters and setters
+}
+}}}
+
+NOTE 1: Classes used solely as embedded objects do not need the @MongoID and @MongoCollectionName annotations.
