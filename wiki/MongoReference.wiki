@@ -1,0 +1,107 @@
+#summary Describes how to annotate fields with referenced objects.
+
+= Referencing Objects =
+
+Mongo references are references from one document (object) to another within the database. Consider the following classes:
+
+{{{
+public class BlogEntry {
+
+    private String title;
+    private Date publishDate;
+    private String body;
+
+    private Author author;
+
+    // getters and setters
+}
+
+...
+
+public class Author {
+
+    private String username;
+    private String fullName;
+    private String emailAddress;
+
+    // getters and setters
+}
+}}}
+
+The question here is: _How do we annotate the author field in BlogEntry?_ We could of course use the @MongoEmbedded annotation, but that does not make sense here, since we don't want to store the Author with every BlogEntry instance. Instead we want multiple blog entries to reference a single Author document in Mongo.
+
+For this case we use the @MongoReference annotation:
+
+{{{
+...
+import com.google.code.morphia.annotations.MongoCollectionName;
+import com.google.code.morphia.annotations.MongoEmbedded;
+import com.google.code.morphia.annotations.MongoID;
+import com.google.code.morphia.annotations.MongoReference;
+import com.google.code.morphia.annotations.MongoValue;
+...
+
+public class BlogEntry {
+
+    @MongoID
+    private String id;
+    @MongoCollectionName
+    private String collectionName;
+
+    @MongoValue
+    private String title;
+    @MongoValue
+    private Date publishDate;
+    @MongoValue
+    private String body;
+
+    @MongoReference
+    private Author author;
+
+    // getters and setters
+}
+
+...
+
+public class Author {
+
+    @MongoID
+    private String id;
+    @MongoCollectionName
+    private String collectionName;
+
+    @MongoValue
+    private String username;
+    @MongoValue
+    private String fullName;
+    @MongoValue
+    private String emailAddress;
+
+    // getters and setters
+}
+}}}
+
+One very important thing to mention when working with references: _The referenced object must have been saved in Mongo before saving the object referencing it._
+
+This makes sense, really. In terms of the example above, it means that you must already have an Author in the database before you can create a BlogEntry.
+
+Morphia can also store a java.util.List of embedded objects, as long as the List is parameterized with the referenced class type.
+
+{{{
+    @MongoReference
+    private List<Author> authors;
+}}}
+
+By default, Morphia uses the field name as the value name in Mongo. This can be overridden by specifying a name on the @MongoReference annotation:
+
+{{{
+    @MongoReference(name = "blog_authors")
+    private List<Author> authors;
+}}}
+
+Finally, when annotating a parameterized java.util.List of referenced objects, Morphia will by default use java.util.ArrayList?. If you need another implementation, you can override this by specifying listClass on the @MongoReference annotation:
+
+{{{
+    @MongoReference(listClass = java.util.Vector.class)
+    private List<Author> authors;
+}}}
