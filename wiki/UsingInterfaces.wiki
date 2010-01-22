@@ -42,7 +42,7 @@ public class ShapeContainer {
 }
 }}}
 
-Now we want to store the ShapContainer in Mongo. The only problem for Morphia when dealing with interfaces is knowing which implementation class to instantiate. That is, when retrieving the first shape from Mongo, how does Morphia know whether to map it to a Rectangle or a Circle?
+Now we want to store the Shape Container in Mongo. The only problem for Morphia when dealing with interfaces is knowing which implementation class to instantiate. That is, when retrieving the first shape from Mongo, how does Morphia know whether to map it to a Rectangle or a Circle?
 
 Morphia solves this by storing a value in the Mongo document, called "className", which holds the full class name of the Java object being stored in the document.
 
