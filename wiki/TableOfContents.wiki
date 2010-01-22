@@ -3,6 +3,7 @@
   * User's Guide
     * [Motivation Motivation]
     * [GettingStarted Getting Started]
+    * [Dependencies External dependencies]
     * Annotating classes
       * [MongoValue Primitive and basic types]
       * [MongoEmbedded Embedding objects]
