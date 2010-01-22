@@ -64,4 +64,19 @@ This approach is highly recommended, as it keeps your code tidy and less prone t
 
 == Custom finder methods ==
 
-asdf
+Although the abstract DAO implementation has findAll() methods, we sometimes need custom finder methods to filter the data and apply custom sorting. The AbstractMongoDAO class provides a set of protected methods to make custom finder methods easier to create.
+
+So, if we wanted to create a finder method that returns all blog entries where the title starts with a particular String (sorting in alphabetical order), we could add the following method to the BlogEntryDAO:
+
+{{{
+..
+public List<BlogEntry> findByTitle( String title ) {
+    Pattern regExp = Pattern.compile(name + ".*", Pattern.CASE_INSENSITIVE);
+    BasicDBObject query = new BasicDBObject("title", regExp);
+    DBCursor cursor = collection().find(query).sort(new BasicDBObject("title", 1));
+    return toList(cursor);
+}
+...
+}}}
+
+We perform the query and get a DBCursor, and then we simply pass the cursor to the protected toList() method (which is implemented by AbstractMongoDAO) and return the result. 
