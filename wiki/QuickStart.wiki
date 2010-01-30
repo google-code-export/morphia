@@ -151,7 +151,7 @@ DB db = mongo.getDB("morphia_test");
 String hotelId = ...; // the ID of the hotel we want to load
 
 // load the DBObject from a Mongo collection
-BasicDBObject hotelDbObj = (BasicDBObject) db.getCollection("hotels").findOne(new BasicDBObject("_id", new ObjectId(hotelId));
+BasicDBObject hotelDbObj = (BasicDBObject) db.getCollection("hotels").findOne(new BasicDBObject("_id", new ObjectId(hotelId)));
 
 // and then map it to our Hotel object
 Hotel hotel = morphia.fromDBObject(Hotel.class, hotelDbObj);
