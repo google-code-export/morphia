@@ -1,0 +1,40 @@
+#summary Define your class as MongoDocument or MongoEmbedded.
+
+= Documents vs Embedded objects =
+
+If you want to store your class instance in Mongo via Morphia, the first thing you need to do is annotate your class as @MongoDocument:
+
+{{{
+import com.google.code.morphia.annotations.MongoDocument;
+
+@MongoDocument
+public class Hotel {
+...
+}
+}}}
+
+Classes annotated as MongoDocument have a unique ID and are stored in a Mongo collection.
+
+If your class is embedded, then we use the @MongoEmbedded annotation instead. For example, the Hotel class above might have an Address. The Address would be an inseparable part of the Hotel, would not have its own ID, and would not be stored in a separate Mongo collection. In this case we would annotate the Address class as @MongoEmbedded:
+
+{{{
+import com.google.code.morphia.annotations.MongoDocument;
+import com.google.code.morphia.annotations.MongoEmbedded;
+
+@MongoDocument
+public class Hotel {
+    ...
+    @MongoEmbedded
+    private Address address;
+    ...
+}
+
+...
+
+@MongoEmbedded
+public class Address {
+    ...
+}
+}}}
+
+Next, let's look at how to annotate the fields of the class.
