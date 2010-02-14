@@ -2,21 +2,19 @@
 
 = Annotating primitive and basic type fields =
 
-To store primitive and basic type fields in Mongo, you just add the @MongoValue annotation:
+To store primitive and basic type fields in Mongo, you don't need any annotations:
 
 {{{
-import com.google.code.morphia.annotations.MongoValue;
 ...
-@MongoValue
 private int myInt;
-@MongoValue
 private Date myDate;
-@MongoValue
 private List<String> myStrings;
 ...
 }}}
 
-The following list defines what types can currently be persisted using @MongoValue:
+By default, Morphia will try to map all the supported basic and primitive types to/from Mongo.
+
+The following list defines what basic an primitive types can currently be persisted:
 
  * int and Integer
  * double and Double
@@ -27,24 +25,24 @@ The following list defines what types can currently be persisted using @MongoVal
  * java.util.Date
  * java.util.Locale
 
-As we showed in the example above, Morphia can also store a java.util.List, as long as the List is parameterized with one of the Java types in the table above.
+As we showed in the example above, Morphia can also store a java.util.List, java.util.Set, and java.util.Map collections.
 
-By default, Morphia uses the field name as the value name in Mongo. This can be overridden by specifying a name on the @MongoValue annotation:
+If you want to exclude a field from being mapped to Mongo, use the @MongoTransient annotation:
+
+{{{
+import com.google.code.morphia.annotations.MongoTransient;
+...
+@MongoTransient
+private int myTransientInt;
+...
+}}}
+
+By default, Morphia uses the field name as the value name in Mongo. This can be overridden by using the @MongoValue annotation, and specifying a name:
 
 {{{
 import com.google.code.morphia.annotations.MongoValue;
 ...
 @MongoValue(name = "my_integer")
 private int myInt;
-...
-}}}
-
-Finally, when annotating a parameterized java.util.List of primitive/basic types, Morphia will by default use java.util.ArrayList. If you need another implementation, you can override this by specifying listClass on the @MongoValue annotation:
-
-{{{
-import com.google.code.morphia.annotations.MongoValue;
-...
-@MongoValue(listClass = java.util.Vector.class)
-private List<String> myValues;
 ...
 }}}
