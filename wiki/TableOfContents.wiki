@@ -5,6 +5,7 @@
     * [GettingStarted Getting Started]
     * [Dependencies External dependencies]
     * Annotating classes
+      * [MongoDocument Document vs Embedded object]
       * [MongoValue Primitive and basic types]
       * [MongoEmbedded Embedding objects]
       * [MongoReference Referencing objects]
