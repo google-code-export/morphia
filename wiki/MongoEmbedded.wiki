@@ -43,10 +43,12 @@ We just annotate the above classes with @MongoValue and @MongoEmbedded:
 
 {{{
 import com.google.code.morphia.annotations.MongoCollectionName;
+import com.google.code.morphia.annotations.MongoDocument;
 import com.google.code.morphia.annotations.MongoEmbedded;
 import com.google.code.morphia.annotations.MongoID;
 import com.google.code.morphia.annotations.MongoValue;
 
+@MongoDocument
 public class Hotel {
 
     @MongoID
@@ -54,10 +56,9 @@ public class Hotel {
     @MongoCollectionName
     private String collectionName;
 
-    @MongoValue
     private String name;
-    @MongoValue
     private int stars;
+
     @MongoEmbedded
     private Address address;
 
@@ -66,17 +67,14 @@ public class Hotel {
 
 ...
 
-import com.google.code.morphia.annotations.MongoValue;
+import com.google.code.morphia.annotations.MongoEmbedded;
 
+@MongoEmbedded
 public class Address {
 
-    @MongoValue
     private String street;
-    @MongoValue
     private String city;
-    @MongoValue
     private String postCode;
-    @MongoValue
     private String country;
 
     // ... getters and setters
@@ -85,23 +83,9 @@ public class Address {
 
 As you can see here, _classes used solely as embedded objects do not need the @MongoID and @MongoCollectionName annotations_.
 
-Just as with the primitive types, Morphia can also store a java.util.List of embedded objects, as long as the List is parameterized with the embedded class type.
-
-{{{
-    @MongoEmbedded
-    private List<Comment> comments;
-}}}
-
 By default, Morphia uses the field name as the value name in Mongo. This can be overridden by specifying a name on the @MongoEmbedded annotation:
 
 {{{
     @MongoEmbedded(name = "blog_comments")
-    private List<Comment> comments;
-}}}
-
-Finally, when annotating a parameterized java.util.List of embedded objects, Morphia will by default use java.util.ArrayList?. If you need another implementation, you can override this by specifying listClass on the @MongoEmbedded annotation:
-
-{{{
-    @MongoEmbedded(listClass = java.util.Vector.class)
     private List<Comment> comments;
 }}}
