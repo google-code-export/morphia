@@ -1,0 +1,51 @@
+#summary Using Lists, Sets, and Maps.
+
+= Using Collections =
+
+Morphia supports collections of the following types:
+
+* java.util.List
+* java.util.Set
+* java.util.Map
+
+These are supported for basic types, embedded objects, and references:
+
+{{{
+import com.google.code.morphia.annotations.MongoEmbedded;
+import com.google.code.morphia.annotations.MongoReference;
+import com.google.code.morphia.annotations.MongoValue;
+...
+@MongoValue
+private Set<String> tags;
+
+@MongoEmbedded
+private Map<String,Translation> translations;
+
+@MongoReference
+private List<Article> relatedArticles;
+...
+}}}
+
+Morphia will use the following implementations by default when creating collections:
+
+* java.util.ArrayList for java.util.List
+* java.util.HashSet for java.util.Set
+* java.util.HashMap for java.util.Map
+
+If you want to use another implementation, you can override this on the annotations:
+
+{{{
+import com.google.code.morphia.annotations.MongoEmbedded;
+import com.google.code.morphia.annotations.MongoReference;
+import com.google.code.morphia.annotations.MongoValue;
+...
+@MongoValue(setClass = java.util.TreeSet.class)
+private Set<String> tags;
+
+@MongoEmbedded(mapClass = java.util.TreeMap.class)
+private Map<String,Translation> translations;
+
+@MongoReference(listClass = java.util.Vector.class)
+private List<Article> relatedArticles;
+...
+}}}
