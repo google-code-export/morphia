@@ -37,10 +37,12 @@ We want to save instances of these objects to MongoDB. All we need to do is add 
 
 {{{
 import com.google.code.morphia.annotations.MongoCollectionName;
+import com.google.code.morphia.annotations.MongoDocument;
 import com.google.code.morphia.annotations.MongoEmbedded;
 import com.google.code.morphia.annotations.MongoID;
 import com.google.code.morphia.annotations.MongoValue;
 
+@MongoDocument
 public class Hotel {
 
     @MongoID
@@ -48,10 +50,9 @@ public class Hotel {
     @MongoCollectionName
     private String collectionName;
 
-    @MongoValue
     private String name;
-    @MongoValue
     private int stars;
+
     @MongoEmbedded
     private Address address;
 
@@ -62,38 +63,38 @@ public class Hotel {
 and
 
 {{{
-import com.google.code.morphia.annotations.MongoValue;
+import com.google.code.morphia.annotations.MongoEmbedded;
 
+@MongoEmbedded
 public class Address {
 
-    @MongoValue
     private String street;
-    @MongoValue
     private String city;
-    @MongoValue
     private String postCode;
-    @MongoValue
     private String country;
 
     // ... getters and setters
 }
 }}}
 
-You can see that all basic values are marked as @MongoValue, and as the Address is an embedded object in the Hotel class, it is marked as @MongoEmbedded.
+We've annotated Hotel as @MongoDocument, and Address as @MongoEmbedded since the Address is an object dependent on Hotel (and does not have a life outside the Hotel).
+
+You can see that all the basic fields are automatically mapped by Morphia. If you want to exclude a field, just annotate it with @MongoTransient.
 
 Also note that we had to add two new fields (id and collectionName) to our Hotel class. Morphia provides an abstract class that has these fields. Using that class, the Hotel class becomes even simpler:
 
 {{{
 import com.google.code.morphia.AbstractMongoEntity;
+import com.google.code.morphia.annotations.MongoDocument;
 import com.google.code.morphia.annotations.MongoEmbedded;
 import com.google.code.morphia.annotations.MongoValue;
 
+@MongoDocument
 public class Hotel extends AbstractMongoEntity {
 
-    @MongoValue
     private String name;
-    @MongoValue
     private int stars;
+
     @MongoEmbedded
     private Address address;
 
@@ -109,11 +110,9 @@ Next, we create an instance of Morphia, and map the classes we have annotated:
 import com.google.code.morphia.Morphia;
 ...
 Morphia morphia = new Morphia();
-morphia.map(Hotel.class);
+morphia.map(Hotel.class).map(Address.class);
 ...
 }}}
-
-Note that mapping the Hotel class will automatically map the Address class, since it is referenced from Hotel.
 
 == Map to/from MongoDB objects ==
 
