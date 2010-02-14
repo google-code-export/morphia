@@ -33,14 +33,14 @@ The question here is: _How do we annotate the author field in BlogEntry?_ We cou
 For this case we use the @MongoReference annotation:
 
 {{{
-...
 import com.google.code.morphia.annotations.MongoCollectionName;
+import com.google.code.morphia.annotations.MongoDocument;
 import com.google.code.morphia.annotations.MongoEmbedded;
 import com.google.code.morphia.annotations.MongoID;
 import com.google.code.morphia.annotations.MongoReference;
 import com.google.code.morphia.annotations.MongoValue;
-...
 
+@MongoDocument
 public class BlogEntry {
 
     @MongoID
@@ -48,11 +48,8 @@ public class BlogEntry {
     @MongoCollectionName
     private String collectionName;
 
-    @MongoValue
     private String title;
-    @MongoValue
     private Date publishDate;
-    @MongoValue
     private String body;
 
     @MongoReference
@@ -63,6 +60,7 @@ public class BlogEntry {
 
 ...
 
+@MongoDocument
 public class Author {
 
     @MongoID
@@ -70,11 +68,8 @@ public class Author {
     @MongoCollectionName
     private String collectionName;
 
-    @MongoValue
     private String username;
-    @MongoValue
     private String fullName;
-    @MongoValue
     private String emailAddress;
 
     // getters and setters
@@ -85,23 +80,9 @@ One very important thing to mention when working with references: _The reference
 
 This makes sense, really. In terms of the example above, it means that you must already have an Author in the database before you can create a BlogEntry.
 
-Morphia can also store a java.util.List of embedded objects, as long as the List is parameterized with the referenced class type.
-
-{{{
-    @MongoReference
-    private List<Author> authors;
-}}}
-
 By default, Morphia uses the field name as the value name in Mongo. This can be overridden by specifying a name on the @MongoReference annotation:
 
 {{{
     @MongoReference(name = "blog_authors")
-    private List<Author> authors;
-}}}
-
-Finally, when annotating a parameterized java.util.List of referenced objects, Morphia will by default use java.util.ArrayList?. If you need another implementation, you can override this by specifying listClass on the @MongoReference annotation:
-
-{{{
-    @MongoReference(listClass = java.util.Vector.class)
     private List<Author> authors;
 }}}
