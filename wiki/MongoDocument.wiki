@@ -13,7 +13,37 @@ public class Hotel {
 }
 }}}
 
-Classes annotated as MongoDocument have a unique ID and are stored in a Mongo collection.
+Classes annotated as MongoDocument have a unique ID and are stored in a Mongo collection. It is a requirement that classes annotated with @MongoDocument have an ID and collection name annotations. So the Hotel class above would have:
+
+{{{
+import com.google.code.morphia.annotations.MongoCollectionName;
+import com.google.code.morphia.annotations.MongoDocument;
+import com.google.code.morphia.annotations.MongoID;
+
+@MongoDocument
+public class Hotel {
+
+    @MongoID
+    private String id;
+
+    @MongoCollectionName
+    private String collectionName;
+...
+}
+}}}
+
+Both of these have to be of type String. Mongo will generate the ID for new objects for you, so you don't need to worry about that.
+
+Morphia also has an abstract class that has ID and collection name, along with getters and setters for these. So if you like you can extend that class. In this case the Hotel class would look like this:
+
+{{{
+import com.google.code.morphia.AbstractMongoEntity;
+
+@MongoDocument
+public class Hotel extends AbstractMongoEntity {
+...
+}
+}}}
 
 If your class is embedded, then we use the @MongoEmbedded annotation instead. For example, the Hotel class above might have an Address. The Address would be an inseparable part of the Hotel, would not have its own ID, and would not be stored in a separate Mongo collection. In this case we would annotate the Address class as @MongoEmbedded:
 
@@ -24,6 +54,11 @@ import com.google.code.morphia.annotations.MongoEmbedded;
 @MongoDocument
 public class Hotel {
     ...
+    @MongoID
+    private String id;
+    @MongoCollectionName
+    private String collectionName;
+
     @MongoEmbedded
     private Address address;
     ...
@@ -36,5 +71,7 @@ public class Address {
     ...
 }
 }}}
+
+As you can see, classes with @MongoEmbedded annotation do not have to have an ID and collection name declared. This is because they always belong to another class that has those fields.
 
 Next, let's look at how to annotate the fields of the class.
