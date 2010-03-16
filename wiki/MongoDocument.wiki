@@ -13,6 +13,22 @@ public class Hotel {
 }
 }}}
 
+You will also need a default constructor:
+
+{{{
+import com.google.code.morphia.annotations.MongoDocument;
+
+@MongoDocument
+public class Hotel {
+...
+    public Hotel() {
+    }
+...
+}
+}}}
+
+Note that your default constructor does not need to be public, it can also be protected or private.
+
 Classes annotated as MongoDocument have a unique ID and are stored in a Mongo collection. It is a requirement that classes annotated with @MongoDocument have an ID and collection name annotations. So the Hotel class above would have:
 
 {{{
