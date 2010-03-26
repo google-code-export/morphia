@@ -5,10 +5,10 @@
     * [GettingStarted Getting Started]
     * [Dependencies External dependencies]
     * Annotating classes
-      * [Entity Document vs Embedded object]
-      * [Property Primitive and basic types]
-      * [Embedded Embedding objects]
-      * [Reference Referencing objects]
+      * [EntityAnnotation Document vs Embedded object]
+      * [PropertyAnnotation Primitive and basic types]
+      * [EmbeddedAnnotation Embedding objects]
+      * [ReferenceAnnotation Referencing objects]
       * [UsingCollections Lists, Sets, and Maps]
     * Mapping objects to/from Mongo
       * [MappingObjects Using the Morphia instance]

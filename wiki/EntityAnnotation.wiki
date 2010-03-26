@@ -1,6 +1,6 @@
 #summary Define your class as Entity or Embedded.
 
-= Documents vs Embedded objects =
+= Entity (Document) vs Embedded objects =
 
 If you want to store your class instance in Mongo via Morphia, the first thing you need to do is annotate your class as @Entity:
 
