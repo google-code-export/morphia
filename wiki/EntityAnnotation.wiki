@@ -1,0 +1,93 @@
+#summary Define your class as Entity or Embedded.
+
+= Documents vs Embedded objects =
+
+If you want to store your class instance in Mongo via Morphia, the first thing you need to do is annotate your class as @Entity:
+
+{{{
+import com.google.code.morphia.annotations.Entity;
+
+@Entity
+public class Hotel {
+...
+}
+}}}
+
+You will also need a default constructor:
+
+{{{
+import com.google.code.morphia.annotations.Entity;
+
+@Entity
+public class Hotel {
+...
+    public Hotel() {
+    }
+...
+}
+}}}
+
+Note that your default constructor does not need to be public, it can also be protected or private.
+
+Classes annotated as Entity have a unique ID and are stored in a Mongo collection. It is a requirement that classes annotated with @Entity have an ID and collection name annotations. So the Hotel class above would have:
+
+{{{
+import com.google.code.morphia.annotations.CollectionName;
+import com.google.code.morphia.annotations.Entity;
+import com.google.code.morphia.annotations.Id;
+
+@Entity
+public class Hotel {
+
+    @Id
+    private String id;
+
+    @CollectionName
+    private String collectionName;
+...
+}
+}}}
+
+Both of these have to be of type String. Mongo will generate the ID for new objects for you, so you don't need to worry about that.
+
+Morphia also has an abstract class that has ID and collection name, along with getters and setters for these. So if you like you can extend that class. In this case the Hotel class would look like this:
+
+{{{
+import com.google.code.morphia.AbstractMongoEntity;
+
+@Entity
+public class Hotel extends AbstractMongoEntity {
+...
+}
+}}}
+
+If your class is embedded, then we use the @Embedded annotation instead. For example, the Hotel class above might have an Address. The Address would be an inseparable part of the Hotel, would not have its own ID, and would not be stored in a separate Mongo collection. In this case we would annotate the Address class as @Embedded:
+
+{{{
+import com.google.code.morphia.annotations.Entity;
+import com.google.code.morphia.annotations.Embedded;
+
+@Entity
+public class Hotel {
+    ...
+    @Id
+    private String id;
+    @CollectionName
+    private String collectionName;
+
+    @Embedded
+    private Address address;
+    ...
+}
+
+...
+
+@Embedded
+public class Address {
+    ...
+}
+}}}
+
+As you can see, classes with @Embedded annotation do not have to have an ID and collection name declared. This is because they always belong to another class that has those fields.
+
+Next, let's look at how to annotate the fields of the class.

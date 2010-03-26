@@ -35,31 +35,31 @@ The question is, how do we annotate the following field in Hotel:
     private Address address;
 }}}
 
-This is where the @MongoEmbedded annotation comes into play.
+This is where the @Embedded annotation comes into play.
 
-As a rule of thumb, you should @MongoEmbedded for objects that are dependent on the parent object (and therefore have no life outside it), and are not shared between objects. If you need to reference another collection object, look at @MongoReference instead.
+As a rule of thumb, you should @Embedded for objects that are dependent on the parent object (and therefore have no life outside it), and are not shared between objects. If you need to reference another collection object, look at @Reference instead.
 
-We just annotate the above classes with @MongoValue and @MongoEmbedded:
+We just annotate the above classes with @Property and @Embedded:
 
 {{{
-import com.google.code.morphia.annotations.MongoCollectionName;
-import com.google.code.morphia.annotations.MongoDocument;
-import com.google.code.morphia.annotations.MongoEmbedded;
-import com.google.code.morphia.annotations.MongoID;
-import com.google.code.morphia.annotations.MongoValue;
+import com.google.code.morphia.annotations.CollectionName;
+import com.google.code.morphia.annotations.Entity;
+import com.google.code.morphia.annotations.Embedded;
+import com.google.code.morphia.annotations.Id;
+import com.google.code.morphia.annotations.Property;
 
-@MongoDocument
+@Entity
 public class Hotel {
 
-    @MongoID
+    @Id
     private String id;
-    @MongoCollectionName
+    @CollectionName
     private String collectionName;
 
     private String name;
     private int stars;
 
-    @MongoEmbedded
+    @Embedded
     private Address address;
 
     // ... getters and setters
@@ -67,9 +67,9 @@ public class Hotel {
 
 ...
 
-import com.google.code.morphia.annotations.MongoEmbedded;
+import com.google.code.morphia.annotations.Embedded;
 
-@MongoEmbedded
+@Embedded
 public class Address {
 
     private String street;
@@ -81,11 +81,11 @@ public class Address {
 }
 }}}
 
-As you can see here, _classes used solely as embedded objects do not need the @MongoID and @MongoCollectionName annotations_.
+As you can see here, _classes used solely as embedded objects do not need the @Id and @CollectionName annotations_.
 
-By default, Morphia uses the field name as the value name in Mongo. This can be overridden by specifying a name on the @MongoEmbedded annotation:
+By default, Morphia uses the field name as the value name in Mongo. This can be overridden by specifying a name on the @Embedded annotation:
 
 {{{
-    @MongoEmbedded(name = "blog_comments")
+    @Embedded(name = "blog_comments")
     private List<Comment> comments;
 }}}

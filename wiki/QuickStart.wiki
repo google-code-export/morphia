@@ -36,24 +36,21 @@ public class Address {
 We want to save instances of these objects to MongoDB. All we need to do is add the Morphia annotations to the class fields we want to persist:
 
 {{{
-import com.google.code.morphia.annotations.MongoCollectionName;
-import com.google.code.morphia.annotations.MongoDocument;
-import com.google.code.morphia.annotations.MongoEmbedded;
-import com.google.code.morphia.annotations.MongoID;
-import com.google.code.morphia.annotations.MongoValue;
+import com.google.code.morphia.annotations.CollectionName;
+import com.google.code.morphia.annotations.Entity;
+import com.google.code.morphia.annotations.Embedded;
+import com.google.code.morphia.annotations.Id;
+import com.google.code.morphia.annotations.Property;
 
-@MongoDocument
+@Entity
 public class Hotel {
 
-    @MongoID
-    private String id;
-    @MongoCollectionName
-    private String collectionName;
+    @Id private String id;
 
     private String name;
     private int stars;
 
-    @MongoEmbedded
+    @Embedded
     private Address address;
 
     // ... getters and setters
@@ -63,9 +60,9 @@ public class Hotel {
 and
 
 {{{
-import com.google.code.morphia.annotations.MongoEmbedded;
+import com.google.code.morphia.annotations.Embedded;
 
-@MongoEmbedded
+@Embedded
 public class Address {
 
     private String street;
@@ -77,25 +74,25 @@ public class Address {
 }
 }}}
 
-We've annotated Hotel as @MongoDocument, and Address as @MongoEmbedded since the Address is an object dependent on Hotel (and does not have a life outside the Hotel).
+We've annotated Hotel with @Entity, and Address with @Embedded since the Address is an object dependent on Hotel (and does not have a life outside the Hotel).
 
-You can see that all the basic fields are automatically mapped by Morphia. If you want to exclude a field, just annotate it with @MongoTransient.
+You can see that all the basic fields are automatically mapped by Morphia. If you want to exclude a field, just annotate it with @Transient.
 
-Also note that we had to add two new fields (id and collectionName) to our Hotel class. Morphia provides an abstract class that has these fields. Using that class, the Hotel class becomes even simpler:
+Also note that we had to add a new field "id" to our Hotel class. Morphia provides an abstract class that has these fields. Using that class, the Hotel class becomes even simpler:
 
 {{{
 import com.google.code.morphia.AbstractMongoEntity;
-import com.google.code.morphia.annotations.MongoDocument;
-import com.google.code.morphia.annotations.MongoEmbedded;
-import com.google.code.morphia.annotations.MongoValue;
+import com.google.code.morphia.annotations.Entity;
+import com.google.code.morphia.annotations.Embedded;
+import com.google.code.morphia.annotations.Property;
 
-@MongoDocument
+@Entity
 public class Hotel extends AbstractMongoEntity {
 
     private String name;
     private int stars;
 
-    @MongoEmbedded
+    @Embedded
     private Address address;
 
     // ... getters and setters
@@ -162,14 +159,14 @@ Take advantage of the Morphia DAO support:
 
 {{{
 import com.google.code.morphia.Morphia;
-import com.google.code.morphia.dao.AbstractMongoDAO;
+import com.google.code.morphia.dao.DAO;
 import com.mongodb.DBCollection;
 import com.mongodb.Mongo;
 
-public class HotelDAO extends AbstractMongoDAO<Hotel> {
+public class HotelDAO extends DAO<Hotel, String> {
 
     private final Mongo mongo;
-
+	
     public HotelDAO( Morphia morphia, Mongo mongo ) {
         super(Hotel.class, morphia);
         this.mongo = mongo;
@@ -197,6 +194,6 @@ String someHotelId = ...;
 Hotel someHotelId = hotelDAO.get(someHotelId); 
 }}}
 
-As we can see, the AbstractMongoDAO (that our HotelDAO extends) has lots of methods already implemented for us.
+As we can see, the DAO (that our HotelDAO extends) has lots of methods already implemented for us.
 
 In a web application environment, we would probably inject the Mongo and Morphia instances into the DAO, and then inject the DAO into a controller, so the controller would never directly deal with Mongo or Morphia.

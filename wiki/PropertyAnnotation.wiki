@@ -27,22 +27,22 @@ The following list defines what basic an primitive types can currently be persis
 
 As we showed in the example above, Morphia can also store a java.util.List, java.util.Set, and java.util.Map collections.
 
-If you want to exclude a field from being mapped to Mongo, use the @MongoTransient annotation:
+If you want to exclude a field from being mapped to Mongo, use the @Transient annotation:
 
 {{{
-import com.google.code.morphia.annotations.MongoTransient;
+import com.google.code.morphia.annotations.Transient;
 ...
-@MongoTransient
+@Transient
 private int myTransientInt;
 ...
 }}}
 
-By default, Morphia uses the field name as the value name in Mongo. This can be overridden by using the @MongoValue annotation, and specifying a name:
+By default, Morphia uses the field name as the value name in Mongo. This can be overridden by using the @Property annotation, and specifying a name:
 
 {{{
-import com.google.code.morphia.annotations.MongoValue;
+import com.google.code.morphia.annotations.Property;
 ...
-@MongoValue(name = "my_integer")
+@Property(name = "my_integer")
 private int myInt;
 ...
 }}}

@@ -4,19 +4,19 @@
 
 It is considered good practice to abstract the underlying persistence strategy away from the calling code, by encapsulating the persistence calls within Data Access Objects (DAOs). That means that your controller (or action) classes can have a DAO object injected, and use it, without having to worry whether the object is being persisted to a database, XML, or Mongo.
 
-Morphia supports this methodology by providing a MongoDAO interface, and an abstract DAO implementation that uses Morphia to map objects to/from Mongo. This abstract class, AbstractMongoDAO, implements all the basic DAO methods you need to create/update, read, and delete objects in Mongo.
+Morphia supports this methodology by providing a MongoDAO interface, and an abstract DAO implementation that uses Morphia to map objects to/from Mongo. This abstract class, DAO, implements all the basic DAO methods you need to create/update, read, and delete objects in Mongo.
 
-This means that by having your DAO class extend the AbstractMongoDAO class, you would normally only need to implement finder methods to return query results.
+This means that by having your DAO class extend the DAO class, you would normally only need to implement finder methods to return query results.
 
 Let's look at how we could use the DAO support to manage blog entries. First of all, we would need to create a DAO class that extends AbstractJcrDAO:
 
 {{{
 import com.google.code.morphia.Morphia;
-import com.google.code.morphia.dao.AbstractMongoDAO;
+import com.google.code.morphia.dao.DAO;
 import com.mongodb.DBCollection;
 import com.mongodb.Mongo;
 
-public class BlogEntryDAO extends AbstractMongoDAO<BlogEntry> {
+public class BlogEntryDAO extends DAO<BlogEntry, String> {
 
     private final Mongo mongo;
 
@@ -32,11 +32,11 @@ public class BlogEntryDAO extends AbstractMongoDAO<BlogEntry> {
 }
 }}}
 
-Note that AbstractMongoDAO uses generics to define a parameter class. This means you don't have to do any casting when using the DAO methods.
+Note that DAO uses generics to define a parameter class. This means you don't have to do any casting when using the DAO methods.
 
 Since all the methods are implemented for us, we only need to do two things: 
 
- # Implement a constructor. The constructor passes information on to the AbstractMongoDAO superclass. 
+ # Implement a constructor. The constructor passes information on to the DAO superclass. 
  # Implement the collection() method. This should return the Mongo DB collection that objects should be persisted to.
 
 Now, we can use this class to persist and load blog entries:
@@ -64,7 +64,7 @@ This approach is highly recommended, as it keeps your code tidy and less prone t
 
 == Custom finder methods ==
 
-Although the abstract DAO implementation has findAll() methods, we sometimes need custom finder methods to filter the data and apply custom sorting. The AbstractMongoDAO class provides a set of protected methods to make custom finder methods easier to create.
+Although the abstract DAO implementation has findAll() methods, we sometimes need custom finder methods to filter the data and apply custom sorting. The DAO class provides a set of protected methods to make custom finder methods easier to create.
 
 So, if we wanted to create a finder method that returns all blog entries where the title starts with a particular String (sorting in alphabetical order), we could add the following method to the BlogEntryDAO:
 
@@ -79,4 +79,4 @@ public List<BlogEntry> findByTitle( String title ) {
 ...
 }}}
 
-We perform the query and get a DBCursor, and then we simply pass the cursor to the protected toList() method (which is implemented by AbstractMongoDAO) and return the result. 
+We perform the query and get a DBCursor, and then we simply pass the cursor to the protected toList() method (which is implemented by DAO) and return the result. 

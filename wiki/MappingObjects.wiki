@@ -1,6 +1,6 @@
 #summary Mapping objects to/from MongoDB using Morphia.
 
-= Mapping objects to/from Mongo using Morphia =
+= Mapping Objects =
 
 Once we've annotated our objects, most of the hard work is done. Now all we need to do is create an instance of Morphia, tell it which classes we want to map, and then we can start mapping between Mongo documents and Java objects.
 

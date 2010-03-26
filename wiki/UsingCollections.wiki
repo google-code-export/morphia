@@ -11,17 +11,17 @@ Morphia supports collections of the following types:
 These are supported for basic types, embedded objects, and references:
 
 {{{
-import com.google.code.morphia.annotations.MongoEmbedded;
-import com.google.code.morphia.annotations.MongoReference;
-import com.google.code.morphia.annotations.MongoValue;
+import com.google.code.morphia.annotations.Embedded;
+import com.google.code.morphia.annotations.Reference;
+import com.google.code.morphia.annotations.Property;
 ...
-@MongoValue
+@Property
 private Set<String> tags;
 
-@MongoEmbedded
+@Embedded
 private Map<String,Translation> translations;
 
-@MongoReference
+@Reference
 private List<Article> relatedArticles;
 ...
 }}}
@@ -35,17 +35,17 @@ Morphia will use the following implementations by default when creating collecti
 If you want to use another implementation, you can override this on the annotations:
 
 {{{
-import com.google.code.morphia.annotations.MongoEmbedded;
-import com.google.code.morphia.annotations.MongoReference;
-import com.google.code.morphia.annotations.MongoValue;
+import com.google.code.morphia.annotations.Embedded;
+import com.google.code.morphia.annotations.Reference;
+import com.google.code.morphia.annotations.Property;
 ...
-@MongoValue(setClass = java.util.TreeSet.class)
+@Property(setClass = java.util.TreeSet.class)
 private Set<String> tags;
 
-@MongoEmbedded(mapClass = java.util.TreeMap.class)
+@Embedded(mapClass = java.util.TreeMap.class)
 private Map<String,Translation> translations;
 
-@MongoReference(listClass = java.util.Vector.class)
+@Reference(listClass = java.util.Vector.class)
 private List<Article> relatedArticles;
 ...
 }}}

@@ -59,7 +59,7 @@ The shape container class can store the shape list as an embedded object:
 
 {{{
 public class ShapeContainer {
-    @MongoEmbedded
+    @Embedded
     private List<Shape> shapes;
     ...
 }
@@ -69,7 +69,7 @@ public class ShapeContainer {
 
 {{{
 public class ShapeContainer {
-    @MongoReference
+    @Reference
     private List<Shape> shapes;
     ...
 }

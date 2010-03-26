@@ -28,31 +28,31 @@ public class Author {
 }
 }}}
 
-The question here is: _How do we annotate the author field in BlogEntry?_ We could of course use the @MongoEmbedded annotation, but that does not make sense here, since we don't want to store the Author with every BlogEntry instance. Instead we want multiple blog entries to reference a single Author document in Mongo.
+The question here is: _How do we annotate the author field in BlogEntry?_ We could of course use the @Embedded annotation, but that does not make sense here, since we don't want to store the Author with every BlogEntry instance. Instead we want multiple blog entries to reference a single Author document in Mongo.
 
-For this case we use the @MongoReference annotation:
+For this case we use the @Reference annotation:
 
 {{{
-import com.google.code.morphia.annotations.MongoCollectionName;
-import com.google.code.morphia.annotations.MongoDocument;
-import com.google.code.morphia.annotations.MongoEmbedded;
-import com.google.code.morphia.annotations.MongoID;
-import com.google.code.morphia.annotations.MongoReference;
-import com.google.code.morphia.annotations.MongoValue;
+import com.google.code.morphia.annotations.CollectionName;
+import com.google.code.morphia.annotations.Entity;
+import com.google.code.morphia.annotations.Embedded;
+import com.google.code.morphia.annotations.Id;
+import com.google.code.morphia.annotations.Reference;
+import com.google.code.morphia.annotations.Property;
 
-@MongoDocument
+@Entity
 public class BlogEntry {
 
-    @MongoID
+    @Id
     private String id;
-    @MongoCollectionName
+    @CollectionName
     private String collectionName;
 
     private String title;
     private Date publishDate;
     private String body;
 
-    @MongoReference
+    @Reference
     private Author author;
 
     // getters and setters
@@ -60,12 +60,12 @@ public class BlogEntry {
 
 ...
 
-@MongoDocument
+@Entity
 public class Author {
 
-    @MongoID
+    @Id
     private String id;
-    @MongoCollectionName
+    @CollectionName
     private String collectionName;
 
     private String username;
@@ -80,9 +80,9 @@ One very important thing to mention when working with references: _The reference
 
 This makes sense, really. In terms of the example above, it means that you must already have an Author in the database before you can create a BlogEntry.
 
-By default, Morphia uses the field name as the value name in Mongo. This can be overridden by specifying a name on the @MongoReference annotation:
+By default, Morphia uses the field name as the value name in Mongo. This can be overridden by specifying a name on the @Reference annotation:
 
 {{{
-    @MongoReference(name = "blog_authors")
+    @Reference(name = "blog_authors")
     private List<Author> authors;
 }}}
