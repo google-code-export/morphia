@@ -1,0 +1,33 @@
+#summary Page to edit before posting to the project page
+
+*Morphia* is a lightweight type-safe library for [http://mongodb.org MongoDB].
+ 
+ * Easy to use, and very lightweight; reflection is used once per type and cached.
+ * Annotations describe mapping behavior; there are no XML files.
+{{{
+@Entity("employees")
+class Employee {
+  @Id String id; //auto-generated if not set
+  String firstName, lastName; //Value types are automatically persisted
+  Long salary = null; //Only non-null values are stored 
+
+  @Embedded Address address;
+
+  @Reference Employee manager; //refs are stored*, and loaded automatically
+
+  @Reference List<Employee> underlings; //Interfaces are supported.
+  @Property("started") Date startDate; //fields can be renamed
+  @Property("left")Date endDate;
+
+  @Indexed boolean active = false; //fields can be indexed for better performance
+}
+}}}
+ * Provides Datastore and DAO<T,V> data access abstractions
+ * Type-safe Query support
+ * Works with Guice, Spring, and other DI frameworks.
+ * GWT support (entities are just POJOs); GWT ignores annotations.
+ * Includes a mapper that {{{void toObject(DBObject)}}} or {{{ DBObject fromObject(Object)}}}
+
+Please continue by reading the [QuickStart quick start guide].
+
+*Note*: @Reference will not save the objects, just a reference to them. You must save them yourself.
