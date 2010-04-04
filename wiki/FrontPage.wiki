@@ -1,21 +1,21 @@
-#summary Page to edit before posting to the project page
-
-*Morphia* is a lightweight type-safe library for [http://mongodb.org MongoDB].
+*Morphia* is a lightweight type-safe library for mapping your Java objects to/from [http://mongodb.org MongoDB]:
  
  * Easy to use, and very lightweight; reflection is used once per type and cached.
  * Annotations describe mapping behavior; there are no XML files.
 {{{
 @Entity("employees")
 class Employee {
-  @Id String id; //auto-generated if not set
-  String firstName, lastName; //Value types are automatically persisted
-  Long salary = null; //Only non-null values are stored 
+  @Id String id; // auto-generated, if not set (see ObjectId)
+  String firstName, lastName; // value types are automatically persisted
+  Long salary = null; // only non-null values are stored 
 
   @Embedded Address address;
 
-  @Reference Employee manager; //refs are stored*, and loaded automatically
+  @Reference Employee manager; // refs are stored*, and loaded automatically
+  @Reference List<Employee> underlings; // interfaces are supported
 
-  @Reference List<Employee> underlings; //Interfaces are supported.
+  @Serialized EncryptedReviews; // stored in one binary field 
+ 
   @Property("started") Date startDate; //fields can be renamed
   @Property("left")Date endDate;
 
@@ -29,5 +29,7 @@ class Employee {
  * Includes a mapper that {{{void toObject(DBObject)}}} or {{{ DBObject fromObject(Object)}}}
 
 Please continue by reading the [QuickStart quick start guide].
+
+*Note*: The documentation is being re-written; please be patient.
 
 *Note*: @Reference will not save the objects, just a reference to them. You must save them yourself.
