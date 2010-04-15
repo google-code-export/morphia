@@ -1,0 +1,70 @@
+#summary Mapping objects to/from MongoDB using Morphia.
+
+= Mapping Objects =
+
+Once we've annotated our objects, most of the hard work is done. Now all we need to do is create an instance of Morphia, tell it which classes we want to map, and then we can start mapping between Mongo documents and Java objects.
+
+== Create a Morphia instance ==
+
+The first thing you need to do is create a Morphia instance, and tell it which classes you want to map. It is recommended that you create this instance once, and reuse it.
+
+{{{
+import com.google.code.morphia.Morphia;
+...
+Morphia morphia = new Morphia();
+morphia.map(BlogEntry.class)
+    .map(Author.class);
+...
+}}}
+
+Each class that you map will be validated, and a MongoMappingException? will be thrown if the class is not valid for mapping. All classes referenced via annotations will be detected, validated, and mapped automatically.
+
+You can also tell Morphia to scan a package, and map all classes found in that package:
+
+{{{
+...
+morphia.mapPackage("my.package.with.only.mongo.entities");
+...
+}}}
+
+== Mapping a Java object to a Mongo document ==
+
+Let's say we have a blog entry object, and we want to save it to a collection in a Mongo database. We just call the toDBObject() method on our morphia instance, passing the Java object. We can then save the resulting DBObject directly to Mongo.
+
+{{{
+Morphia morphia = ...;
+Mongo mongo = ...;
+DB db = mongo.getDB("BlogSite");
+
+BlogEntry blogEntry = ...; // this is our annotated object
+
+// map the blog entry to a Mongo DBObject
+DBObject blogEntryDbObj = morphia.toDBObject(blogEntry);
+
+// and then save that DBObject in a Mongo collection
+db.getCollection("BlogEntries").save(blogEntryDbObj);
+}}}
+
+Our blog entry object is now saved to Mongo.
+
+== Creating a Java object from a Mongo document ==
+
+Now let's look at the other direction: creating a Java object from a document in the Mongo database. This is also simple. We just call the fromDBObject() method on our Morphia instance, passing in the DBObject retrieved from Mongo:
+
+{{{
+Morphia morphia = ...;
+Mongo mongo = ...;
+DB db = mongo.getDB("BlogSite");
+
+String blogEntryId = ...; // the ID of the blog entry we want to load
+
+// load the DBObject from a Mongo collection
+BasicDBObject blogEntryDbObj = (BasicDBObject) db.getCollection("BlogEntries").findOne(new BasicDBObject("_id", new ObjectId(blogEntryId));
+
+// and then map it to our BlogEntry object
+BlogEntry blogEntry = morphia.fromDBObject(BlogEntry.class, blogEntryDbObj);
+}}}
+
+That's it! Morphia removes all the error prone boiler plate code you would normally need to map to/from your Java object by hand.
+
+A much cleaner way of managing your objects in Mongo with Morphia is to utilize the [DAOSupport DAO support]. That method abstracts Mongo and Morphia inside a Data Access Object (DAO), so your business logic has no dependencies on Morphia.

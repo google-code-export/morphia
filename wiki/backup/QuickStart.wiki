@@ -1,0 +1,199 @@
+#summary A quick 2 minute intro to Morphia.
+
+= So you want to store your POJOs in MongoDB? =
+
+Morphia makes that very easy. Here's what you need to do.
+
+== Annotate your Java classes ==
+
+Let's imagine we have the following simple classes:
+
+{{{
+public class Hotel {
+
+    private String name;
+    private int stars;
+    private Address address;
+
+    // ... getters and setters
+}
+}}}
+
+and
+
+{{{
+public class Address {
+
+    private String street;
+    private String city;
+    private String postCode;
+    private String country;
+
+    // ... getters and setters
+}
+}}}
+
+We want to save instances of these objects to MongoDB. All we need to do is add the Morphia annotations to the class fields we want to persist:
+
+{{{
+import com.google.code.morphia.annotations.CollectionName;
+import com.google.code.morphia.annotations.Entity;
+import com.google.code.morphia.annotations.Embedded;
+import com.google.code.morphia.annotations.Id;
+import com.google.code.morphia.annotations.Property;
+
+@Entity
+public class Hotel {
+
+    @Id private String id;
+
+    private String name;
+    private int stars;
+
+    @Embedded
+    private Address address;
+
+    // ... getters and setters
+}
+}}}
+
+and
+
+{{{
+import com.google.code.morphia.annotations.Embedded;
+
+@Embedded
+public class Address {
+
+    private String street;
+    private String city;
+    private String postCode;
+    private String country;
+
+    // ... getters and setters
+}
+}}}
+
+We've annotated Hotel with @Entity, and Address with @Embedded since the Address is an object dependent on Hotel (and does not have a life outside the Hotel).
+
+You can see that all the basic fields are automatically mapped by Morphia. If you want to exclude a field, just annotate it with @Transient.
+
+Also note that we had to add a new field "id" to our Hotel class. Morphia provides an abstract class that has these fields. Using that class, the Hotel class becomes even simpler:
+
+{{{
+import com.google.code.morphia.AbstractMongoEntity;
+import com.google.code.morphia.annotations.Entity;
+import com.google.code.morphia.annotations.Embedded;
+import com.google.code.morphia.annotations.Property;
+
+@Entity
+public class Hotel extends AbstractMongoEntity {
+
+    private String name;
+    private int stars;
+
+    @Embedded
+    private Address address;
+
+    // ... getters and setters
+}
+}}}
+
+== Create a Morphia instance and add the classes ==
+
+Next, we create an instance of Morphia, and map the classes we have annotated:
+
+{{{
+import com.google.code.morphia.Morphia;
+...
+Morphia morphia = new Morphia();
+morphia.map(Hotel.class).map(Address.class);
+...
+}}}
+
+== Map to/from MongoDB objects ==
+
+Now we can use the Morphia instance to map our classes to/from MongoDB objects. To save a Hotel in Mongo:
+
+{{{
+Hotel hotel = new Hotel();
+hotel.setName("My Hotel");
+hotel.setStars(4);
+
+Address address = new Address();
+address.setStreet("123 Some street");
+address.setCity("Some city");
+address.setPostCode("123 456");
+address.setCountry("Some country");
+
+Mongo mongo = ...;
+Morphia morphia = ...;
+DB db = mongo.getDB("morphia_test");
+
+// map the hotel to a Mongo DBObject
+DBObject hotelDbObj = morphia.toDBObject(hotel);
+
+// and then save that DBObject in a Mongo collection
+db.getCollection("hotels").save(hotelDbObj);
+}}}
+
+Loading a Hotel from Mongo is also simple:
+
+{{{
+Mongo mongo = ...;
+Morphia morphia = ...;
+DB db = mongo.getDB("morphia_test");
+
+String hotelId = ...; // the ID of the hotel we want to load
+
+// load the DBObject from a Mongo collection
+BasicDBObject hotelDbObj = (BasicDBObject) db.getCollection("hotels").findOne(new BasicDBObject("_id", new ObjectId(hotelId)));
+
+// and then map it to our Hotel object
+Hotel hotel = morphia.fromDBObject(Hotel.class, hotelDbObj);
+}}}
+
+== Data Access Object (DAO) Support ==
+
+Take advantage of the Morphia DAO support:
+
+{{{
+import com.google.code.morphia.Morphia;
+import com.google.code.morphia.dao.DAO;
+import com.mongodb.DBCollection;
+import com.mongodb.Mongo;
+
+public class HotelDAO extends DAO<Hotel, String> {
+
+    private final Mongo mongo;
+	
+    public HotelDAO( Morphia morphia, Mongo mongo ) {
+        super(Hotel.class, morphia);
+        this.mongo = mongo;
+    }
+
+    @Override
+    protected DBCollection collection() {
+        return mongo.getDB("morphia_test").getCollection("hotels");
+    }
+}
+}}}
+
+Creating a DAO object abstracts all the mapping, and the direct use of Morphia. This gives us a much cleaner approach:
+
+{{{
+Mongo mongo = ...;
+Morphia morphia = ...;
+
+HotelDAO hotelDAO = new HotelDAO(morphia, mongo);
+
+Hotel hotel = ...;
+hotelDAO.save(hotel);
+
+String someHotelId = ...;
+Hotel someHotelId = hotelDAO.get(someHotelId); 
+}}}
+
+As we can see, the DAO (that our HotelDAO extends) has lots of methods already implemented for us.
+
+In a web application environment, we would probably inject the Mongo and Morphia instances into the DAO, and then inject the DAO into a controller, so the controller would never directly deal with Mongo or Morphia.

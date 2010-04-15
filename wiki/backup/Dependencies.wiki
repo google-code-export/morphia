@@ -1,0 +1,9 @@
+#summary List of runtime JAR dependencies for Morphia.
+
+= Dependencies =
+
+Morphia depends on the following third party JARs:
+
+  * Mongo Java driver, version 1.2.1 ([http://github.com/mongodb/mongo-java-driver/downloads get it here])
+
+If you use [http://maven.apache.org Maven2] to build your project, it will automatically download all dependencies for you.

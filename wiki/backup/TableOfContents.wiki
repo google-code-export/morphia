@@ -1,0 +1,16 @@
+#summary Morphia documentation outline for the docreader.
+  * [QuickStart The 2 minute intro]
+  * User's Guide
+    * [Motivation Motivation]
+    * [GettingStarted Getting Started]
+    * [Dependencies External dependencies]
+    * Annotating classes
+      * [EntityAnnotation Document vs Embedded object]
+      * [PropertyAnnotation Primitive and basic types]
+      * [EmbeddedAnnotation Embedding objects]
+      * [ReferenceAnnotation Referencing objects]
+      * [UsingCollections Lists, Sets, and Maps]
+    * Mapping objects to/from Mongo
+      * [MappingObjects Using the Morphia instance]
+      * [UsingInterfaces Programming to interfaces]
+      * [DAOSupport Using Data Access Objects (DAO)]
