@@ -6,7 +6,7 @@ As Morphia is annotation based, you will need Java SE 5 or higher. You will also
 
 To use Morphia in your project, you'll need the Morphia jar in your classpath. There are a few ways you can achieve this:
 
-  * [http://code.google.com/p/morphia/downloads/list Download] it directly from (note that you will need to download the external [Dependencies dependencies] as well)
+  * [http://code.google.com/p/morphia/downloads/list Download] it directly from (note that you will need to download the external [Dependencies] as well)
   * If you use Maven2 to manage your project, you can reference Morphia as a dependency:
   {{{
   <dependency>
