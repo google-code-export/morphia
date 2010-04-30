@@ -3,4 +3,4 @@
 = Who is using morphia? =
 The following projects and/or companies are using morphia for their persistence needs.
 
- * Shuttlefly: Prototyping new project from Spring '10; not in production as of May 01, 2010.
+ * Shuttlefly: Prototyping new project from late'09; not in production as of May 01, 2010.
