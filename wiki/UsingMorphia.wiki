@@ -1,0 +1,6 @@
+#summary Projects/Companies using Morphia
+
+= Who is using morphia? =
+The following projects and/or companies are using morphia for their persistence needs.
+
+ * Shuttlefly: Prototyping new project from Spring '10; not in production as of May 01, 2010.
