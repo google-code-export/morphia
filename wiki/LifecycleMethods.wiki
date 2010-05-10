@@ -1,0 +1,46 @@
+#summary A list of Annotation to decorate your Entity with for lifecycle events.
+#labels Featured
+
+= Lifecycle Method Annotations =
+
+There are various annotations which can be used to register callbacks on certain lifecycle events. These include Pre/Post-Persist (Save), and Pre/Post-Load.
+
+ * {{{@PrePersist}}} - Called before save, it can return a DBObject in place of an empty one.
+ * {{{@PostPersist}}} - Called after the save call to the datastore
+ * {{{@PreLoad}}} - Called before mapping the datastore object to the entity (POJO); the DBObject is passed as an argument (you can add/remove/change values)
+ * {{{@PostLoad}}} - Called after mapping to the entity
+
+See the AnnotationReference for a full list of annotations supported.
+
+Here is a one of the test classes: http://code.google.com/p/morphia/source/browse/trunk/morphia/src/test/java/com/google/code/morphia/TestDatastore.java#82
+
+All parameters and return values are options in your implemented methods.
+
+Here is a simple example of an entity that always saves the Date it was last updated at.
+{{{
+
+class BankAccount {
+  @Id String id;
+  Date lastUpdated = new Date();
+
+  @PrePersist void prePersist() {lastUpdated = new Date();}
+}
+
+}}}
+
+In addition, you can separate the lifecycle event implementation in external classes.
+{{{
+
+@EntityListeners(BackAccountWatcher.class)
+class BankAccount {
+  @Id String id;
+  Date lastUpdated = new Date();
+}
+
+class BankAccountWatcher{
+  
+  @PrePersist void prePersist(BankAccount act) {act.lastUpdated = new Date();}
+
+}
+
+}}}
