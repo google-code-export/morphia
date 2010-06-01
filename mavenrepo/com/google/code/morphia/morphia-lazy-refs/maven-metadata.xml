@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?><metadata>
+  <groupId>com.google.code.morphia</groupId>
+  <artifactId>morphia-lazy-refs</artifactId>
+  <version>0.93-SNAPSHOT</version>
+  <versioning>
+    <versions>
+      <version>0.93-SNAPSHOT</version>
+    </versions>
+    <lastUpdated>20100601172029</lastUpdated>
+  </versioning>
+</metadata>
