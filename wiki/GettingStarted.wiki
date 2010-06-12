@@ -12,7 +12,7 @@ To use Morphia in your project, you'll need the Morphia jar in your classpath. T
   <dependency>
 	<groupId>com.google.code</groupId>
 	<artifactId>morphia</artifactId>
-	<version>0.92</version>
+	<version>####</version>
   </dependency>
   }}}
   * Finally, you can check out from subversion and build it yourself. You will need [http://maven.apache.org Maven2] for this. After you've [http://code.google.com/p/morphia/source/checkout checked out] the project, cd into the morphia folder, and run "mvn install" (note that you will need to have Mongo running on localhost for the tests to pass).
