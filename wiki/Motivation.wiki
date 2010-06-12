@@ -6,4 +6,4 @@ We generally model our domain objects as Java classes. If we're storing informat
 
 It is easy to instantiate Java classes and add data to the fields, but when it comes to actually persisting the data we usually map the object to an external data source (such as database, xml files, etc.). This often involves a lot of error prone boiler plate code (e.g. mapping from JDBC result set, XML elements, etc.). The same applies, of course, when we need to map the Java object to the external data source: more boiler plate code.
 
-We already have good object mapping frameworks for relational databases and JDBC, like JPA and Hibernate. The vision of Morphia is to provide the same for MongoDB (http://mongodb.org).
+We already have good object mapping frameworks for relational databases and JDBC, like JPA and Hibernate. The vision of Morphia is to provide something similar for MongoDB (http://mongodb.org).
