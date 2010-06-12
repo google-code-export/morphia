@@ -1,0 +1,64 @@
+#summary A type-safe set of operations for mongodb
+#labels Featured
+
+= Datastore Interface =
+
+The {{{Datastore}}} interface provides type-safe methods for accessing and storing your java objects in MongoDB. It provides get/find/save/delete methods for working with your java objects. 
+
+== Get Methods ==
+
+Get methods return instance(s) of your entities by its {{{@Id}}}. It is really just a short-cut for using {{{find(...)}}} with a criteria of id values. It always returns an entity, or {{{null}}} if none is found.
+
+{{{
+Datastore ds = ...
+
+Hotel hotel = ds.get(Hotel.class, hotelId);
+}}}
+
+== Find Methods ==
+
+The find methods are a lightweight wrapper around using a [Query Query] (as with createQuery()). As a wrapper it will return a [Query Query], which also supports {{{Iterable<T>}}} and the {{{QueryResults}}} interface.
+
+{{{
+Datastore ds = ...
+
+//use in a loop
+for(Hotel hotel : ds.find(Hotel.class, "stars >", 3))
+   print(hotel);
+
+//get back as a list
+List<Hotel> hotels = ds.find(Hotel.class, "stars >", 3).asList();
+
+//sort the results
+List<Hotel> hotels = ds.find(Hotel.class, "stars >", 3).sort("-stars").asList();
+
+//get the first matching hotel, by querying with a limit(1)
+Hotel gsHotel = ds.find(Hotel.class, "name", "Grand Sierra").get();
+
+}}}
+
+== Save Methods ==
+
+This is where a lot of the work goes on under the covers. The methods are very straight forward.
+
+{{{
+Datastore ds = ...
+
+Hotel hotel = new Hotel();
+
+ds.save(hotel);
+
+//@Id field is filled in for you (after the save), if you didn't set it.
+String id = hotel.getId();
+
+}}}
+
+== Delete Methods ==
+
+This is pretty self-explanatory. The methods will delete items based on a {{{Query}}}, id, or an entity. 
+
+== Update Methods ==
+
+Updates are are applied at the server and allow for complicated but very efficient (when compared to saving the whole entity again) update operations.
+
+{{{Examples here...}}}
