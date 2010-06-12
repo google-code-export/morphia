@@ -1,5 +1,4 @@
 #summary A list of Annotation to decorate your Entity with for lifecycle events.
-#labels Featured
 
 = Lifecycle Method Annotations =
 
