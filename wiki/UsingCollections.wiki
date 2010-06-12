@@ -2,17 +2,14 @@
 
 = Using Collections =
 
-Morphia supports collections of the following types:
+Morphia supports collections and arrays.
 
-* java.util.List
-* java.util.Set
-* java.util.Map
-
-These are supported for basic types, embedded objects, and references:
+These are supported for basic types, embedded, references, and serialized:
 
 {{{
 import com.google.code.morphia.annotations.Embedded;
 import com.google.code.morphia.annotations.Reference;
+import com.google.code.morphia.annotations.Serialized;
 import com.google.code.morphia.annotations.Property;
 ...
 @Property
@@ -28,9 +25,9 @@ private List<Article> relatedArticles;
 
 Morphia will use the following implementations by default when creating collections:
 
-* java.util.ArrayList for java.util.List
-* java.util.HashSet for java.util.Set
-* java.util.HashMap for java.util.Map
+* {{{java.util.ArrayList}}} for List (and things that are the types below)
+* {{{java.util.HashSet}}} for Set
+* {{{java.util.HashMap}}} for Map
 
 If you want to use another implementation, you can override this on the annotations:
 
@@ -39,13 +36,13 @@ import com.google.code.morphia.annotations.Embedded;
 import com.google.code.morphia.annotations.Reference;
 import com.google.code.morphia.annotations.Property;
 ...
-@Property(setClass = java.util.TreeSet.class)
+@Property(concreteClass = java.util.TreeSet.class)
 private Set<String> tags;
 
-@Embedded(mapClass = java.util.TreeMap.class)
+@Embedded(concreteClass = java.util.TreeMap.class)
 private Map<String,Translation> translations;
 
-@Reference(listClass = java.util.Vector.class)
+@Reference(concreteClass = java.util.Vector.class)
 private List<Article> relatedArticles;
 ...
 }}}
