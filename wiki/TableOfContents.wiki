@@ -10,7 +10,9 @@
       * [EmbeddedAnnotation Embedding objects]
       * [ReferenceAnnotation Referencing objects]
       * [UsingCollections Lists, Sets, and Maps]
-    * Mapping objects to/from Mongo
+    * [Datastore Datastore Interface]
+    * [LifecycleMethods Entity Lifecycle]
+    * Manually Mapping objects to/from MongoDB (DBObjects)
       * [MappingObjects Using the Morphia instance]
       * [UsingInterfaces Programming to interfaces]
       * [DAOSupport Using Data Access Objects (DAO)]
