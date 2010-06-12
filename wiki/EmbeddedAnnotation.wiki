@@ -29,32 +29,16 @@ public class Address {
 }
 }}}
 
-The question is, how do we annotate the following field in Hotel:
-
-{{{
-    private Address address;
-}}}
-
-This is where the @Embedded annotation comes into play.
-
-As a rule of thumb, you should @Embedded for objects that are dependent on the parent object (and therefore have no life outside it), and are not shared between objects. If you need to reference another collection object, look at @Reference instead.
+As a rule of thumb, you should @Embedded for objects that are dependent on the parent object (and therefore have no life outside it), and are not shared between objects. If you need to reference another collection object, look at {{{@Reference}}}, or storing a {{{Key}}} instead.
 
 We just annotate the above classes with @Property and @Embedded:
 
 {{{
-import com.google.code.morphia.annotations.CollectionName;
-import com.google.code.morphia.annotations.Entity;
-import com.google.code.morphia.annotations.Embedded;
-import com.google.code.morphia.annotations.Id;
-import com.google.code.morphia.annotations.Property;
-
 @Entity
 public class Hotel {
 
     @Id
     private String id;
-    @CollectionName
-    private String collectionName;
 
     private String name;
     private int stars;
@@ -81,7 +65,7 @@ public class Address {
 }
 }}}
 
-As you can see here, _classes used solely as embedded objects do not need the @Id and @CollectionName annotations_.
+As you can see here, _classes used solely as embedded objects should not use @Id_.
 
 By default, Morphia uses the field name as the value name in Mongo. This can be overridden by specifying a name on the @Embedded annotation:
 
