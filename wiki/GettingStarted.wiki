@@ -6,8 +6,13 @@ As Morphia is annotation based, you will need Java SE 5 or higher. You will also
 
 To use Morphia in your project, you'll need the Morphia jar in your classpath. There are a few ways you can achieve this:
 
-  * [http://code.google.com/p/morphia/downloads/list Download] it directly from (note that you will need to download the external [Dependencies] as well)
-  * If you use Maven2 to manage your project, you can reference Morphia as a dependency:
+  * [http://code.google.com/p/morphia/downloads/list Download] it directly from (note that you will need to download the external [Dependencies] as well, namely the java mongodb driver.)
+
+== Maven ==
+
+  * If you use Maven2 to manage your project, you can reference Morphia as a dependency.
+    * Repo: {{{http://morphia.googlecode.com/svn/mavenrepo/}}}
+    * Project Settings: 
   {{{
   <dependency>
 	<groupId>com.google.code</groupId>
@@ -15,4 +20,24 @@ To use Morphia in your project, you'll need the Morphia jar in your classpath. T
 	<version>####</version>
   </dependency>
   }}}
-  * Finally, you can check out from subversion and build it yourself. You will need [http://maven.apache.org Maven2] for this. After you've [http://code.google.com/p/morphia/source/checkout checked out] the project, cd into the morphia folder, and run "mvn install" (note that you will need to have Mongo running on localhost for the tests to pass).
+    * Optional Jars (for certain features).
+{{{
+		<dependency>
+			<groupId>cglib</groupId>
+			<artifactId>cglib-nodep</artifactId>
+			<version>[2.1_3,)</version>
+			<type>jar</type>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+		    <groupId>com.thoughtworks.proxytoys</groupId>
+		    <artifactId>proxytoys</artifactId>
+		    <version>1.0</version>
+			<type>jar</type>
+			<optional>true</optional>
+		</dependency>
+
+}}}
+
+== Source ==
+ You can check out from subversion and build it yourself. You will need [http://maven.apache.org Maven2] for this. After you've [http://code.google.com/p/morphia/source/checkout checked out] the project, cd into the morphia folder, and run "mvn install" (note that you will need to have Mongo running on localhost for the tests to pass).
