@@ -3,7 +3,9 @@
 = Dependencies =
 
 Morphia depends on the following third party JARs:
-
-  * Mongo Java driver, version 1.2.1 ([http://github.com/mongodb/mongo-java-driver/downloads get it here])
+  * The [http://github.com/mongodb/mongo-java-driver/downloads MongoDB java driver], version 2.0
+  * [Optional]
+    * [http://sourceforge.net/projects/cglib/files/ CGLib]
+    * [http://proxytoys.codehaus.org/download.html ProxyToys]
 
 If you use [http://maven.apache.org Maven2] to build your project, it will automatically download all dependencies for you.
