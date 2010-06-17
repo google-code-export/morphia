@@ -15,9 +15,9 @@ To use Morphia in your project, you'll need the Morphia jar in your classpath. T
     * Project Settings: 
   {{{
   <dependency>
-	<groupId>com.google.code</groupId>
+	<groupId>com.google.code.morphia</groupId>
 	<artifactId>morphia</artifactId>
-	<version>####</version>
+	<version>0.93</version>
   </dependency>
   }}}
     * Optional Jars (for certain features).
