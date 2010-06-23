@@ -17,7 +17,7 @@ morphia.map(BlogEntry.class)
 ...
 }}}
 
-Each class that you map will be validated, and a MongoMappingException? will be thrown if the class is not valid for mapping. All classes referenced via annotations will be detected, validated, and mapped automatically.
+Each class that you map will be validated, and a MappingException will be thrown if the class is not valid for some reason.
 
 You can also tell Morphia to scan a package, and map all classes found in that package:
 
@@ -26,8 +26,13 @@ You can also tell Morphia to scan a package, and map all classes found in that p
 morphia.mapPackage("my.package.with.only.mongo.entities");
 ...
 }}}
+== Advanced Usage ==
 
-== Mapping a Java object to a Mongo document ==
+It is possible to manually use the morphia instance to map to and from DBObjects to interact with the java driver directly. Below are some examples of how to do this.
+
+=== Mapping a Java for Persistence ===
+
+It is possible to manually use the morphia instance to map to and from DBObjects to interact with the java driver directly. Here is an example of that.
 
 Let's say we have a blog entry object, and we want to save it to a collection in a Mongo database. We just call the toDBObject() method on our morphia instance, passing the Java object. We can then save the resulting DBObject directly to Mongo.
 
@@ -47,7 +52,7 @@ db.getCollection("BlogEntries").save(blogEntryDbObj);
 
 Our blog entry object is now saved to Mongo.
 
-== Creating a Java object from a Mongo document ==
+=== Retrieving a Java from MongoDB ===
 
 Now let's look at the other direction: creating a Java object from a document in the Mongo database. This is also simple. We just call the fromDBObject() method on our Morphia instance, passing in the DBObject retrieved from Mongo:
 
