@@ -1,6 +1,5 @@
 #summary A quick 2 minute intro to Morphia.
 #labels Featured
-{{{Note: The docs are for 0.93 and higher. }}}
 = So you want to store your POJOs in MongoDB? =
 
 Morphia makes that very easy. Here's what you need to do.
