@@ -1,5 +1,7 @@
 #summary How to Query
 
+<wiki:toc/>
+
 = Introduction =
 The Query interface is pretty straight forward. It allows for certain filter criteria (based on fields), sorting, an offset, and limiting of the number of results.
 
@@ -7,7 +9,21 @@ The query implementation also implements the the {{{QueryResults}}} interface wh
  
 = Filter =
 
-The generic {{{.filter(criteria, value) }}} syntax is supported. The criteria is a composite of the field name and the operator ("field >", or "field in").
+The generic {{{.filter(criteria, value) }}} syntax is supported. The criteria is a composite of the field name and the operator ("field >", or "field in"). All criteria are implicitly combined with a logical "and".
+
+{{{
+Datastore ds = ...
+Query q = ds.createQuery(MyEntity.class).filter("foo >", 12);
+
+}}}
+
+Finding entities where foo is between 12 and 30 would look like this:
+
+{{{
+Datastore ds = ...
+Query q = ds.createQuery(MyEntity.class).filter("foo >", 12).filter("foo <", 30);
+
+}}}
 
 == Operators ==
 
@@ -25,26 +41,6 @@ The operators used in {{{filter(...)}}} match the MongoDB query operators very c
 || size || $size ||
 || ... || ... ||
 
-
-= Validation =
-
-Validation is done on the field names, and data types used. If a field name is not found on the java class specified in the query then an exception is thrown.
-
-Problems in the data type are logged as warnings since it is possible that the server can coerce (well, since the server uses the byte representation of the value, some values can match even if the types are different).
-
-== Disabling Validation ==
-
-Validation can be disabled by calling {{{disableValidation()}}} as the beginning of the query definition, or anywhere within you query.
-
-{{{
-Datastore ds = ...
-Query q = ds.createQuery(MyEntity.class).disableValidation();
-
-//or it can be disabled for just one filter
-
-Query q = ds.createQuery(MyEntity.class).disableValidation().filter("someOldField", value).enableValidation().filter("realField", otherVal);
-
-}}}
 
 = Fluent Interface =
 
@@ -73,3 +69,90 @@ q.field("bar").lessThan(40);
 ||hasNoneOf || $nin || ||
 ||hasThisElement || $elemMatch || ||
 ||sizeEq || $size || ||
+
+= Validation =
+
+Validation is done on the field names, and data types used. If a field name is not found on the java class specified in the query then an exception is thrown.
+
+Problems in the data type are logged as warnings since it is possible that the server can coerce (well, since the server uses the byte representation of the value, some values can match even if the types are different).
+
+== Disabling Validation ==
+
+Validation can be disabled by calling {{{disableValidation()}}} as the beginning of the query definition, or anywhere within you query.
+
+{{{
+Datastore ds = ...
+Query q = ds.createQuery(MyEntity.class).disableValidation();
+
+//or it can be disabled for just one filter
+
+Query q = ds.createQuery(MyEntity.class).disableValidation().filter("someOldField", value).enableValidation().filter("realField", otherVal);
+
+}}}
+
+
+= Sort =
+You can sort by a field, or multiple fields in ascending or descending order.
+
+{{{
+Datastore ds = ...
+Query q = ds.createQuery(MyEntity.class).filter("foo >", 12).sort("dateAdded");
+... // desc order
+Query q = ds.createQuery(MyEntity.class).filter("foo >", 12).sort("-dateAdded");
+... // asc dateAdded, desc foo
+Query q = ds.createQuery(MyEntity.class).filter("foo >", 12).sort("dateAdded, -foo");
+}}}
+
+= Offset (skip) =
+
+You can also ask the server to skip over a number of elements on the server by specifying an offset value for the query. This will less efficient than a range filter using some field, for pagination for example.
+
+{{{
+Datastore ds = ...
+Query q = ds.createQuery(MyEntity.class).filter("foo >", 12).offset(1000);
+}}}
+
+= Ignoring Fields =
+
+MongoDB also supports only returning certain fields. This is a little strange in application but it is an important way to trim parts off of embedded graphs. This will lead to partial entities and should be used sparingly, if at all.
+
+{{{
+Datastore ds = ...
+MyEntity e = ds.createQuery(MyEntity.class).retrievedFields(true, "foo").get();
+
+val = e.getFoo(); // only field returned
+
+...
+
+MyEntity e = ds.createQuery(MyEntity.class).retrievedFields(false, "foo").get();
+
+val = e.getFoo(); // only field not returned
+
+}}}
+
+= Returning Data =
+
+To return your data just call one of the {{{QueryResults}}} methods. None of these methods affect the Query. They will leave the Query alone so you can continue to use it to retrieve new results by calling these methods again.
+
+||method||does||
+|| get() || returns the first Entity -- using limit(1) ||
+|| asList() || return all items in a List -- could be costly with large result sets ||
+|| fetch() || explicit method to get Iterable instance ||
+
+{{{
+Datastore ds = ...
+Query q = ds.createQuery(MyEntity.class).filter("foo >", 12);
+
+//single entity
+MyEntity e = q.get();
+
+e = q.sort("foo").get();
+
+//for
+for (MyEntity e : q)
+  print(e);
+
+//list
+List<MyEntity> entities = q.asList();
+
+}}}
