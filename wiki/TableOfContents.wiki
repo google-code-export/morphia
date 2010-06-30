@@ -11,6 +11,7 @@
       * [ReferenceAnnotation Referencing objects]
       * [UsingCollections Lists, Sets, and Maps]
     * [Datastore Datastore Interface]
+    * [Query Query Interface]
     * [LifecycleMethods Entity Lifecycle]
     * Manually Mapping objects to/from MongoDB (DBObjects)
       * [MappingObjects Using the Morphia instance]
