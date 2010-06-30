@@ -1,0 +1,75 @@
+#summary How to Query
+
+= Introduction =
+The Query interface is pretty straight forward. It allows for certain filter criteria (based on fields), sorting, an offset, and limiting of the number of results.
+
+The query implementation also implements the the {{{QueryResults}}} interface which allows access to the data from the query.
+ 
+= Filter =
+
+The generic {{{.filter(criteria, value) }}} syntax is supported. The criteria is a composite of the field name and the operator ("field >", or "field in").
+
+== Operators ==
+
+The operators used in {{{filter(...)}}} match the MongoDB query operators very closely.
+
+||operator||mongo op||
+|| = || $eq ||
+|| !=, <> || $ne ||
+|| >, <, >=,<= || $gt, $lt, $gte, $lte ||
+|| in || $in ||
+|| nin || $nin ||
+|| elem || $elemMatch ||
+|| exists || $exists ||
+|| all || $all ||
+|| size || $size ||
+|| ... || ... ||
+
+
+= Validation =
+
+Validation is done on the field names, and data types used. If a field name is not found on the java class specified in the query then an exception is thrown.
+
+Problems in the data type are logged as warnings since it is possible that the server can coerce (well, since the server uses the byte representation of the value, some values can match even if the types are different).
+
+== Disabling Validation ==
+
+Validation can be disabled by calling {{{disableValidation()}}} as the beginning of the query definition, or anywhere within you query.
+
+{{{
+Datastore ds = ...
+Query q = ds.createQuery(MyEntity.class).disableValidation();
+
+//or it can be disabled for just one filter
+
+Query q = ds.createQuery(MyEntity.class).disableValidation().filter("someOldField", value).enableValidation().filter("realField", otherVal);
+
+}}}
+
+= Fluent Interface =
+
+Along with the {{{.filter(...)}}} method there are fluent query methods as well. These provide a more readable (like in the english language sense) form.
+
+The fluent interface works by starting with {{{field(name)}}}. Then any of the following methods can be added to form the filtering part of the criteria.
+
+{{{
+Query q = ds.createQuery(MyEntity.class).field("foo").equal(1);
+
+q.field("bar").greaterThan(12);
+q.field("bar").lessThan(40);
+
+}}}
+
+== Methods ==
+
+|| method || operation || comment ||
+||exists || $exists || ||
+||doesNotExist || $exists || ||
+||greaterThan, greaterThanOrEq, lessThan, lessThanOrEq || $gt, $gte, $lt, $lte || ||
+||equal, notEqual || $eq, $ne || ||
+||hasThisOne || $eq || ||
+||hasAllOf || $all || ||
+||hasAnyOf || $in || ||
+||hasNoneOf || $nin || ||
+||hasThisElement || $elemMatch || ||
+||sizeEq || $size || ||
