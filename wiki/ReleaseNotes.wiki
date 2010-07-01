@@ -1,0 +1,18 @@
+#summary Morphia Release Notes
+#labels Featured
+*Releases*:
+<wiki:toc/>
+= 0.94 =
+*Not released yet*:
+  * Added {{{@AlsoLoad}}} to load renamed fields
+  * {{{UpdateOperations}}} now generic (_breaking change_)
+  * Datastore.createUpdateOperation({{{Class<T>}}}) (_breaking change_)
+  * Added {{{Datastore.findAndModify/findAndDelete}}}
+  * Added {{{@Entity}}} attribute of {{{noStoredClassname[=true]}}} 
+  * ([http://code.google.com/p/morphia/issues/detail?id=73 Issue73-Add Auth Support to Morphia.createDatastore(...)])
+  * Bug fixes 
+= 0.93 =
+*2010-06-13*:
+  * Required mongodb java 2.0 driver
+  * Rewrote must of the framework from 0.92 state.
+  * much, much more...
