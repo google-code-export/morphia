@@ -19,9 +19,7 @@ To use Morphia in your project, you'll need the Morphia jar in your classpath. T
 	<artifactId>morphia</artifactId>
 	<version>0.93</version>
   </dependency>
-  }}}
-    * Optional Jars (for certain features).
-{{{
+  <!-Optional Jars (for certain features) but required by maven for bulding. -->
 		<dependency>
 			<groupId>cglib</groupId>
 			<artifactId>cglib-nodep</artifactId>
