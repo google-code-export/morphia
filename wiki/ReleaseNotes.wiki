@@ -4,6 +4,7 @@
 <wiki:toc/>
 = 0.94 =
 *Not released yet*:
+  * Added support for [http://code.google.com/p/morphia/issues/detail?id=37 custom @Id classes] (embed complex type) 
   * Added {{{@AlsoLoad}}} to load renamed fields
   * {{{UpdateOperations}}} now generic (_breaking change_)
   * Datastore.createUpdateOperation({{{Class<T>}}}) (_breaking change_)
