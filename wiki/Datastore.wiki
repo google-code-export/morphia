@@ -1,6 +1,8 @@
 #summary A type-safe set of operations for mongodb
 #labels Featured
 
+<wiki:TOC max_depth=2 />
+
 = Datastore =
 The {{{Datastore}}} interface provides type-safe methods for accessing and storing your java objects in MongoDB. It provides get/find/save/delete methods for working with your java objects. 
 
