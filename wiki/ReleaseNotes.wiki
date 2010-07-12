@@ -12,6 +12,7 @@
   * Added {{{@Entity}}} attribute of {{{noStoredClassname[=true]}}} 
   * ([http://code.google.com/p/morphia/issues/detail?id=73 Issue73-Add Auth Support to Morphia.createDatastore(...)])
   * Bug fixes 
+
 = 0.93 =
 *2010-06-13*:
   * Required mongodb java 2.0 driver
