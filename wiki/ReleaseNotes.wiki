@@ -16,6 +16,8 @@
   * Added {{{Datastore.findAndModify/findAndDelete}}}
   * Added {{{@Entity}}} attribute of {{{noStoredClassname[=true]}}} 
   * ([http://code.google.com/p/morphia/issues/detail?id=73 Issue73-Add Auth Support to Morphia.createDatastore(...)])
+  * Added startsWith to query filters
+  * Better query validation error messages and less false-positives 
   * Bug fixes 
 
 = 0.93 =
