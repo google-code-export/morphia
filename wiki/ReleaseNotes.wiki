@@ -2,8 +2,13 @@
 #labels Featured
 *Releases*:
 <wiki:toc/>
+
+= 0.95 =
+*unreleased*:
+  * bug fixes
+
 = 0.94 =
-*Not released yet*:
+*2010-07-14*:
   * Added support for [http://code.google.com/p/morphia/issues/detail?id=37 custom @Id classes] (embed complex type) 
   * Added {{{@AlsoLoad}}} to load renamed fields
   * {{{UpdateOperations}}} now generic (_breaking change_)
