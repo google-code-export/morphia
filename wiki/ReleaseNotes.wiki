@@ -5,6 +5,8 @@
 
 = 0.95 =
 *unreleased*:
+  * Added javadocs and sources to maven repo
+  * Changed ensureIndex methods sigs to use arrays
   * bug fixes
 
 = 0.94 =
