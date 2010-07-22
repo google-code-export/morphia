@@ -78,7 +78,7 @@ Field names can be used much like they can in [http://www.mongodb.org/display/DO
 
 Query q = ds.createQuery(Person.class).field("addresses.city").equal("San Francisco");
 //or with filter, or with this helper method
-Query q = ds.createQuery(Person.class, "addresses.city", "San Francisco");
+Query q = ds.find(Person.class, "addresses.city", "San Francisco");
 
 }}}
 
