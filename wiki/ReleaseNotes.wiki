@@ -6,7 +6,11 @@
 = 0.95 =
 *unreleased*:
   * Added javadocs and sources to maven repo
-  * Changed ensureIndex methods sigs to use arrays
+  * Changed ensureIndex methods sigs to use arrays (to preserve ordering)
+  * Checked to see if string passed to AsObjectIdMaybe are less than 24 chars
+  * Added Starts/EndsWith[IgnoreCase] to Query
+  * Check more param values (null/empty) for Queries
+  * New internal logging abstraction (to support better perf./parity for other loggers)
   * bug fixes
 
 = 0.94 =
