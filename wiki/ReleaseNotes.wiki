@@ -5,6 +5,7 @@
 
 = 0.95 =
 *unreleased*:
+  * Added basic support for @NotSaved (but will still load values)
   * Removed implicit conversions from String -> ObjectId; please use ObjectId directly; *Breaking Change*
   * Added javadocs and sources to maven repo
   * Changed ensureIndex methods sigs to use arrays (to preserve ordering)
