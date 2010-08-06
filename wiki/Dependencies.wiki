@@ -8,4 +8,4 @@ Morphia depends on the following third party JARs:
     * [http://sourceforge.net/projects/cglib/files/ CGLib]
     * [http://proxytoys.codehaus.org/download.html ProxyToys]
 
-If you use [http://maven.apache.org Maven2] to build your project, it will automatically download all dependencies for you.
+If you use [http://maven.apache.org Maven2] to build your project, it will automatically download all dependencies for you after you follow the directions on the GettingStarted page.
