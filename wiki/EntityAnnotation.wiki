@@ -13,12 +13,11 @@ public class Hotel {
 }
 }}}
 
+== Name + Constructor ==
 You can also optionally set a name for your MongoDB {{{DBCollection}}} name.
 You will also need a (no-args) default constructor.
 
 {{{
-import com.google.code.morphia.annotations.Entity;
-
 @Entity("hotels")
 public class Hotel {
 ...
@@ -30,31 +29,33 @@ public class Hotel {
 
 Note that your default constructor does not need to be public, it can also be protected or private.
 
+== @Id ==
 Classes annotated with {{{@Entity}}} require unique {{{@Id}}} values; these values are stored in the MongoDB "_id" field, which has a unique index requirement. The Hotel class above would have:
+
 
 {{{
 @Entity
 public class Hotel {
 
     @Id
-    private String id;
+    private ObjectId id;
 ...
 }
 }}}
 
-Mongo will generate the ID for your new objects, so you don't need to worry about that. It will be stored as an {{{ObjectId}}}; If you use any other type than String or ObjectId you must set the value yourself.
+Mongo will generate the Id for your new objects, so you don't need to worry about that. It will be stored as an {{{ObjectId}}}; If you use any other type than ObjectId you must set the value yourself.
 
-If your class is embedded, then we use the @Embedded annotation instead. For example, the Hotel class above might have an Address. The Address would be an inseparable part of the Hotel, would not have its own ID, and would not be stored in a separate Mongo collection. In this case we would annotate the Address class as @Embedded:
+== Embedded ==
+
+You can also choose to create a class that will be embedded in the Entity, we use the {{{@Embedded}}} annotation in this case. For example, the {{{Hotel}}} class above might have an {{{Address}}}. The Address would be an inseparable part of the {{{Hotel}}}, would not have its own ID, and would not be stored in a separate {{{collection}}}. In this case we would annotate the Address class as {{{@Embedded}}}:
 
 {{{
-import com.google.code.morphia.annotations.Entity;
-import com.google.code.morphia.annotations.Embedded;
 
 @Entity
 public class Hotel {
     ...
     @Id
-    private String id;
+    private ObjectId id;
 
     @Embedded
     private Address address;
@@ -69,6 +70,4 @@ public class Address {
 }
 }}}
 
-As you can see, classes with @Embedded annotation do not need an {{{@Id}}}. This is because they always be included in another class.
-
-Next, let's look at how to annotate the fields of the class.
+As you can see, classes with @Embedded annotation do not need an {{{@Id}}}. This is because they always be included in another class. In fact, they are not allowed to have an {{{@Id}}} if the class is annotated with {{{@Embedded}}}.
