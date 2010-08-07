@@ -2,40 +2,40 @@
 
 = Getting Started =
 
-As Morphia is annotation based, you will need Java SE 5 or higher. You will also need access to a Mongo database (http://mongodb.org).
+You will need Java SE 5 or higher. You will also need access to a Mongo database (http://mongodb.org). Please take a look at the rest of the [Dependencies].
 
-To use Morphia in your project, you'll need the Morphia jar in your classpath. There are a few ways you can achieve this:
+This will consist of a few code snippets to get you going!
 
-  * [http://code.google.com/p/morphia/downloads/list Download] it directly from (note that you will need to download the external [Dependencies] as well, namely the java mongodb driver.)
+== First Entity ==
+{{{
+//@Entity here....
+}}}
+== Initialize Morphia/Mongo ==
+{{{
 
-== Maven ==
+Datastore ds = new Morphia().createDatastore("myDB");
 
-  * If you use Maven2 to manage your project, you can reference Morphia as a dependency.
-    * Repo: {{{http://morphia.googlecode.com/svn/mavenrepo/}}}
-    * Project Settings: 
-  {{{
-  <dependency>
-	<groupId>com.google.code.morphia</groupId>
-	<artifactId>morphia</artifactId>
-	<version>0.93</version>
-  </dependency>
-  <!-Optional Jars (for certain features) but required by maven for bulding. -->
-		<dependency>
-			<groupId>cglib</groupId>
-			<artifactId>cglib-nodep</artifactId>
-			<version>[2.1_3,)</version>
-			<type>jar</type>
-			<optional>true</optional>
-		</dependency>
-		<dependency>
-		    <groupId>com.thoughtworks.proxytoys</groupId>
-		    <artifactId>proxytoys</artifactId>
-		    <version>1.0</version>
-			<type>jar</type>
-			<optional>true</optional>
-		</dependency>
+...
 
+//at application start
+ds.ensureIndexes(); //creates indexes from @Index annotations in your entities
+ds.ensureCaps(); //creates capped collections from @Entity
 }}}
 
-== Source ==
- You can check out from subversion and build it yourself. You will need [http://maven.apache.org Maven2] for this. After you've [http://code.google.com/p/morphia/source/checkout checked out] the project, cd into the morphia folder, and run "mvn install" (note that you will need to have Mongo running on localhost for the tests to pass).
+== Saving ==
+{{{
+
+MyEntity e = ...;
+
+ds.save(e);
+}}}
+
+== Querying ==
+
+{{{
+MyEntity e = ds.find(MyEntity.class).get(); //get the first one by type
+}}}
+
+== Datastore ==
+
+see more at the [Datastore] page...
