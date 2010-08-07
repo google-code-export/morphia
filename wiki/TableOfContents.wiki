@@ -3,16 +3,15 @@
   * User's Guide
     * [Motivation Motivation]
     * [GettingStarted Getting Started]
-    * [Dependencies External dependencies]
-    * Annotating classes
+    * [Datastore Datastore Interface]
+    * [Query Query Interface]
+    * [LifecycleMethods Entity Lifecycle]
+    * Annotations
       * [EntityAnnotation Document vs Embedded object]
       * [PropertyAnnotation Primitive and basic types]
       * [EmbeddedAnnotation Embedding objects]
       * [ReferenceAnnotation Referencing objects]
       * [UsingCollections Lists, Sets, and Maps]
-    * [Datastore Datastore Interface]
-    * [Query Query Interface]
-    * [LifecycleMethods Entity Lifecycle]
     * Manually Mapping objects to/from MongoDB (DBObjects)
       * [MappingObjects Using the Morphia instance]
       * [UsingInterfaces Programming to interfaces]
