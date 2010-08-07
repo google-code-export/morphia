@@ -1,11 +1,53 @@
 #summary List of runtime JAR dependencies for Morphia.
+<wiki:toc>
 
 = Dependencies =
 
 Morphia depends on the following third party JARs:
-  * The [http://github.com/mongodb/mongo-java-driver/downloads MongoDB java driver], version 2.0
-  * [Optional]
+  * The [http://github.com/mongodb/mongo-java-driver/downloads MongoDB java driver], version 2.0+
+  * [Optional] (but needed if you use Maven)
     * [http://sourceforge.net/projects/cglib/files/ CGLib]
     * [http://proxytoys.codehaus.org/download.html ProxyToys]
 
-If you use [http://maven.apache.org Maven2] to build your project, it will automatically download all dependencies for you after you follow the directions on the GettingStarted page.
+If you use [http://maven.apache.org Maven2] to build your project, it will automatically download all dependencies for you.
+
+
+
+= Including Morphia (in your project) =
+
+== Manually ==
+
+Add the dependencies above to your class-path and compile.
+
+== Through Maven ==
+
+  * If you use Maven2 to manage your project, you can reference Morphia as a dependency.
+    * Repo: {{{http://morphia.googlecode.com/svn/mavenrepo/}}}
+    * Project Settings: 
+  {{{
+  <dependency>
+	<groupId>com.google.code.morphia</groupId>
+	<artifactId>morphia</artifactId>
+	<version>0.93</version>
+  </dependency>
+  <!-Optional Jars (for certain features) but required by maven for bulding. -->
+		<dependency>
+			<groupId>cglib</groupId>
+			<artifactId>cglib-nodep</artifactId>
+			<version>[2.1_3,)</version>
+			<type>jar</type>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+		    <groupId>com.thoughtworks.proxytoys</groupId>
+		    <artifactId>proxytoys</artifactId>
+		    <version>1.0</version>
+			<type>jar</type>
+			<optional>true</optional>
+		</dependency>
+
+}}}
+
+== From Source ==
+
+You can check out from subversion and build it yourself. You will need [http://maven.apache.org Maven2] for this. After you've [http://code.google.com/p/morphia/source/checkout checked out] the project, change into the morphia directory, and run "mvn install" (*Note*: Will need to have Mongo running locally for the tests to pass).
