@@ -1,0 +1,104 @@
+#summary How to update data
+
+<wiki:toc/>
+
+= Introduction =
+
+There are two basic ways to update your data. You can either insert/save a whole Entity, or issue an update operation. We will be talking about the latter below.
+
+= Updating (on the server) =
+
+When you call the update method on the [Datastore] you are issuing a command to the server to change existing data, in general.
+
+{{{
+interface Datastore {
+...
+
+	/** updates all entities found with the operations*/
+	<T> UpdateResults<T> update(Query<T> query, UpdateOperations<T> ops);
+	/** updates all entities found with the operations; if nothing is found insert the update as an entity if "createIfMissing" is true*/
+	<T> UpdateResults<T> update(Query<T> query, UpdateOperations<T> ops, boolean createIfMissing);
+	/** updates the first entity found with the operations*/
+	<T> UpdateResults<T> updateFirst(Query<T> query, UpdateOperations<T> ops);
+	/** updates the first entity found with the operations; if nothing is found insert the update as an entity if "createIfMissing" is true*/
+	<T> UpdateResults<T> updateFirst(Query<T> query, UpdateOperations<T> ops, boolean createIfMissing);
+	/** updates the first entity found with the operations; if nothing is found insert the update as an entity if "createIfMissing" is true*/
+	<T> UpdateResults<T> updateFirst(Query<T> query, T entity, boolean createIfMissing);
+}
+
+interface UpdateOperations<T> {
+	//Affect a single field/value
+	UpdateOperations<T> set(String fieldExpr, Object value);
+	UpdateOperations<T> unset(String fieldExpr);
+
+	UpdateOperations<T> dec(String fieldExpr);
+	UpdateOperations<T> inc(String fieldExpr);
+	UpdateOperations<T> inc(String fieldExpr, Number value);
+
+	//Affect an array/list of values
+	UpdateOperations<T> add(String fieldExpr, Object value);
+	UpdateOperations<T> add(String fieldExpr, Object value, boolean addDups);
+	UpdateOperations<T> addAll(String fieldExpr, List<?> values, boolean addDups);
+	
+	UpdateOperations<T> removeFirst(String fieldExpr);
+	UpdateOperations<T> removeLast(String fieldExpr);
+	UpdateOperations<T> removeAll(String fieldExpr, Object value);
+	UpdateOperations<T> removeAll(String fieldExpr, List<?> values);
+}
+
+}}}
+
+== set/unset ==
+{{{
+//example
+}}}
+== inc/dec ==
+{{{
+//example
+}}}
+== add/All ==
+{{{
+//example
+}}}
+== removeFirst/Last/All ==
+{{{
+//example
+}}}
+== multiple upOps ==
+{{{
+//example
+}}}
+
+== updateFirst method ==
+
+In the default driver and shell this is the default behavior. In Morphia we feel like updating all the results of the query is a better default (see below).
+{{{
+//example
+}}}
+{{{
+//shell version
+}}}
+
+=== createIfMissing ===
+{{{
+//example
+}}}
+{{{
+//shell version
+}}}
+
+== update method ==
+{{{
+//example
+}}}
+{{{
+//shell version
+}}}
+
+=== createIfMissing ===
+{{{
+//example
+}}}
+{{{
+//shell version
+}}}
