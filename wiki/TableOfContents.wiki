@@ -7,10 +7,10 @@
     * [Query Query Interface]
     * [LifecycleMethods Entity Lifecycle]
     * Annotations
-      * [EntityAnnotation Document vs Embedded object]
-      * [PropertyAnnotation Primitive and basic types]
-      * [EmbeddedAnnotation Embedding objects]
-      * [ReferenceAnnotation Referencing objects]
+      * [EntityAnnotation Defining your Entity]
+      * [PropertyAnnotation Basic type annotation]
+      * [EmbeddedAnnotation Embedded Annotation]
+      * [ReferenceAnnotation Referencing/Linking]
       * [UsingCollections Lists, Sets, and Maps]
     * Manually Mapping objects to/from MongoDB (DBObjects)
       * [MappingObjects Using the Morphia instance]
