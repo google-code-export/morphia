@@ -41,11 +41,12 @@ import com.google.code.morphia.annotations.Entity;
 import com.google.code.morphia.annotations.Embedded;
 import com.google.code.morphia.annotations.Id;
 import com.google.code.morphia.annotations.Property;
+import org.bson.types.ObjectId;
 
 @Entity
 public class Hotel {
 
-    @Id private String id;
+    @Id private ObjectId id;
 
     private String name;
     private int stars;
