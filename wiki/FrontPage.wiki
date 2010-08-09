@@ -1,5 +1,6 @@
+
 *Morphia* is a lightweight type-safe library for mapping your Java objects to/from [http://mongodb.org MongoDB]:
- 
+<wiki:gadget url="http://www.ohloh.net/p/morphia/widgets/project_partner_badge.xml" height="55" border="0" />
  * Easy to use, and very lightweight; reflection is used once per type and cached.
  * Annotations describe mapping behavior; there are no XML files.
 {{{
