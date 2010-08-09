@@ -138,14 +138,14 @@ datastore.update(updateQuery, ops);
 
 == add/All ==
 {{{
-// default behavior for add() is to act like set()
+// default behavior is add a unique value to the array ($addToSet)
 ops = datastore.createUpdateOperations(Hotel.class).add("roomNumbers", 11);
-datastore.update(updateQuery, ops);  // same as .set("roomNumbers", 11)
+datastore.update(updateQuery, ops); 
 
 ops = datastore.createUpdateOperations(Hotel.class).add("roomNumbers", 12, false);
-datastore.update(updateQuery, ops);  // same as .set("roomNumbers", 12)
+datastore.update(updateQuery, ops);  // same as .add("roomNumbers", 12)
 
-// to make add() act like a $push, use 3rd parameter to include dups
+// to make add() act like a $addToSet, use 3rd parameter as true to include dups ($push)
 ops = datastore.createUpdateOperations(Hotel.class).add("roomNumbers", 11, true);
 datastore.update(updateQuery, ops);  // append 11 to array
 
