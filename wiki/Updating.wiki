@@ -81,6 +81,9 @@ public class Hotel
    @Embedded
    private Address address;
 
+   @Embedded
+   List<Integer> roomNumbers = new ArrayList<Integer>();
+
    // ... getters and setters
 }
 
@@ -103,7 +106,7 @@ public class Address
 ops = datastore.createUpdateOperations(Hotel.class).set("name", "Fairmont Chateau Laurier");
 datastore.update(updateQuery, ops);
 
-// this works for embedded documents, change the name of the city in the address
+// also works for embedded documents, change the name of the city in the address
 ops = datastore.createUpdateOperations(Hotel.class).set("address.city", "Ottawa");
 datastore.update(updateQuery, ops);
 
@@ -127,14 +130,25 @@ datastore.update(updateQuery, ops);
 // decrement 'stars' by 1
 ops = datastore.createUpdateOperations(Hotel.class).dec("stars");  // same as .inc("stars", -1)
 datastore.update(updateQuery, ops);
-}}}
 
 // decrement 'stars' by 4
 ops = datastore.createUpdateOperations(Hotel.class).inc("stars", -4);
 datastore.update(updateQuery, ops);
+}}}
+
 == add/All ==
 {{{
-//example
+// default behavior for add() is to act like set()
+ops = datastore.createUpdateOperations(Hotel.class).add("roomNumbers", 11);
+datastore.update(updateQuery, ops);  // same as .set("roomNumbers", 11)
+
+ops = datastore.createUpdateOperations(Hotel.class).add("roomNumbers", 12, false);
+datastore.update(updateQuery, ops);  // same as .set("roomNumbers", 12)
+
+// to make add() act like a $push, use 3rd parameter to include dups
+ops = datastore.createUpdateOperations(Hotel.class).add("roomNumbers", 11, true);
+datastore.update(updateQuery, ops);  // append 11 to array
+
 }}}
 
 == removeFirst/Last/All ==
