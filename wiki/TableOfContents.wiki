@@ -16,4 +16,3 @@
       * [MappingObjects Using the Morphia instance]
       * [UsingInterfaces Programming to interfaces]
       * [DAOSupport Using Data Access Objects (DAO)]
-   * [FAQ]
