@@ -10,6 +10,8 @@ There are two basic ways to update your data. You can either insert/save a whole
 
 When you call the update method on the [Datastore] you are issuing a command to the server to change existing data, in general.
 
+[http://www.mongodb.org/display/DOCS/Updating MongoDB Docs on Updating]
+
 {{{
 interface Datastore {
 ...
@@ -48,22 +50,98 @@ interface UpdateOperations<T> {
 
 }}}
 
-== set/unset ==
+== Samples initialization ==
+
+All of the code samples below create the connection and morphia instance using the following code:
+
 {{{
-//example
+Morphia morphia = new Morphia();
+morphia.map(Hotel.class).map(Address.class);
+Datastore datastore = morphia.createDatastore("MorphiaSampleDb");
+Hotel hotel = new Hotel("Fairmont", 3, new Address("1 Rideau Street", "Ottawa", "K1N8S7", "Canada"));
+datastore.save(hotel);
+
+// This query will be used in the samples to restrict the update operations to only the hotel we just created.
+// We could use any field here but _id will be unique and mongodb by default puts an index on the _id field so this should be fast!
+Query<Hotel> updateQuery = datastore.createQuery(Hotel.class).field("_id").equal(hotel.getId());
+
+// The Mapper class also provides a public static of the default _id field name for us...
+updateQuery = datastore.createQuery(Hotel.class).field(Mapper.ID_KEY).equal(hotel.getId());
+
+
+
+@Entity("hotels")
+public class Hotel
+{
+   @Id
+   private ObjectId id;
+
+   private String name;
+   private int stars;
+
+   @Embedded
+   private Address address;
+
+   // ... getters and setters
+}
+
+@Embedded
+public class Address
+{
+   private String street;
+   private String city;
+   private String postalCode;
+   private String country;
+
+   // ... getters and setters
+}
 }}}
+
+== set/unset ==
+
+{{{
+UpdateOperations<Hotel> setOps;
+
+// change the name of the hotel
+setOps = datastore.createUpdateOperations(Hotel.class).set("name", "Fairmont Chateau Laurier");
+datastore.update(updateQuery, setOps);
+
+// this works for embedded documents, change the name of the city in the address
+setOps = datastore.createUpdateOperations(Hotel.class).set("address.city", "Ottawa");
+datastore.update(updateQuery, setOps);
+
+// remove the name property from the document
+// causes the next load of the Hotel to have name = null
+setOps = datastore.createUpdateOperations(Hotel.class).unset("name");
+datastore.update(updateQuery, setOps);
+
+}}}
+
 == inc/dec ==
 {{{
-//example
+// increment 'stars' by 1
+setOps = datastore.createUpdateOperations(Hotel.class).inc("stars");
+datastore.update(updateQuery, setOps);
+
+// increment 'stars' by 4
+setOps = datastore.createUpdateOperations(Hotel.class).inc("stars", 4);
+datastore.update(updateQuery, setOps);
+
+// decrement 'stars' by 1
+setOps = datastore.createUpdateOperations(Hotel.class).dec("stars");
+datastore.update(updateQuery, setOps);
 }}}
+
 == add/All ==
 {{{
 //example
 }}}
+
 == removeFirst/Last/All ==
 {{{
 //example
 }}}
+
 == multiple upOps ==
 {{{
 //example
@@ -72,6 +150,7 @@ interface UpdateOperations<T> {
 == updateFirst method ==
 
 In the default driver and shell this is the default behavior. In Morphia we feel like updating all the results of the query is a better default (see below).
+
 {{{
 //example
 }}}
