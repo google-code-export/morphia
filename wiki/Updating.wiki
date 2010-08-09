@@ -117,18 +117,21 @@ datastore.update(updateQuery, ops);
 == inc/dec ==
 {{{
 // increment 'stars' by 1
-setOps = datastore.createUpdateOperations(Hotel.class).inc("stars");
-datastore.update(updateQuery, setOps);
+ops = datastore.createUpdateOperations(Hotel.class).inc("stars");
+datastore.update(updateQuery, ops);
 
 // increment 'stars' by 4
-setOps = datastore.createUpdateOperations(Hotel.class).inc("stars", 4);
-datastore.update(updateQuery, setOps);
+ops = datastore.createUpdateOperations(Hotel.class).inc("stars", 4);
+datastore.update(updateQuery, ops);
 
 // decrement 'stars' by 1
-setOps = datastore.createUpdateOperations(Hotel.class).dec("stars");
-datastore.update(updateQuery, setOps);
+ops = datastore.createUpdateOperations(Hotel.class).dec("stars");  // same as .inc("stars", -1)
+datastore.update(updateQuery, ops);
 }}}
 
+// decrement 'stars' by 4
+ops = datastore.createUpdateOperations(Hotel.class).inc("stars", -4);
+datastore.update(updateQuery, ops);
 == add/All ==
 {{{
 //example
