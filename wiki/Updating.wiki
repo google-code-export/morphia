@@ -60,6 +60,7 @@ morphia.map(Hotel.class).map(Address.class);
 Datastore datastore = morphia.createDatastore("MorphiaSampleDb");
 Hotel hotel = new Hotel("Fairmont", 3, new Address("1 Rideau Street", "Ottawa", "K1N8S7", "Canada"));
 datastore.save(hotel);
+UpdateOperations<Hotel> ops;
 
 // This query will be used in the samples to restrict the update operations to only the hotel we just created.
 // We could use any field here but _id will be unique and mongodb by default puts an index on the _id field so this should be fast!
@@ -67,7 +68,6 @@ Query<Hotel> updateQuery = datastore.createQuery(Hotel.class).field("_id").equal
 
 // The Mapper class also provides a public static of the default _id field name for us...
 Query<Hotel> updateQuery = datastore.createQuery(Hotel.class).field(Mapper.ID_KEY).equal(hotel.getId());
-
 
 @Entity("hotels")
 public class Hotel
@@ -99,20 +99,18 @@ public class Address
 == set/unset ==
 
 {{{
-UpdateOperations<Hotel> setOps;
-
 // change the name of the hotel
-setOps = datastore.createUpdateOperations(Hotel.class).set("name", "Fairmont Chateau Laurier");
-datastore.update(updateQuery, setOps);
+ops = datastore.createUpdateOperations(Hotel.class).set("name", "Fairmont Chateau Laurier");
+datastore.update(updateQuery, ops);
 
 // this works for embedded documents, change the name of the city in the address
-setOps = datastore.createUpdateOperations(Hotel.class).set("address.city", "Ottawa");
-datastore.update(updateQuery, setOps);
+ops = datastore.createUpdateOperations(Hotel.class).set("address.city", "Ottawa");
+datastore.update(updateQuery, ops);
 
 // remove the name property from the document
 // causes the next load of the Hotel to have name = null
-setOps = datastore.createUpdateOperations(Hotel.class).unset("name");
-datastore.update(updateQuery, setOps);
+ops = datastore.createUpdateOperations(Hotel.class).unset("name");
+datastore.update(updateQuery, ops);
 
 }}}
 
