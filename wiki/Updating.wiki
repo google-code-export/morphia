@@ -151,17 +151,19 @@ datastore.update(updateQuery, ops);
 == add/All ==
 {{{
 
-// default behavior for add() is to act like set()
-ops = datastore.createUpdateOperations(Hotel.class).add("roomNumbers", 11);  // same as .set("roomNumbers", 11)
-datastore.update(updateQuery, ops);
+// push a value onto an array() (+v 0.95) 
+// same as .add("roomNumbers", 11, false)
+ops = datastore.createUpdateOperations(Hotel.class).add("roomNumbers", 11);
+datastore.update(updateQuery, ops); // [ 11 ]
 
 }}}
 
-The above operation acts like a set() which just creates the property and sets its value.
-
-Performing array operations on a non-array property causes mongodb to throw an error.  We'll see that in the next sample.
+Performing array operations on a non-array property causes mongodb to throw an error.
 
 {{{
+
+ops = datastore.createUpdateOperations(Hotel.class).set("roomNumbers", 11);
+datastore.update(updateQuery, ops);
 
 // causes error since 'roomNumbers' is not an array at this point
 ops = datastore.createUpdateOperations(Hotel.class).add("roomNumbers", 11, false);
@@ -171,9 +173,9 @@ datastore.update(updateQuery, ops);  // causes error
 ops = datastore.createUpdateOperations(Hotel.class).unset("roomNumbers");
 datastore.update(updateQuery, ops);
 
-// 3rd parameter to add duplicates which makes the operation work with arrays
+// use the 3rd parameter to add duplicates
 
-// this time add and create it as an array
+// add to end of array, same as add()
 ops = datastore.createUpdateOperations(Hotel.class).add("roomNumbers", 11, false);
 datastore.update(updateQuery, ops);  // [ 11 ]
 
@@ -217,8 +219,26 @@ datastore.update(updateQuery, ops);  // [ 1 ]
 }}}
 
 == multiple upOps ==
+
+You can also perform multiple update operations within a single operation.
+
 {{{
-//example
+
+//set city to Ottawa and increment stars by 1
+ops = datastore.createUpdateOperations(Hotel.class).set("city", "Ottawa").inc("stars");
+datastore.update(updateQuery, ops);
+}}}
+
+<font color="red">SCOTT, DOESN'T WORK LIKE THIS?? How are multiple ops supposed to work?</font>
+
+{{{
+//if you perform multiple operations in one command on the same property, results will vary
+ops = datastore.createUpdateOperations(Hotel.class).inc("stars", 50).inc("stars", 1);  //increments by 1
+ops = datastore.createUpdateOperations(Hotel.class).inc("stars").inc("stars", 50);  //increments by 50
+
+//you can't apply conflicting operations to the same property
+ops = datastore.createUpdateOperations(Hotel.class).set("stars", 1).inc("stars", 50); //causes error
+
 }}}
 
 == updateFirst method ==
