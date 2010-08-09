@@ -63,11 +63,14 @@ datastore.save(hotel);
 UpdateOperations<Hotel> ops;
 
 // This query will be used in the samples to restrict the update operations to only the hotel we just created.
+// If this was not supplied, by default the update() operates on all documents in the collection.
 // We could use any field here but _id will be unique and mongodb by default puts an index on the _id field so this should be fast!
 Query<Hotel> updateQuery = datastore.createQuery(Hotel.class).field("_id").equal(hotel.getId());
 
 // The Mapper class also provides a public static of the default _id field name for us...
 Query<Hotel> updateQuery = datastore.createQuery(Hotel.class).field(Mapper.ID_KEY).equal(hotel.getId());
+
+*// note the use of _equal()_ NOT _equals()_*
 
 @Entity("hotels")
 public class Hotel
@@ -179,7 +182,28 @@ datastore.update(updateQuery, ops); // [ 11, 12, 11 ]
 
 == removeFirst/Last/All ==
 {{{
-//example
+
+//given roomNumbers = [ 1, 2, 3 ]
+ops = datastore.createUpdateOperations(Hotel.class).removeFirst("roomNumbers");
+datastore.update(updateQuery, ops);  // [ 2, 3 ]
+
+
+//given roomNumbers = [ 1, 2, 3 ]
+ops = datastore.createUpdateOperations(Hotel.class).removeLast("roomNumbers");
+datastore.update(updateQuery, ops);  // [ 1, 2 ]
+ops = datastore.createUpdateOperations(Hotel.class).removeLast("roomNumbers");
+datastore.update(updateQuery, ops);  // [ 1 ]
+ops = datastore.createUpdateOperations(Hotel.class).removeLast("roomNumbers");
+datastore.update(updateQuery, ops);  // []   empty array
+
+
+//given roomNumbers = [ 1, 2, 3, 3 ]
+ops = datastore.createUpdateOperations(Hotel.class).removeAll("roomNumbers", 3);
+datastore.update(updateQuery, ops);  // [ 1, 2 ]
+
+//given roomNumbers = [ 1, 2, 3, 3 ]
+ops = datastore.createUpdateOperations(Hotel.class).removeAll("roomNumbers", Arrays.asList(2, 3));
+datastore.update(updateQuery, ops);  // [ 1 ]
 }}}
 
 == multiple upOps ==
