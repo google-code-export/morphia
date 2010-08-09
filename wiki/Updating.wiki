@@ -77,6 +77,7 @@ Query<Hotel> updateQuery = datastore.createQuery(Hotel.class).field("_id").equal
 
 // The Mapper class also provides a public static of the default _id field name for us...
 Query<Hotel> updateQuery = datastore.createQuery(Hotel.class).field(Mapper.ID_KEY).equal(hotel.getId());
+
 }}}
 
 *note the use of _equal()_ NOT _equals()_*
@@ -227,13 +228,9 @@ You can also perform multiple update operations within a single operation.
 //set city to Ottawa and increment stars by 1
 ops = datastore.createUpdateOperations(Hotel.class).set("city", "Ottawa").inc("stars");
 datastore.update(updateQuery, ops);
-}}}
 
-<font color="red">SCOTT, DOESN'T WORK LIKE THIS?? How are multiple ops supposed to work?</font>
-
-{{{
 //if you perform multiple operations in one command on the same property, results will vary
-ops = datastore.createUpdateOperations(Hotel.class).inc("stars", 50).inc("stars", 1);  //increments by 1
+ops = datastore.createUpdateOperations(Hotel.class).inc("stars", 50).inc("stars");  //increments by 1
 ops = datastore.createUpdateOperations(Hotel.class).inc("stars").inc("stars", 50);  //increments by 50
 
 //you can't apply conflicting operations to the same property
@@ -245,33 +242,53 @@ ops = datastore.createUpdateOperations(Hotel.class).set("stars", 1).inc("stars",
 
 In the default driver and shell this is the default behavior. In Morphia we feel like updating all the results of the query is a better default (see below).
 
+{ name: "Fairmont", stars: 5}, { name: "Last Chance", stars: 3 }
+
 {{{
-//example
-}}}
-{{{
-//shell version
+ops = datastore.createUpdateOperations(Hotel.class).inc("stars", 50);
+
+// (+v 0.95 now takes into account the order())
+// morphia exposes a specific updateFirst to update only the first hotel matching the query
+datastore.updateFirst(datastore.find(Hotel.class).order("stars"), ops);  // update only Last Chance
+datastore.updateFirst(datastore.find(Hotel.class).order("-stars"), ops); // update only 
+Fairmont
 }}}
 
-=== createIfMissing ===
 {{{
-//example
-}}}
-{{{
-//shell version
+//default shell version is to match first
+//shell version has a multi to indicate to update all matches, not just first
+//to mimic morphia operation, set multi = false
+db.collection.update( criteria, objNew, upsert, multi );
 }}}
 
 == update method ==
 {{{
-//example
-}}}
-{{{
-//shell version
+ops = datastore.createUpdateOperations(Hotel.class).inc("stars", 50);
+
+// morphia default update is to update all the hotels
+datastore.update(datastore.createQuery(Hotel.class), ops);  //increments all hotels
+
 }}}
 
-=== createIfMissing ===
 {{{
-//example
+//equivalent morphia shell version is... upsert = false, multi = true
+db.collection.update( criteria, objNew, false, true );
 }}}
+
+=== createIfMissing (overload parameter)===
+
+all of the update methods are overloaded and accept a "createIfMissing" parameter
+
 {{{
-//shell version
+ops = datastore.createUpdateOperations(Hotel.class).inc("stars", 50);
+
+//update, if not found create it
+datastore.updateFirst(datastore.createQuery(Hotel.class).field("stars").greaterThan(100), ops, true);  
+
+// creates { "_id" : ObjectId("4c60629d2f1200000000161d"), "stars" : 50 }
+}}}
+
+{{{
+//equivalent morphia shell version is... upsert = true
+db.collection.update( criteria, objNew, true, multi );
 }}}
