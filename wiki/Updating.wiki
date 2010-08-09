@@ -27,25 +27,33 @@ interface Datastore {
 	/** updates the first entity found with the operations; if nothing is found insert the update as an entity if "createIfMissing" is true*/
 	<T> UpdateResults<T> updateFirst(Query<T> query, T entity, boolean createIfMissing);
 }
+public interface UpdateOperations<T> {
+        /** sets the field value */
+        UpdateOperations<T> set(String fieldExpr, Object value);
+        /** removes the field */
+        UpdateOperations<T> unset(String fieldExpr);
 
-interface UpdateOperations<T> {
-	//Affect a single field/value
-	UpdateOperations<T> set(String fieldExpr, Object value);
-	UpdateOperations<T> unset(String fieldExpr);
+        /** adds the value to an array field*/
+        UpdateOperations<T> add(String fieldExpr, Object value);
+        UpdateOperations<T> add(String fieldExpr, Object value, boolean addDups);
+        /** adds the values to an array field*/
+        UpdateOperations<T> addAll(String fieldExpr, List<?> values, boolean addDups);
+        
+        /** removes the first value from the array*/
+        UpdateOperations<T> removeFirst(String fieldExpr);
+        /** removes the last value from the array*/
+        UpdateOperations<T> removeLast(String fieldExpr);
+        /** removes the value from the array field*/
+        UpdateOperations<T> removeAll(String fieldExpr, Object value);
+        /** removes the values from the array field*/
+        UpdateOperations<T> removeAll(String fieldExpr, List<?> values);
 
-	UpdateOperations<T> dec(String fieldExpr);
-	UpdateOperations<T> inc(String fieldExpr);
-	UpdateOperations<T> inc(String fieldExpr, Number value);
-
-	//Affect an array/list of values
-	UpdateOperations<T> add(String fieldExpr, Object value);
-	UpdateOperations<T> add(String fieldExpr, Object value, boolean addDups);
-	UpdateOperations<T> addAll(String fieldExpr, List<?> values, boolean addDups);
-	
-	UpdateOperations<T> removeFirst(String fieldExpr);
-	UpdateOperations<T> removeLast(String fieldExpr);
-	UpdateOperations<T> removeAll(String fieldExpr, Object value);
-	UpdateOperations<T> removeAll(String fieldExpr, List<?> values);
+        /** decrements the numeric field by 1*/
+        UpdateOperations<T> dec(String fieldExpr);
+        /** increments the numeric field by 1*/
+        UpdateOperations<T> inc(String fieldExpr);
+        /** increments the numeric field by value (negatives are allowed)*/
+        UpdateOperations<T> inc(String fieldExpr, Number value);
 }
 
 }}}
