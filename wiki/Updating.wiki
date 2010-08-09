@@ -114,7 +114,6 @@ datastore.update(updateQuery, ops);
 // causes the next load of the Hotel to have name = null
 ops = datastore.createUpdateOperations(Hotel.class).unset("name");
 datastore.update(updateQuery, ops);
-
 }}}
 
 == inc/dec ==
@@ -138,17 +137,44 @@ datastore.update(updateQuery, ops);
 
 == add/All ==
 {{{
-// default behavior is add a unique value to the array ($addToSet)
-ops = datastore.createUpdateOperations(Hotel.class).add("roomNumbers", 11);
-datastore.update(updateQuery, ops); 
 
+// default behavior for add() is to act like set()
+ops = datastore.createUpdateOperations(Hotel.class).add("roomNumbers", 11);  // same as .set("roomNumbers", 11)
+datastore.update(updateQuery, ops);
+
+}}}
+
+The above operation acts like a set() which just creates the property and sets its value.
+
+Performing array operations on a non-array property causes mongodb to throw an error.  We'll see that in the next sample.
+
+{{{
+
+// causes error since 'roomNumbers' is not an array at this point
+ops = datastore.createUpdateOperations(Hotel.class).add("roomNumbers", 11, false);
+datastore.update(updateQuery, ops);  // causes error
+
+// delete the property
+ops = datastore.createUpdateOperations(Hotel.class).unset("roomNumbers");
+datastore.update(updateQuery, ops);
+
+// 3rd parameter to add duplicates which makes the operation work with arrays
+
+// this time add and create it as an array
+ops = datastore.createUpdateOperations(Hotel.class).add("roomNumbers", 11, false);
+datastore.update(updateQuery, ops);  // [ 11 ]
+
+// no change since its a duplicate... doesn't cause error
+ops = datastore.createUpdateOperations(Hotel.class).add("roomNumbers", 11, false);
+datastore.update(updateQuery, ops);  // [ 11 ]
+
+// push onto the end of the array
 ops = datastore.createUpdateOperations(Hotel.class).add("roomNumbers", 12, false);
-datastore.update(updateQuery, ops);  // same as .add("roomNumbers", 12)
+datastore.update(updateQuery, ops); // [ 11, 12 ]
 
-// to make add() act like a $addToSet, use 3rd parameter as true to include dups ($push)
-ops = datastore.createUpdateOperations(Hotel.class).add("roomNumbers", 11, true);
-datastore.update(updateQuery, ops);  // append 11 to array
-
+// add even if its a duplicate
+ops = datastore.createUpdateOperations(Hotel.class).add("roomNumbers", 11, false);
+datastore.update(updateQuery, ops); // [ 11, 12, 11 ]
 }}}
 
 == removeFirst/Last/All ==
