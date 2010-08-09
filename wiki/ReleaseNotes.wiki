@@ -5,6 +5,7 @@
 
 = 0.95 =
 *unreleased*:
+  * Fixed bug in {{{UpdateOperations}}} where {{{add(.,.)}}} was acting like {{{$set}}}
   * Added basic support for @NotSaved (but will still load values)
   * Removed implicit conversions from String -> ObjectId; please use ObjectId directly; *Breaking Change*
   * Added javadocs and sources to maven repo
