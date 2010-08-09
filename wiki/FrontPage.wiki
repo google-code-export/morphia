@@ -5,7 +5,7 @@
 {{{
 @Entity("employees")
 class Employee {
-  @Id String id; // auto-generated, if not set (see ObjectId)
+  @Id ObjectId id; // auto-generated, if not set (see ObjectId)
   String firstName, lastName; // value types are automatically persisted
   Long salary = null; // only non-null values are stored 
 
@@ -20,16 +20,24 @@ class Employee {
   @Property("left")Date endDate;
 
   @Indexed boolean active = false; //fields can be indexed for better performance
+  @NotSaved string readButNotStored; //fields can read, but not saved
+  @Transient int notStored; //fields can be ignored (load/save)
+  transient boolean stored = true; //not @Transient, will be ignored by Serialization/GWT for example.
+
+  //Lifecycle methods -- Pre/PostLoad, Pre/PostSave...
+  @PostLoad void postLoad(DBObject dbObj) { ... }
 }
 }}}
- * Provides Datastore and DAO<T,V> data access abstractions
- * Type-safe Query support
+ * Provides Datastore and DAO<T,V> data access abstractions, or roll your own...
+ * Type-safe [Query] support
  * Works with Guice, Spring, and other DI frameworks.
- * GWT support (entities are just POJOs); GWT ignores annotations.
- * Includes a mapper that {{{void toObject(DBObject)}}} or {{{ DBObject fromObject(Object)}}}
+ * Has many extension points to build on
+ * Does not store Null/Empty values (by default).
+ * GWT support (entities are just POJOs) --(GWT ignores annotations)
+ * Advanced mapper that allows raw conversion, {{{void toObject(DBObject)}}} or {{{ DBObject fromObject(Object)}}}
 
 Please continue by reading the [QuickStart quick start guide].
 
 *Note*: The documentation is being re-written; please be patient.
 
-*Note*: @Reference will not save the objects, just a reference to them. You must save them yourself.
+*Note*: @Reference will not save objects, just a reference to them; You must save them yourself.
