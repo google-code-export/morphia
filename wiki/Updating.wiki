@@ -69,9 +69,11 @@ Query<Hotel> updateQuery = datastore.createQuery(Hotel.class).field("_id").equal
 
 // The Mapper class also provides a public static of the default _id field name for us...
 Query<Hotel> updateQuery = datastore.createQuery(Hotel.class).field(Mapper.ID_KEY).equal(hotel.getId());
+}}}
 
-*// note the use of _equal()_ NOT _equals()_*
+*note the use of _equal()_ NOT _equals()_*
 
+{{{
 @Entity("hotels")
 public class Hotel
 {
