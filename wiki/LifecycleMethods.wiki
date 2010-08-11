@@ -1,4 +1,5 @@
 #summary A list of Annotation to decorate your Entity with for lifecycle events.
+<wiki:toc>
 
 = Lifecycle Method Annotations =
 
@@ -10,11 +11,13 @@ There are various annotations which can be used to register callbacks on certain
  * {{{@PostLoad}}} - Called after mapping to the entity
 
 See the AnnotationReference for a full list of annotations supported.
+== Examples ==
 
 Here is a one of the test classes: http://code.google.com/p/morphia/source/browse/trunk/morphia/src/test/java/com/google/code/morphia/TestDatastore.java#82
 
 All parameters and return values are options in your implemented methods.
 
+=== Simple {{{@PrePersist}}} ===
 Here is a simple example of an entity that always saves the Date it was last updated at.
 {{{
 
@@ -27,7 +30,8 @@ class BankAccount {
 
 }}}
 
-In addition, you can separate the lifecycle event implementation in external classes.
+=== {{{EntityListerners}}} ===
+In addition, you can separate the lifecycle event implementation in an external class, or many.
 {{{
 
 @EntityListeners(BackAccountWatcher.class)
@@ -43,3 +47,7 @@ class BankAccountWatcher{
 }
 
 }}}
+
+== No Delete Support ==
+
+Because deletes are usually done with queries there is no way to support a Delete lifecycle event. If, or when, server-side triggers are enabled there may be some support for this, but even then it will be hard to imagine how this would logically fit.
