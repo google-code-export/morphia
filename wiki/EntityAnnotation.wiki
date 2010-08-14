@@ -29,6 +29,39 @@ public class Hotel {
 
 Note that your default constructor does not need to be public, it can also be protected or private.
 
+== Class name in document and how to suppress it ==
+
+The @Entity annotation provides another optional parameter to not store the class name in the document.
+
+{{{
+@Entity(value="hotels", noClassnameStored=true)
+public class Hotel {
+...
+    public Hotel() {
+    }
+...
+}
+}}}
+
+The default behavior is to store the class name in the document.
+
+*Why would you need it?*  This is mainly used when storing different entities in the same collection and reading them back as the base or super class.
+
+Ex.
+{{{
+@Entity("animals") abstract class Animal { String name; } 
+@Entity("animals") Cat extends Animal { ... } 
+@Entity("animals") Dog extends Animal { ... } 
+
+//And then performing the following query...
+List<Animal> animals = ds.createQuery(Animal.class).asList(); 
+}}}
+
+As you can see, without the class name stored in the document, Morphia wouldn't know which class to actually create.
+
+If you are only storing a single entity type in the collection and you are concerned about datasize, it would be safe to add the noClassnameStored=true parameter to the Entity annotation.
+
+
 == @Id ==
 Classes annotated with {{{@Entity}}} require unique {{{@Id}}} values; these values are stored in the MongoDB "_id" field, which has a unique index requirement. The Hotel class above would have:
 
