@@ -250,8 +250,7 @@ ops = datastore.createUpdateOperations(Hotel.class).inc("stars", 50);
 // (+v 0.95 now takes into account the order())
 // morphia exposes a specific updateFirst to update only the first hotel matching the query
 datastore.updateFirst(datastore.find(Hotel.class).order("stars"), ops);  // update only Last Chance
-datastore.updateFirst(datastore.find(Hotel.class).order("-stars"), ops); // update only 
-Fairmont
+datastore.updateFirst(datastore.find(Hotel.class).order("-stars"), ops); // update only Fairmont
 }}}
 
 {{{
