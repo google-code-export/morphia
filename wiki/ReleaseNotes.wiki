@@ -5,6 +5,7 @@
 
 = 0.95 =
 *unreleased*:
+  * Trace level logging for queries/updates/findAnd*.
   * Extended cache-scope to resolve non-lazy referenced Entities within the scope of one query
   * Fixed bug in {{{UpdateOperations}}} where {{{add(.,.)}}} was acting like {{{$set}}}
   * Added basic support for @NotSaved (but will still load values)
