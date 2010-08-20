@@ -108,11 +108,11 @@ You can sort by a field, or multiple fields in ascending or descending order.
 
 {{{
 Datastore ds = ...
-Query q = ds.createQuery(MyEntity.class).filter("foo >", 12).sort("dateAdded");
+Query q = ds.createQuery(MyEntity.class).filter("foo >", 12).order("dateAdded");
 ... // desc order
-Query q = ds.createQuery(MyEntity.class).filter("foo >", 12).sort("-dateAdded");
+Query q = ds.createQuery(MyEntity.class).filter("foo >", 12).order("-dateAdded");
 ... // asc dateAdded, desc foo
-Query q = ds.createQuery(MyEntity.class).filter("foo >", 12).sort("dateAdded, -foo");
+Query q = ds.createQuery(MyEntity.class).filter("foo >", 12).order("dateAdded, -foo");
 }}}
 
 = Offset (skip) =
