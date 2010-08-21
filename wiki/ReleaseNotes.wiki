@@ -5,16 +5,18 @@
 
 = 0.95 =
 *unreleased*:
+  * Requires mongodb java driver 2.1
+  * {{{WriteConcern}}} defaults to Safe (Strict) (see {{{Datastore.set/getWriteConcern()}}} to change)
+  * Write operation related methods now have overload with {{{WriteConcern}}} param.
   * Trace level logging for queries/updates/findAnd{{{*}}}.
   * Extended cache-scope to resolve non-lazy referenced Entities within the scope of one query
-  * Fixed bug in {{{UpdateOperations}}} where {{{add(.,.)}}} was acting like {{{$set}}}
-  * Added basic support for @NotSaved (but will still load values)
-  * Removed implicit conversions from String -> ObjectId; please use ObjectId directly; *Breaking Change*
+  * Fixed bug in {{{UpdateOperations}}} where {{{add(..)}}} was acting like {{{$set}}}
+  * Added basic support for {{{@NotSaved}}} (but will still load values)
+  * Removed implicit conversions from String -> {{{ObjectId}}}; please use {{{ObjectId}}} directly; *Breaking Change*
   * Added javadocs and sources to maven repo
-  * Changed ensureIndex methods sigs to use arrays (to preserve ordering)
-  * Checked to see if string passed to AsObjectIdMaybe are less than 24 chars
-  * Added Starts/EndsWith[IgnoreCase] to Query
-  * Check more param values (null/empty) for Queries
+  * Changed ensureIndex methods sigs to use arrays (to preserve ordering); *Breaking Change*
+  * Added Starts/EndsWith[IgnoreCase] to Query (only {{{StartWith}}} uses index)
+  * Better validation of query values (null/empty)
   * New internal logging abstraction (to support better perf./parity for other loggers)
   * bug fixes
 
@@ -33,6 +35,6 @@
 
 = 0.93 =
 *2010-06-13*:
-  * Required mongodb java 2.0 driver
+  * Requires mongodb java 2.0 driver
   * Rewrote must of the framework from 0.92 state.
   * much, much more...
