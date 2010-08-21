@@ -15,7 +15,7 @@
   * Removed implicit conversions from String -> {{{ObjectId}}}; please use {{{ObjectId}}} directly; *Breaking Change*
   * Added javadocs and sources to maven repo
   * Changed ensureIndex methods sigs to use arrays (to preserve ordering); *Breaking Change*
-  * Added Starts/EndsWith[IgnoreCase] to Query (only {{{StartWith}}} uses index)
+  * Added {{{starts/endsWith[IgnoreCase]}}} to [Query] (only {{{StartWith}}} uses index)
   * Better validation of query values (null/empty)
   * New internal logging abstraction (to support better perf./parity for other loggers)
   * bug fixes
