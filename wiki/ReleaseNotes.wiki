@@ -3,9 +3,13 @@
 *Releases*:
 <wiki:toc/>
 
-= 0.95 =
+= 0.96 =
 *unreleased*:
-  * Requires mongodb java driver 2.1
+  * soon
+
+= 0.95 =
+*2010-08-23*:
+  * *Requires* mongodb java driver 2.1
   * {{{WriteConcern}}} defaults to Safe (Strict) (see {{{Datastore.set/getWriteConcern()}}} to change)
   * Write operation related methods now have overload with {{{WriteConcern}}} param.
   * Trace level logging for queries/updates/findAnd{{{*}}}.
