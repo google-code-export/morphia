@@ -1,17 +1,14 @@
-#labels Featured
-
 #summary Frequently Asked Questions
+#labels Featured
 
 <wiki:toc max_depth="2" />
 
 = Frequently Asked Questions =
 
-== Can I use Dependency Injection (Spring, Guice, Weld) with Morphia? ==
-Yes!  Morphia was designed with this in mind.
-  # Ignore the {{{ObjectifyService}}} class and its static methods.  It is merely a static proxy for a single instance of {{{ObjectifyFactory}}}.  Instead you will use {{{ObjectifyFactory}}} directly.
-  # Create an application-scoped {{{ObjectifyFactory}}} instance, register your classes, and inject it!
-  # Alternatively, use the DAO pattern (see BestPractices) and inject your DAO.
+== Huh, why is there a className field in my Document?  Can I remove it? ==
 
-== Can I change data after it is loaded or before it is stored? ==
+This is explained here. [EntityAnnotation#Class_name_in_document_and_how_to_suppress_it]
+
+==Question about life cycle methods==
 Absolutely:
   * See the [LifecycleAnotations Lifecycle Annotations]
