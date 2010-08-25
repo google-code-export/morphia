@@ -36,7 +36,17 @@ List<Hotel> hotels = ds.find(Hotel.class, "stars >", 3).sort("-stars").asList();
 //get the first matching hotel, by querying with a limit(1)
 Hotel gsHotel = ds.find(Hotel.class, "name", "Grand Sierra").get();
 
+//same as
+Hotel gsHotel = ds.find(Hotel.class, "name =", "Grand Sierra").get();
+
 }}}
+
+Here is the list of valid operators:
+["=", "==","!=", "<>", ">", "<", ">=", "<=", "in", "nin", "all", "size", "exists"]
+
+If no operator is used, "=" is assumed, as in the last example above.
+"=" is the same as "==", equal
+"!=" is the same as "<>", not equal
 
 == Save Methods ==
 
@@ -50,7 +60,7 @@ Hotel hotel = new Hotel();
 ds.save(hotel);
 
 //@Id field is filled in for you (after the save), if you didn't set it.
-String id = hotel.getId();
+ObjectId id = hotel.getId();
 
 }}}
 
@@ -65,7 +75,7 @@ ds.delete(Hotel.class, "Grand Sierra Resort");
 ds.delete(ds.createQuery(Hotel.class).filter("pendingDelete", true));
 }}}
 
-=== FindAndDelete ===
+== FindAndDelete ==
 
 One of the underlying features in MongoDB is the ability to do some operations in an atomic fashion. This can be done by deleting an Entity, and returning the deleted item at the same time. The {{{FindAndDelete}}} method will find the first item, and delete it (while returning it).
 
@@ -78,7 +88,35 @@ Hotel grandSierra = ds.findAndDelete(ds.get(Hotel.class, "Grand Sierra Resort"))
 
 Updates are are applied at the server and allow for complicated but very efficient (when compared to saving the whole entity again) update operations.
 
-{{{Examples here...}}}
+Say you are tracking the last login for users.  Each time a user successfully enters the site you can update a timestamp, but don't necessarily want to load and resave the whole user document.  You can instead update the user locally and perform an efficient update of just the last login.
+
+{{{
+@Entity
+class User
+{
+   @Id private ObjectId id;
+   private long lastLogin;
+   //... other members
+
+   private Query<User> queryToFindMe()
+   {
+      return datastore.createQuery(User.class).field(Mapper.ID_KEY).equal(id);
+   }
+
+   public void loggedIn()
+   {
+      long now = System.currentTimeMillis();
+      UpdateOperations<User> ops = datastore.createUpdateOperations(User.class).set("lastLogin", now);
+      ds.update(queryToFindMe(), ops);
+      lastLogin = now;
+   }
+}
+
+}}}
+
+{{{
+//maybe add example on managing an embedded array of login times
+}}}
 
 Read more on [Updating].
  
