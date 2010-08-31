@@ -5,7 +5,8 @@
 
 = 0.96 =
 *unreleased*:
-  * soon
+  * Added support for {{{@Id Map id}}}
+  * fixed bug with query {{{doesNotExist()}}}
 
 = 0.95 =
 *2010-08-23*:
