@@ -11,10 +11,10 @@ Not really. The Mongo driver keeps a connection pool which is a field per Mongo 
  
 == Huh, why is there a className field in my Document?  Can I remove it? ==
 
-Yes, you can; look [here EntityAnnotation#Class_name_in_document_and_how_to_suppress_it]
+Yes, you can; look [EntityAnnotation#Class_name_in_document_and_how_to_suppress_it here]
 
 Please be careful that you follow the ClassPerCollection pattern if you remove the className from your persisted entites.
 
 ==Question about life cycle methods==
 Absolutely:
-  * See the [LifecycleAnotations LifecycleAnnotations]
+  * See the [LifecycleMethods Lifecycle Annotations]
