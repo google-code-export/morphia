@@ -1,7 +1,8 @@
-
 *Morphia* is a lightweight type-safe library for mapping your Java objects to/from [http://mongodb.org MongoDB]:
 <wiki:gadget url="http://www.ohloh.net/p/morphia/widgets/project_partner_badge.xml" height="55" border="0" />
  * Easy to use, and very lightweight; reflection is used once per type and cached.
+ * [Datastore] and [DAOSupport DAO]<T,V> access abstractions, or roll your own...
+ * Type-safe [Query] support
  * Annotations describe mapping behavior; there are no XML files.
 {{{
 @Entity("employees")
@@ -29,8 +30,6 @@ class Employee {
   @PostLoad void postLoad(DBObject dbObj) { ... }
 }
 }}}
- * Provides Datastore and DAO<T,V> data access abstractions, or roll your own...
- * Type-safe [Query] support
  * Works with Guice, Spring, and other DI frameworks.
  * Has many extension points to build on
  * Does not store Null/Empty values (by default).
