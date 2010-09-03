@@ -3,6 +3,7 @@
   * User's Guide
     * [Motivation Motivation]
     * [GettingStarted Getting Started]
+      * [Dependencies]
     * [Datastore Datastore Interface]
     * [Query Query Interface]
     * [LifecycleMethods Entity Lifecycle]
