@@ -5,6 +5,23 @@
 
 = Frequently Asked Questions =
 
+== Why do I need to change my {{{@Id}}} field from {{{String}}} to {{{ObjectId}}} ==
+If you wanted an automatically generated id (the default {{{_id}}} value for mongodb) in versions prior to 0.95 you could do this:
+{{{
+@Id String id;
+}}}
+
+Or make queries using a string version of your {{{ObjectId}}} value because we automatically tried to convert any string into an {{{ObjectId}}} for you.
+
+After version 0.95 this is no longer the case. You now should change that definition above from {{{String}}} to {{{ObjectId}}} like this:
+{{{
+@Id ObjectId id;
+}}}
+
+There are many reasons to do this. Always trying to convert from string->objectid was confusing (in documentation), and ambiguous in certain cases and made it impossible to use a string value between 18-24 characters long with alpha-numeric values (a hex string). It also was confusing because you had to remember that in other languages and the shell you had to use an {{{ObjectId}}}.
+
+To simplify things and make it more transparent we have remove this implicit conversion.
+
 == Do you have to close connections? ==
 
 Not really. The Mongo driver keeps a connection pool which is a field per Mongo instance. If you wish to release those resources, just make sure you stop using the Mongo instance.
