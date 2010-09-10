@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<metadata>
+<?xml version="1.0" encoding="UTF-8"?><metadata>
   <groupId>com.google.code.morphia</groupId>
   <artifactId>morphia</artifactId>
   <version>0.93-SNAPSHOT</version>
@@ -13,6 +12,6 @@
       <version>0.95</version>
       <version>0.96-SNAPSHOT</version>
     </versions>
-    <lastUpdated>20100903021035</lastUpdated>
+    <lastUpdated>20100910162457</lastUpdated>
   </versioning>
 </metadata>
