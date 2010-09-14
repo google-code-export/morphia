@@ -12,7 +12,7 @@ Let's look at how we could use the DAO support to manage blog entries. First of 
 
 {{{
 
-public class BlogEntryDAO extends DAO<BlogEntry, String> {
+public class BlogEntryDAO extends DAO<BlogEntry, ObjectId> {
     public BlogEntryDAO( Morphia morphia, Mongo mongo ) {
         super(mongo, morphia, "myBlogDb");
     }
@@ -32,7 +32,7 @@ Now, we can use this class to persist and load blog entries:
 BlogEntryDAO blogEntryDAO = new BlogEntryDAO(...);
 
 // get one specific blog entry
-String blogEntryId = ...;
+ObjectId  blogEntryId = ...;
 BlogEntry myBlogEntry = blogEntryDAO.get(blogEntryId);
 
 // update it
