@@ -33,7 +33,6 @@ The question here is: _How do we annotate the author field in BlogEntry?_ We cou
 For this case we use the @Reference annotation:
 
 {{{
-import com.google.code.morphia.annotations.CollectionName;
 import com.google.code.morphia.annotations.Entity;
 import com.google.code.morphia.annotations.Embedded;
 import com.google.code.morphia.annotations.Id;
@@ -44,9 +43,7 @@ import com.google.code.morphia.annotations.Property;
 public class BlogEntry {
 
     @Id
-    private String id;
-    @CollectionName
-    private String collectionName;
+    private ObjectId id;
 
     private String title;
     private Date publishDate;
@@ -64,9 +61,7 @@ public class BlogEntry {
 public class Author {
 
     @Id
-    private String id;
-    @CollectionName
-    private String collectionName;
+    private ObjectId id;
 
     private String username;
     private String fullName;
