@@ -1,4 +1,4 @@
-#summary Annotating primitive and basic type fields.
+#summary Annotating primitive and basic (type) fields.
 
 = Annotating primitive and basic type fields =
 
@@ -9,10 +9,11 @@ To store primitive and basic type fields in Mongo, you don't need any annotation
 private int myInt;
 private Date myDate;
 private List<String> myStrings;
+private String[] stringArray;
 ...
 }}}
 
-By default, Morphia will try to map all the supported basic and primitive types to/from Mongo.
+By default, Morphia will try to map all the supported basic and primitive types to/from Mongo, including arrays of those types.
 
 MongoDB only has the following data types:
  * Integer (32-bit signed value)
@@ -36,7 +37,7 @@ The following list defines what basic an primitive types can currently be persis
  * com.mongodb.DBRef
  * com.mongodb.ObjectId
 
-As we showed in the example above, Morphia can also store a java.util.List, java.util.Set, and java.util.Map collections.
+As we showed in the example above, Morphia can also store a java.util.List, java.util.Set, and java.util.Map collections, and primitive arrays of any supported types.
 
 If you want to exclude a field from being mapped to Mongo, use the @Transient annotation:
 
