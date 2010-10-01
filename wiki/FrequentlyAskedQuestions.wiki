@@ -6,7 +6,7 @@
 = Frequently Asked Questions =
 
 == Why do I need to change my {{{@Id}}} field from {{{String}}} to {{{ObjectId}}} ==
-If you wanted an automatically generated id (the default {{{_id}}} value for mongodb) in versions prior to 0.95 you could do this:
+If you wanted an *automatically generated id* (the default {{{_id}}} value for mongodb) in versions prior to 0.95 you could do this:
 {{{
 @Id String id;
 }}}
@@ -21,6 +21,8 @@ After version 0.95 this is no longer the case. You now should change that defini
 There are many reasons to do this. Always trying to convert from string->objectid was confusing (in documentation), and ambiguous in certain cases and made it impossible to use a string value between 18-24 characters long with alpha-numeric values (a hex string). It also was confusing because you had to remember that in other languages and the shell you had to use an {{{ObjectId}}}.
 
 To simplify things and make it more transparent we have remove this implicit conversion.
+
+If you don't want to use an {{{ObjectId}}} type you can manage your {{{@Id}}} value yourself. There is a sample class that uses an auto-incrementing {{{long}}} (stored as a counter on the server) as an example. Natural keys are great things to use as your id values (immutable values like a username, or email are an example in some applications).
 
 == Do you have to close connections? ==
 
