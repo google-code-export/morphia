@@ -5,7 +5,9 @@
 
 = 0.97 =
 *unreleased*:
+  * *Requires* mongodb java driver 2.2
   * "or" query support
+  * SlaveOk query support
 
 = 0.96 =
 *2010-10-05*:
