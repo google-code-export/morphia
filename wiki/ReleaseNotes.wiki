@@ -3,12 +3,18 @@
 *Releases*:
 <wiki:toc/>
 
-= 0.96 =
+= 0.97 =
 *unreleased*:
+  * "or" query support
+
+= 0.96 =
+*2010-10-05*:
   * Added support for {{{@Id Map id}}} ; the Map part
   * fixed bug with query {{{doesNotExist()}}}
   * Java-field name or the saved field name can be used in [Query]
   * {{{UpdateResults}}} now only called {{{WriteResult.getLastError()}}] when methods called
+  * various Converter enhancements (support in lists and maps with @Embedded)
+  * 1.5 Java support back 
 
 = 0.95 =
 *2010-08-23*:
