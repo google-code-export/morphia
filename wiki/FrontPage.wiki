@@ -1,9 +1,10 @@
-*Morphia* is a lightweight type-safe library for mapping your Java objects to/from [http://mongodb.org MongoDB]:
+*Morphia* is a lightweight type-safe library for mapping Java objects to/from [http://mongodb.org MongoDB]:
 <wiki:gadget url="http://www.ohloh.net/p/morphia/widgets/project_partner_badge.xml" height="55" border="0" />
- * Easy to use, and very lightweight; reflection is used once per type and cached.
+ * Easy to use, and very *lightweight*; reflection is used once per type and cached.
  * [Datastore] and [DAOSupport DAO]<T,V> access abstractions, or roll your own...
  * Type-safe [Query] support
- * Annotations describe mapping behavior; there are no XML files.
+ * *Annotations* describe mapping behavior; there are no XML files.
+ * *Extensions*: [ValidationExtension Validation (jsr330)], and [SLF4JExtension SLF4J Logging]
 {{{
 @Entity("employees")
 class Employee {
@@ -30,11 +31,11 @@ class Employee {
   @PostLoad void postLoad(DBObject dbObj) { ... }
 }
 }}}
- * Works with Guice, Spring, and other DI frameworks.
- * Has many extension points to build on
+ * Works great with Guice, Spring, and other DI frameworks.
+ * Many extension points (new annotations, converters, mapping behavior, logging, etc.)
  * Does not store Null/Empty values (by default).
- * GWT support (entities are just POJOs) --(GWT ignores annotations)
- * Advanced mapper that allows raw conversion, {{{void toObject(DBObject)}}} or {{{ DBObject fromObject(Object)}}}
+ * GWT support (entities are just POJOs) -- (GWT ignores annotations)
+ * Advanced mapper which allows raw conversion, {{{void toObject(DBObject)}}} or {{{ DBObject fromObject(Object)}}}
 
 Please continue by reading the [QuickStart quick start guide].
 
