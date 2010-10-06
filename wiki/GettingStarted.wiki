@@ -13,7 +13,7 @@ This will consist of a few code snippets to get you going!
 == Initialize Morphia/Mongo ==
 {{{
 
-Datastore ds = new Morphia().createDatastore("myDB");
+Datastore ds = new Morphia().createDatastore("myDB"); //best to use (Mongo, String) method, where Mongo is a singleton.
 
 ...
 
