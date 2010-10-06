@@ -1,0 +1,29 @@
+#summary SLF4J Logging Extension
+
+= Introduction =
+
+This is a simple extension to Morphia to redirect logging to SFL4J.
+
+= Using =
+Add this at the start of your application. It is done once, statically.
+
+{{{
+MorphiaLoggerFactory.registerLogger(SLF4JLoggerImplFactory.class);
+}}}
+
+== Dependencies ==
+
+=== Manual ===
+  * [http://www.slf4j.org SLF4J]
+
+=== Maven ===
+  * If you use Maven2 to manage your project, you can reference Morphia as a dependency.
+    * Repo: {{{http://morphia.googlecode.com/svn/mavenrepo/}}}
+    * Project Settings: 
+{{{
+<dependency>
+	<groupId>com.google.code.morphia</groupId>
+	<artifactId>logging-slf4j</artifactId>
+	<version>0.96</version>
+</dependency>
+}}}
