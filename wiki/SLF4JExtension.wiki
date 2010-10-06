@@ -1,4 +1,5 @@
 #summary SLF4J Logging Extension
+#labels Extension
 
 = Introduction =
 
