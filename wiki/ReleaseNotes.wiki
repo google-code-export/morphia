@@ -10,7 +10,7 @@
   * SlaveOk query support
 
 = 0.96 =
-*2010-10-05*:
+*2010-10-06*:
   * Added support for {{{@Id Map id}}} ; the Map part
   * fixed bug with query {{{doesNotExist()}}}
   * Java-field name or the saved field name can be used in [Query]
