@@ -13,6 +13,9 @@
       * [EmbeddedAnnotation Embedded Annotation]
       * [ReferenceAnnotation Referencing/Linking]
       * [UsingCollections Lists, Sets, and Maps]
+    * Extensions
+      * [ValidationExtension Validation]
+      * [SLF4JLogging SLF4J Logging]
     * Manually Mapping objects to/from MongoDB (DBObjects)
       * [MappingObjects Using the Morphia instance]
       * [UsingInterfaces Programming to interfaces]
