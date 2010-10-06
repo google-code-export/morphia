@@ -32,7 +32,7 @@ public class Userlike {
 
 = Implementation =
 
-This is a lightweight wrapper around the Hibernate implementation. It installs a simple global entity interceptor which listens to all life-cycle methods needed for validation.
+This is a lightweight wrapper around the Hibernate implementation. It installs a simple global entity interceptor which listens to all [LifecycleMethods life-cycle methods] needed for validation.
 
 You can look at the code [http://code.google.com/p/morphia/source/browse/trunk/validation/src/main/java/com/google/code/morphia/validation/MorphiaValidation.java here].
 
