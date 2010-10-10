@@ -7,7 +7,9 @@
 *unreleased*:
   * *Requires* mongodb java driver 2.2
   * "or" query support
-  * SlaveOk query support
+  * {{{slaveOk()}}} query support (and {{{@Entity}}}
+  * {{{Query.noTimeout}}}
+  * {{{Query.snapshotMode}}}
 
 = 0.96 =
 *2010-10-06*:
