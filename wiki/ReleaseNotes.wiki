@@ -11,8 +11,8 @@
   * {{{slaveOk()}}} query support (and {{{@Entity}}})
   * {{{Query.noTimeout}}}
   * {{{Query.snapshotMode}}}
-  * Support embedded {{{Map<ObjectId, Object>}}} ({{{ObjectId is converted to string}}})
-  * 
+  * Support embedded {{{Map<ObjectId, Object>}}} (Note: The {{{ObjectId}}} is converted to string)
+ 
 = 0.96 =
 *2010-10-06*:
   * Added support for {{{@Id Map id}}} ; the Map part
