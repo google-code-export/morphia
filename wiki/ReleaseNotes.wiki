@@ -7,10 +7,12 @@
 *unreleased*:
   * *Requires* mongodb java driver 2.2
   * "or" query support
+  * {{{concern()}}} {{{@Entity}}} support
   * {{{slaveOk()}}} query support (and {{{@Entity}}})
   * {{{Query.noTimeout}}}
   * {{{Query.snapshotMode}}}
-
+  * Support embedded {{{Map<ObjectId, Object>}}} ({{{ObjectId is converted to string}}})
+  * 
 = 0.96 =
 *2010-10-06*:
   * Added support for {{{@Id Map id}}} ; the Map part
