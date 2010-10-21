@@ -58,6 +58,10 @@ public interface UpdateOperations<T> {
 
 }}}
 
+== The Field Expression ==
+
+The field expression that is used for all operations can be either a single field name, or any dot-notation form (for embedded elements). You can also use the positional operator ($) in the field expression. There is no validation on the field expression so you can put anything in there that is valid on the server.
+
 == Samples initialization ==
 
 All of the code samples below create the connection and morphia instance using the following code:
