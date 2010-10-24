@@ -14,6 +14,9 @@
   * Support embedded {{{Map<ObjectId, Object>}}} (Note: The {{{ObjectId}}} is converted to string)
   * Supports {{{@Indexed(background=true)}}} + {{{Datastore.ensureIndex(es)(background)}}}
   * Update now adds {{{className}}} fields for entities in {{{UpdateOperations.set/addAll/add}}}
+  * New Annotation: {{{@Indexes({@Index("field1, -field2)})}}}
+  * Nested collections/maps
+
 = 0.96 =
 *2010-10-06*:
   * Added support for {{{@Id Map id}}} ; the Map part
