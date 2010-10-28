@@ -13,6 +13,9 @@ Morphia morphiaInstance = ...
 new MorphiaValidation().applyTo(morphiaInstance);
 }}}
 
+== Dependencies ==
+ * Hibernate Validation 4.1.0Final
+ 
 == Example ==
 
 Here is a simple example:
