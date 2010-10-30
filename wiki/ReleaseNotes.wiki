@@ -5,17 +5,20 @@
 
 = 0.97 =
 *unreleased*:
-  * *Requires* mongodb java driver 2.2
+  * *Requires* mongodb java driver 2.2+
   * "or" query support
   * {{{concern()}}} {{{@Entity}}} support
   * {{{slaveOk()}}} query support (and {{{@Entity}}})
   * {{{Query.noTimeout}}}
   * {{{Query.snapshotMode}}}
-  * Support embedded {{{Map<ObjectId, Object>}}} (Note: The {{{ObjectId}}} is converted to string)
-  * Supports {{{@Indexed(background=true)}}} + {{{Datastore.ensureIndex(es)(background)}}}
+  * {{{ObjectId}}} map key supported: {{{Map<ObjectId, Object>}}} (Note: The {{{ObjectId}}} is converted to string)
+  * Background indexing: {{{@Indexed(background=true)}}} + {{{Datastore.ensureIndex(es)(background)}}}
   * Update now adds {{{className}}} fields for entities in {{{UpdateOperations.set/addAll/add}}}
-  * New Annotation: {{{@Indexes({@Index("field1, -field2)})}}}
+  * {{{@Indexes({@Index("field1, -field2")})}}} support (declared compound index support)
   * Nested collections/maps
+  * {{{@Id}}} field updated for updateFirst when inserted with WriteCocern.Safe
+  * {{{@Converters}}} - registration for converters
+  * {{{@Indexed}}} now works on embedded classes
 
 = 0.96 =
 *2010-10-06*:
