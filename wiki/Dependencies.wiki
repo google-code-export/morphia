@@ -28,7 +28,7 @@ Add the dependencies above to your class-path and compile.
 <dependency>
 	<groupId>com.google.code.morphia</groupId>
 	<artifactId>morphia</artifactId>
-	<version>0.93</version>
+	<version>###</version>
 </dependency>
 <!-Optional Jars (for certain features) but required by maven for bulding. -->
 <dependency>
