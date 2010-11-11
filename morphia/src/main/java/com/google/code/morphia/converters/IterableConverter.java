@@ -19,7 +19,6 @@ import com.google.code.morphia.utils.ReflectionUtils;
  * @author Uwe Schaefer, (us@thomas-daily.de)
  * @author scotthernandez
  */
-
 @SuppressWarnings({"unchecked","rawtypes"})
 public class IterableConverter extends TypeConverter {
 	private final DefaultConverters chain;
@@ -30,9 +29,9 @@ public class IterableConverter extends TypeConverter {
 	
 	@Override
 	protected
-	boolean isSupported(Class c, MappedField mf) {
-		if (mf != null)
-			return mf.isMultipleValues() && !mf.isMap(); //&& !mf.isTypeMongoCompatible();
+	boolean isSupported(Class c, MappedField optionalExtraInfo) {
+		if (optionalExtraInfo != null)
+			return optionalExtraInfo.isMultipleValues() && !optionalExtraInfo.isMap();
 		else
 			return c.isArray() || ReflectionUtils.implementsInterface(c, Iterable.class);
 	}
@@ -42,7 +41,7 @@ public class IterableConverter extends TypeConverter {
 	Object decode(Class targetClass, Object fromDBObject, MappedField mf) throws MappingException {
 		if (mf == null || fromDBObject == null) return fromDBObject;
 		
-		Class subtypeDest = mf.getSubClass();
+		Class subtypeDest = mf.getSubType();
 		Collection vals = null;
 		
 		if (fromDBObject.getClass().isArray()) {
@@ -100,9 +99,9 @@ public class IterableConverter extends TypeConverter {
 		}
 		
 		List values = new ArrayList();
-		if (f != null && f.getSubClass() != null) {
+		if (f != null && f.getSubType() != null) {
 			for (Object o : iterableValues) {
-				values.add(chain.encode(f.getSubClass(), o));
+				values.add(chain.encode(f.getSubType(), o));
 			}
 		} else {
 			for (Object o : iterableValues) {

@@ -16,35 +16,24 @@
 
 package com.google.code.morphia;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import junit.framework.Assert;
 
 import org.bson.types.ObjectId;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.google.code.morphia.annotations.Entity;
 import com.google.code.morphia.annotations.Id;
-import com.google.code.morphia.query.MorphiaIterator;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.DBObject;
-import com.mongodb.Mongo;
-import com.mongodb.ReflectionDBObject;
-import com.mongodb.WriteConcern;
+import com.mongodb.*;
 
 /**
  *
  * @author Scott Hernandez
  */
-//@Ignore 
-@SuppressWarnings({ "rawtypes", "unchecked" })
 public class TestPerf  extends TestBase{
-	static double WriteFailFactor = 1.10;
-	static double ReadFailFactor = 1.75;
+	static double FailFactor = 1.10;
 	
 	@Entity
 	public static class Address {
@@ -53,75 +42,7 @@ public class TestPerf  extends TestBase{
 		String street = "3400 Maple";
 		String city = "Manhattan Beach";
 		String state = "CA";
-		int zip = 90266;
-		Date added = new Date();
-		
-		public Address() {}
-		
-		public Address(BasicDBObject dbObj) {
-			name = dbObj.getString("name");
-			street = dbObj.getString("street");
-			city = dbObj.getString("city");
-			state = dbObj.getString("state");
-			zip = dbObj.getInt("zip");
-			added = (Date) dbObj.get("added");
-		}
-		
-		public DBObject toDBObject() {
-			DBObject dbObj = new BasicDBObject();
-			dbObj.put("name", name);
-			dbObj.put("street", street);
-			dbObj.put("city", city);
-			dbObj.put("state", state);
-			dbObj.put("zip", zip);
-			dbObj.put("added", new Date());
-			return dbObj;
-		}
-	}
-	
-	public static class Address2 extends ReflectionDBObject{
-		public String getname() {
-			return name;
-		}
-		public void setname(String name) {
-			this.name = name;
-		}
-		public String getstreet() {
-			return street;
-		}
-		public void setstreet(String street) {
-			this.street = street;
-		}
-		public String getcity() {
-			return city;
-		}
-		public void setcity(String city) {
-			this.city = city;
-		}
-		public String getstate() {
-			return state;
-		}
-		public void setstate(String state) {
-			this.state = state;
-		}
-		public int getzip() {
-			return zip;
-		}
-		public void setzip(int zip) {
-			this.zip = zip;
-		}
-		public Date getadded() {
-			return added;
-		}
-		public void setadded(Date added) {
-			this.added = added;
-		}
-		
-		String name = "Scott";
-		String street = "3400 Maple";
-		String city = "Manhattan Beach";
-		String state = "CA";
-		int zip = 90266;
+		int zip = 94114;
 		Date added = new Date();
 	}
 
@@ -146,44 +67,32 @@ public class TestPerf  extends TestBase{
     							insertTime,
     							rawInsertTime);
     	Assert.assertTrue(msg, 
-    			insertTime < (rawInsertTime * WriteFailFactor ));
+    			insertTime < (rawInsertTime * FailFactor ));
     }
 
-	@Test
+	@Test @Ignore
     public void testAddressLoadPerf() throws Exception {
-    	insertAddresses(5001, true, false);
+    	insertAddresses(1, false, false);
     	
 		int count = 5000;
     	boolean strict = false;
     	long startTicks = new Date().getTime();
-    	loadAddresses2(count, true, strict);
+    	loadAddresses(count, true, strict);
     	long endTicks = new Date().getTime();
-    	long rawLoadTime = endTicks - startTicks;
-
+    	long rawInsertTime = endTicks - startTicks;
+    	
     	startTicks = new Date().getTime();
-    	loadAddresses2(count, false, strict);
+    	loadAddresses(count, false, strict);
     	endTicks = new Date().getTime();
-    	long morphiaLoadTime = endTicks - startTicks;
-
-    	startTicks = new Date().getTime();
-    	loadAddresses3(count, true, strict);
-    	endTicks = new Date().getTime();
-    	long reflectLoadTime = endTicks - startTicks;
-
-    	String msg = String.format("Load (%s) performance is too slow compared to ReflectionDBObject: %sX slower (%s/%s)", 
-				count,
-				String.valueOf((double)morphiaLoadTime/reflectLoadTime).subSequence(0, 4),
-				morphiaLoadTime,
-				reflectLoadTime);    	
-    	Assert.assertTrue(msg, morphiaLoadTime < (reflectLoadTime * WriteFailFactor ));
-
-    	msg = String.format("Load (%s) performance is too slow compared to raw: %sX slower (%s/%s)", 
-				count,
-				String.valueOf((double)morphiaLoadTime/rawLoadTime).subSequence(0, 4),
-				morphiaLoadTime,
-				rawLoadTime);    	
-		Assert.assertTrue(msg, morphiaLoadTime < (rawLoadTime * ReadFailFactor ));
-
+    	long insertTime = endTicks - startTicks;
+    	
+    	String msg = String.format("Load (%s) performance is too slow: %sX slower (%s/%s)", 
+    							count,
+    							String.valueOf((double)insertTime/rawInsertTime).subSequence(0, 4),
+    							insertTime,
+    							rawInsertTime);
+    	Assert.assertTrue(msg, 
+    			insertTime < (rawInsertTime * FailFactor ));
     }
 	
 	public void loadAddresses(int count, boolean raw, boolean strict) {
@@ -191,46 +100,18 @@ public class TestPerf  extends TestBase{
     	
     	for(int i=0;i<count;i++) {
     		if(raw) {
-    			new Address((BasicDBObject) dbColl.findOne());
+    			Address addr = new Address();
+    			BasicDBObject dbObj = (BasicDBObject) dbColl.findOne();
+    			addr.name = dbObj.getString("name");
+    			addr.street = dbObj.getString("street");
+    			addr.city = dbObj.getString("city");
+    			addr.state = dbObj.getString("state");
+    			addr.zip = dbObj.getInt("zip");
+    			addr.added = (Date) dbObj.get("added");
     		}else {
     			ds.find(Address.class).get();
     		}
     	}
-    }
-
-	public void loadAddresses2(int count, boolean raw, boolean strict) {
-    	DBCollection dbColl = db.getCollection(((DatastoreImpl)ds).getMapper().getCollectionName(Address.class));
-    	Iterable it = raw ? dbColl.find().limit(count) : ds.find(Address.class).limit(count).fetch();
-    	
-    	for(Object o : it)
-    		if(raw) {
-    			new Address((BasicDBObject) o);
-    		}else {
-    			//no-op; already happened during iteration
-    		}
-    	if (!raw)
-            System.out.println("driverTime: "+ ((MorphiaIterator<Object>)it).getDriverTime() + "ms, mapperTime:" + ((MorphiaIterator<Object>)it).getMapperTime() + "ms");
-    }
-
-	public void loadAddresses3(int count, boolean raw, boolean strict) {
-    	DBCollection dbColl = db.getCollection(((DatastoreImpl)ds).getMapper().getCollectionName(Address.class));
-    	Iterable it = raw ? dbColl.find().limit(count) : ds.find(Address.class).limit(count).fetch();
-
-    	if (raw) 
-    		dbColl.setObjectClass(Address2.class);
-
-    	for(Object o : it)
-    		if(raw) {
-    			Address2 addr = (Address2)o;
-    		}else {
-    			//no-op; already happened during iteration
-    		}
-    	
-//    	if (raw) 
-//    		dbColl.setObjectClass(null);
-
-    	if (!raw)
-            System.out.println("driverTime: "+ ((MorphiaIterator<Object>)it).getDriverTime() + "ms, mapperTime:" + ((MorphiaIterator<Object>)it).getMapperTime() + "ms");
     }
 
 	public void insertAddresses(int count, boolean raw, boolean strict) {
@@ -239,7 +120,13 @@ public class TestPerf  extends TestBase{
     	for(int i=0;i<count;i++) {
 			Address addr = new Address();
     		if(raw) {
-    			DBObject dbObj = addr.toDBObject();
+    			DBObject dbObj = new BasicDBObject();
+    			dbObj.put("name", addr.name);
+    			dbObj.put("street", addr.street);
+    			dbObj.put("city", addr.city);
+    			dbObj.put("state", addr.state);
+    			dbObj.put("zip", addr.zip);
+    			dbObj.put("added", new Date());
     			if (strict)
     				dbColl.save(dbObj, com.mongodb.WriteConcern.SAFE);
     			else
@@ -277,8 +164,7 @@ public class TestPerf  extends TestBase{
                 }
                 
                 long start = System.currentTimeMillis();
-                for(TestObj to : objList)
-                	ds.insert(to, WriteConcern.SAFE);
+                ds.insert(objList, WriteConcern.SAFE);
                 System.out.println("Time taken morphia: "+(System.currentTimeMillis()-start)+"ms");
                 
                 Mongo mongoConn = new Mongo("localhost" , 27017 );
@@ -297,20 +183,6 @@ public class TestPerf  extends TestBase{
                 for (DBObject doc : batchPush)
                 	c.insert(doc);
                 System.out.println("Time taken regular: "+(System.currentTimeMillis()-start)+"ms");
-
-                objList = new ArrayList<TestObj>();
-                for (int i=0; i<1000; i++){
-                        TestObj obj = new TestObj();
-                        obj.id = new ObjectId();
-                        obj.var1 = 3345345l+i;
-                        obj.var2 = 6785678l+i;
-                        objList.add(obj);
-                }
-                
-                start = System.currentTimeMillis();
-                ds.insert(objList, WriteConcern.SAFE);
-                System.out.println("Time taken batch morphia: "+(System.currentTimeMillis()-start)+"ms");
-
                 
                 batchPush = new ArrayList<DBObject>();
                 for (int i=0; i<1000; i++){

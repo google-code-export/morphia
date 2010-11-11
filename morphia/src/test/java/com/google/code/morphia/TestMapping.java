@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.Vector;
 
 import org.bson.types.ObjectId;
@@ -65,23 +64,40 @@ import com.mongodb.DBRef;
  * @author Olafur Gauti Gudmundsson
  * @author Scott Hernandez
  */
-@SuppressWarnings({"unchecked", "rawtypes", "unused"})
+@SuppressWarnings("unchecked")
 public class TestMapping  extends TestBase {
+	
+	@Entity
+	public static class KeyAsId {
+		@Id Key<?> id;
+		String name = "hello";
+		
+		protected KeyAsId() {}
+		public KeyAsId(Key<?> key) {
+			this.id = key;
+		}
+	}
 
 	@Entity
-	private static class MissingId {
+	public static class MapAsId {
+		@Id Map<String, String> id = new HashMap<String, String>();
+		String name = "hello";		
+	}
+	
+	@Entity
+	public static class MissingId {
 		String id;
 	}
 	
-	private static class MissingIdStill {
+	public static class MissingIdStill {
 		String id;
 	}
 	
 	@Entity("no-id")
-	private static class MissingIdRenamed {
+	public static class MissingIdRenamed {
 		String id;
 	}
-
+	
 	@Embedded
 	public static class IdOnEmbedded {
 		@Id ObjectId id;
@@ -188,17 +204,6 @@ public class TestMapping  extends TestBase {
 		@AlsoLoad("intList") List<Integer> ints = new ArrayList<Integer>();
 	}
 	
-	@Entity(noClassnameStored=true)
-	private static class ContainsUUID {
-		@Id ObjectId id;
-		UUID uuid = UUID.randomUUID();
-	}
-
-	@Entity(noClassnameStored=true)
-	private static class ContainsUuidId {
-		@Id UUID id = UUID.randomUUID();
-	}
-	
 	public static class ContainsEnum1KeyMap{
 		@Id ObjectId id;
 		public Map<Enum1, String> values = new HashMap<Enum1,String>();
@@ -209,11 +214,6 @@ public class TestMapping  extends TestBase {
 	public static class ContainsIntKeyMap{
 		@Id ObjectId id;
 		public Map<Integer, String> values = new HashMap<Integer,String>();
-	}
-	
-	public static class ContainsObjectIdKeyMap{
-		@Id ObjectId id;
-		public Map<ObjectId, String> values = new HashMap<ObjectId,String>();
 	}
 	
 	public static class ContainsXKeyMap<T>{
@@ -244,31 +244,6 @@ public class TestMapping  extends TestBase {
 	public static class MapSubclass extends LinkedHashMap<String, Object> {
 		private static final long serialVersionUID = 1L;
 		@Id ObjectId id;
-	}
-
-	@Test
-    public void testUUID() throws Exception {
-		morphia.map(ContainsUUID.class);
-		ContainsUUID cuuid = new ContainsUUID();
-		UUID before = cuuid.uuid;
-		ds.save(cuuid);
-		ContainsUUID loaded = ds.find(ContainsUUID.class).get();
-		assertNotNull(loaded);
-		assertNotNull(loaded.id);
-		assertNotNull(loaded.uuid);
-		assertEquals(before, loaded.uuid);
-	}
-	
-	@Test
-    public void testUuidId() throws Exception {
-		morphia.map(ContainsUuidId.class);
-		ContainsUuidId cuuidId = new ContainsUuidId();
-		UUID before = cuuidId.id;
-		Key<ContainsUuidId> key = ds.save(cuuidId);
-		ContainsUuidId loaded = ds.get(ContainsUuidId.class, before);
-		assertNotNull(loaded);
-		assertNotNull(loaded.id);
-		assertEquals(before, loaded.id);
 	}
 
 	@Test
@@ -349,30 +324,7 @@ public class TestMapping  extends TestBase {
 		assertEquals(cilLoaded.intList.size(), 1);
 		assertEquals(1,(int)cilLoaded.intList.get(0));
 	}
-    
-    @Test
-    public void testObjectIdKeyedMap() throws Exception {
-    	ContainsObjectIdKeyMap map = new ContainsObjectIdKeyMap();
-    	ObjectId o1 = new ObjectId("111111111111111111111111");
-    	ObjectId o2 = new ObjectId("222222222222222222222222");
-		map.values.put(o1,"I'm 1s");
-		map.values.put(o2,"I'm 2s");
-		
-		Key<?> mapKey = ds.save(map);
-		
-		ContainsObjectIdKeyMap mapLoaded = ds.get(ContainsObjectIdKeyMap.class, mapKey.getId());
-		
-		assertNotNull(mapLoaded);
-		assertEquals(2,mapLoaded.values.size());
-		assertNotNull(mapLoaded.values.get(o1));
-		assertNotNull(mapLoaded.values.get(o2));
-		
-		assertNotNull(ds.find(ContainsIntKeyMap.class).field("values.111111111111111111111111").exists());
-		assertEquals(0, ds.find(ContainsIntKeyMap.class).field("values.111111111111111111111111").doesNotExist().countAll());
-		assertNotNull(ds.find(ContainsIntKeyMap.class).field("values.4").doesNotExist());
-		assertEquals(0, ds.find(ContainsIntKeyMap.class).field("values.4").exists().countAll());
-    }
-
+	
 	@Test
     public void testIntKeyedMap() throws Exception {
 		ContainsIntKeyMap map = new ContainsIntKeyMap ();
@@ -394,7 +346,7 @@ public class TestMapping  extends TestBase {
 		assertEquals(0, ds.find(ContainsIntKeyMap.class).field("values.4").exists().countAll());
 	}
 
-	@Test @Ignore("need to add this feature; closer after changes in 0.97")
+	@Test @Ignore
     public void testGenericKeyedMap() throws Exception {
 		ContainsXKeyMap<Integer> map = new ContainsXKeyMap<Integer>();
 		map.values.put(1,"I'm 1");
@@ -513,12 +465,42 @@ public class TestMapping  extends TestBase {
 	}
 
 	@Test
+    public void testKeyAsId() throws Exception {
+        morphia.map(KeyAsId.class);
+        
+        Rectangle r = new Rectangle(1,1);
+//        Rectangle r2 = new Rectangle(11,11);
+        
+        Key<Rectangle> rKey = ds.save(r);
+//        Key<Rectangle> r2Key = ds.save(r2);
+        KeyAsId kai = new KeyAsId(rKey);
+        Key<KeyAsId> kaiKey = ds.save(kai);
+        KeyAsId kaiLoaded = ds.get(KeyAsId.class, rKey);
+        assertNotNull(kaiLoaded);
+        assertNotNull(kaiKey);
+	}
+
+	@Test
+    public void testMapAsId() throws Exception {
+        morphia.map(MapAsId.class);
+        
+        MapAsId mai = new MapAsId();
+        mai.id.put("test", "string");
+        Key<MapAsId> maiKey = ds.save(mai);
+        MapAsId maiLoaded = ds.get(MapAsId.class, new BasicDBObject("test","string"));
+        assertNotNull(maiLoaded);
+        assertNotNull(maiKey);
+	}
+
+	@Test
     public void testDbRefMapping() throws Exception {
         morphia.map(ContainsRef.class).map(Rectangle.class);
         DBCollection stuff = db.getCollection("stuff");
         DBCollection rectangles = db.getCollection("rectangles");
         
-        assertTrue("'ne' field should not be persisted!", !morphia.getMapper().getMCMap().get(ContainsRef.class.getName()).containsJavaFieldName("ne"));
+        assertTrue("'ne' field should not be persisted!",
+ !morphia.getMappedClasses().get(ContainsRef.class.getName())
+				.containsJavaFieldName("ne"));
 
         Rectangle r = new Rectangle(1,1);
         DBObject rDbObject = morphia.toDBObject(r);
@@ -707,8 +689,6 @@ public class TestMapping  extends TestBase {
             db.dropDatabase();
         }
     }
-
-    
     @Test
     public void testReferenceWithoutIdValue() throws Exception {
 		new AssertedFailure(MappingException.class) {

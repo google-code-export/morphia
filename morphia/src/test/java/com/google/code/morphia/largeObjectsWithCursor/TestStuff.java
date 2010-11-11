@@ -12,7 +12,9 @@ import com.google.code.morphia.TestMapping.BaseEntity;
 import com.google.code.morphia.annotations.Entity;
 import com.google.code.morphia.query.Query;
 
-/** Test from list, but doesn't seems to be a problem. Here as an example. */
+/**
+ * Test from list, but doesn't seems to be a problem. Here as an example.
+ */
 public class TestStuff extends TestBase {
 	private int documentsNb;
 	

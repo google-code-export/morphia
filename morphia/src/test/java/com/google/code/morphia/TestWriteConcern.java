@@ -21,9 +21,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.google.code.morphia.annotations.Entity;
 import com.google.code.morphia.annotations.Id;
-import com.mongodb.WriteConcern;
 
 /**
  *
@@ -31,7 +29,6 @@ import com.mongodb.WriteConcern;
  */
 public class TestWriteConcern  extends TestBase{
 
-	@Entity(concern="Safe")
 	static class Simple {
 		@Id String id;
 		public Simple(String id) {this(); this.id = id;}
@@ -39,38 +36,9 @@ public class TestWriteConcern  extends TestBase{
 	}
 
 	@Test
-    public void testDuplicateInsertWDefaultWriteConcern() throws Exception {
+    public void testDuplicateInsert() throws Exception {
 		boolean failed = false;
 		AdvancedDatastore aDs = (AdvancedDatastore)ds; 
-		try {
-			aDs.insert(new Simple("simple"), ds.getDefaultWriteConcern());
-			aDs.insert(new Simple("simple"), ds.getDefaultWriteConcern());
-		} catch (Exception e) {
-			failed = true;
-		}
-		assertEquals(1L, ds.getCount(Simple.class));
-		assertTrue("Duplicate Exception was not raised!", failed);
-	}
-
-	@Test
-    public void testDuplicateInsertWSafeWriteConcern() throws Exception {
-		boolean failed = false;
-		AdvancedDatastore aDs = (AdvancedDatastore)ds; 
-		try {
-			aDs.insert(new Simple("simple"));
-			aDs.insert(new Simple("simple"), WriteConcern.SAFE);
-		} catch (Exception e) {
-			failed = true;
-		}
-		assertEquals(1L, ds.getCount(Simple.class));
-		assertTrue("Duplicate Exception was not raised!", failed);
-	}
-
-	@Test
-    public void testDuplicateInsertWEntityWriteConcern() throws Exception {
-		boolean failed = false;
-		AdvancedDatastore aDs = (AdvancedDatastore)ds; 
-		ds.setDefaultWriteConcern(WriteConcern.NONE);
 		try {
 			aDs.insert(new Simple("simple"));
 			aDs.insert(new Simple("simple"));

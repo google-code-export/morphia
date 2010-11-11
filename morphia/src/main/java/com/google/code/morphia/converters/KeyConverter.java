@@ -20,17 +20,15 @@ public class KeyConverter extends TypeConverter {
 	@Override
 	public Object decode(Class targetClass, Object o, MappedField optionalExtraInfo) throws MappingException {
 		if (o == null) return null;
-		if (!(o instanceof DBRef))
-			throw new ConverterException(String.format("cannot convert %s to Key because it isn't a DBRef", o.toString()));
-			
-		return mapr.refToKey((DBRef) o);
+		
+		return new Key((DBRef) o);
 	}
 	
 	@Override
 	public Object encode(Object t, MappedField optionalExtraInfo) {
 		if (t == null)
 			return null;
-		return mapr.keyToRef((Key) t);
+		return ((Key) t).toRef(mapr);
 	}
 
 }

@@ -4,10 +4,10 @@
 package com.google.code.morphia.converters;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.code.morphia.logging.Logr;
 import com.google.code.morphia.logging.MorphiaLoggerFactory;
@@ -15,7 +15,6 @@ import com.google.code.morphia.mapping.MappedField;
 import com.google.code.morphia.mapping.Mapper;
 import com.google.code.morphia.mapping.MapperOptions;
 import com.google.code.morphia.mapping.MappingException;
-import com.google.code.morphia.utils.ReflectionUtils;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
@@ -30,14 +29,14 @@ public class DefaultConverters {
 	private static final Logr log = MorphiaLoggerFactory.get(DefaultConverters.class);
 	
 	private List<TypeConverter> untypedTypeEncoders = new LinkedList<TypeConverter>();
-	private Map<Class,List<TypeConverter>> tcMap = new ConcurrentHashMap<Class,List<TypeConverter>>();
-	private List<Class<? extends TypeConverter>> registeredConverterClasses = new LinkedList<Class<? extends TypeConverter>>();
+	private Map<Class,List<TypeConverter>> tcMap = new HashMap<Class,List<TypeConverter>>();
 	
 	private Mapper mapr;
 	
 	public DefaultConverters() {
 		// some converters are commented out since the pass-through converter is enabled, at the end of the list.
 		// Re-enable them if that changes.
+//		addConverter(new PassthroughConverter(ObjectId.class));
 //		addConverter(new PassthroughConverter(DBRef.class));
 
 		//Pass-through DBObject or else the MapOfValuesConverter will process it.
@@ -63,7 +62,6 @@ public class DefaultConverters {
 		addConverter(new MapOfValuesConverter(this));
 		addConverter(new IterableConverter(this));
 		addConverter(new ClassConverter());
-		addConverter(new ObjectIdConverter());
 
 		//generic converter that will just pass things through.
 		addConverter(new PassthroughConverter());
@@ -73,7 +71,7 @@ public class DefaultConverters {
 	 * Add a type converter. If it is a duplicate for an existing type, it will override that type.
 	 * @param tc
 	 */
-	public TypeConverter addConverter(TypeConverter tc) {
+	public void addConverter(TypeConverter tc) {
 		if (tc.getSupportedTypes() != null)
 			for(Class c : tc.getSupportedTypes())
 				addTypedConverter(c, tc);
@@ -81,13 +79,6 @@ public class DefaultConverters {
 			untypedTypeEncoders.add(tc);
 		
 		tc.setMapper(mapr);
-		
-		registeredConverterClasses.add(tc.getClass());
-		return tc;
-	}
-	
-	public TypeConverter addConverter(Class<? extends TypeConverter> clazz) {
-		return addConverter((TypeConverter) ReflectionUtils.createInstance(clazz));
 	}
 
 	/**
@@ -95,18 +86,12 @@ public class DefaultConverters {
 	 * @param tc
 	 */
 	public void removeConverter(TypeConverter tc) {
-		if (tc.getSupportedTypes() == null)
+		if (untypedTypeEncoders.contains(tc))
 			untypedTypeEncoders.remove(tc);
-		else
-			for (List<TypeConverter> tcList : tcMap.values())
-				if(tcList.contains(tc))
-					tcList.remove(tc);
 		
-		registeredConverterClasses.remove(tc.getClass());		
-	}
-
-	public boolean isRegistered(Class<? extends TypeConverter> tcClass) {
-		return registeredConverterClasses.contains(tcClass);
+		for (List<TypeConverter> tcList : tcMap.values())
+			if(tcList.contains(tc))
+				tcList.remove(tc);
 	}
 	
 	private void addTypedConverter(Class type, TypeConverter tc) {
@@ -119,7 +104,6 @@ public class DefaultConverters {
 			tcMap.put(type, vals);
 		}
 	}
-	
 	public void fromDBObject(final DBObject dbObj, final MappedField mf, final Object targetEntity) {
 		Object object = mf.getDbObjectValue(dbObj);
 		if (object == null) {
@@ -140,20 +124,8 @@ public class DefaultConverters {
 		//we ignore missing values.
 	}
 	
-	private TypeConverter getEncoder(MappedField mf) {
-		return getEncoder(null, mf);
-	}
-	
-	private TypeConverter getEncoder(Object val, MappedField mf) {
-		
-		List<TypeConverter> tcs = null;
-		
-		if (val != null)
-			tcs = tcMap.get(val.getClass());
-		
-		if (tcs == null || (tcs.size() > 0 && tcs.get(0) instanceof PassthroughConverter)) 
-			tcs = tcMap.get(mf.getType());
-		
+	private TypeConverter getEncoder(final MappedField mf) {
+		List<TypeConverter> tcs = tcMap.get(mf.getType());
 		if(tcs != null) {
 			if (tcs.size() > 1)
 				log.warning("Duplicate converter for " + mf.getType() + ", returning first one from " + tcs);
@@ -161,7 +133,7 @@ public class DefaultConverters {
 		}
 		
 		for (TypeConverter tc : untypedTypeEncoders)
-			if(tc.canHandle(mf) || (val != null && tc.isSupported(val.getClass(), mf)))
+			if(tc.canHandle(mf))
 				return tc;
 		
 		throw new ConverterNotFoundException("Cannot find encoder for " + mf.getType() + " as need for "
@@ -184,9 +156,8 @@ public class DefaultConverters {
 	}
 	
 	public void toDBObject(final Object containingObject, final MappedField mf, final DBObject dbObj, MapperOptions opts) {
+		TypeConverter enc = getEncoder(mf);
 		Object fieldValue = mf.getFieldValue(containingObject);
-		TypeConverter enc = getEncoder(fieldValue, mf);
-		
 		Object encoded = enc.encode(fieldValue, mf);
 		if (encoded != null || opts.storeNulls) {
 			dbObj.put(mf.getNameToStore(), encoded);
@@ -230,17 +201,6 @@ public class DefaultConverters {
 		return (conv instanceof SimpleValueConverter);
 	}
 
-	public boolean hasSimpleValueConverter(Object o) {
-		if (o == null) return false;
-		if (o instanceof Class)
-			return hasSimpleValueConverter((Class)o);
-		else if (o instanceof MappedField)
-			return hasSimpleValueConverter((MappedField)o);
-		else
-			return hasSimpleValueConverter(o.getClass());
-	}
-	
-
 	public boolean hasDbObjectConverter(MappedField c) {
 		TypeConverter conv = getEncoder(c);
 		return conv != null && !(conv instanceof PassthroughConverter) && !(conv instanceof SimpleValueConverter);
@@ -250,4 +210,5 @@ public class DefaultConverters {
 		TypeConverter conv = getEncoder(c);
 		return conv != null && !(conv instanceof PassthroughConverter) && !(conv instanceof SimpleValueConverter);
 	}
+	
 }

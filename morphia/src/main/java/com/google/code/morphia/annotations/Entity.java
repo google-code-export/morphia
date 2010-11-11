@@ -38,12 +38,5 @@ public @interface Entity {
 	String value() default Mapper.IGNORED_FIELDNAME;
 	CappedAt cap() default @CappedAt(0);
 	//@Deprecated //to be replaced. This is a temp hack until polymorphism and discriminators are impl'd
-	boolean noClassnameStored() default false;
-	
-	//set slaveOk for queries for this Entity.
-	boolean slaveOk() default false;
-	
-	//any WriteConcern static string. Case insensitive. STRICT/SAFE, NORMAL, etc...
-	String concern() default "";
-
+	boolean noClassnameStored() default false; 
 }

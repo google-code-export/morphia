@@ -3,22 +3,19 @@
  */
 package com.google.code.morphia.utils;
 
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import junit.framework.Assert;
+import junit.framework.TestCase;
 
 import org.junit.Test;
-
-import com.google.code.morphia.TestBase;
 
 /**
  * @author Uwe Schaefer, (us@thomas-daily.de)
  */
-public class ReflectionUtilsTest extends TestBase
+public class ReflectionUtilsTest extends TestCase
 {
 
     /**
@@ -29,9 +26,9 @@ public class ReflectionUtilsTest extends TestBase
     @Test
 	public void testImplementsInterface()
     {
-        Assert.assertTrue(ReflectionUtils.implementsInterface(ArrayList.class, List.class));
-        Assert.assertTrue(ReflectionUtils.implementsInterface(ArrayList.class, Collection.class));
-        Assert.assertFalse(ReflectionUtils.implementsInterface(Set.class, List.class));
+        assertTrue(ReflectionUtils.implementsInterface(ArrayList.class, List.class));
+        assertTrue(ReflectionUtils.implementsInterface(ArrayList.class, Collection.class));
+        assertFalse(ReflectionUtils.implementsInterface(Set.class, List.class));
     }
 
 }

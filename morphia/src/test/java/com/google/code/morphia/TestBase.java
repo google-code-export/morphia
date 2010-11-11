@@ -27,16 +27,11 @@ public abstract class TestBase
     @Before
     public void setUp()
     {
-    	dropDB();
+        this.mongo.dropDatabase("morphia_test");
         this.db = this.mongo.getDB("morphia_test");
         this.ds = this.morphia.createDatastore(this.mongo, this.db.getName());
     }
 	
-    protected void dropDB() {
-        this.mongo.dropDatabase("morphia_test");
-    	
-    }
-    
 	@After
 	public void tearDown() {
 //		new ScopedFirstLevelCacheProvider().release();

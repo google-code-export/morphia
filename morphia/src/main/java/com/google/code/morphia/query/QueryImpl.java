@@ -1,10 +1,13 @@
 package com.google.code.morphia.query;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.bson.types.CodeWScope;
 
@@ -12,14 +15,19 @@ import com.google.code.morphia.Datastore;
 import com.google.code.morphia.DatastoreImpl;
 import com.google.code.morphia.Key;
 import com.google.code.morphia.annotations.Entity;
+import com.google.code.morphia.annotations.Reference;
+import com.google.code.morphia.annotations.Serialized;
 import com.google.code.morphia.logging.Logr;
 import com.google.code.morphia.logging.MorphiaLoggerFactory;
 import com.google.code.morphia.mapping.MappedClass;
+import com.google.code.morphia.mapping.MappedField;
 import com.google.code.morphia.mapping.Mapper;
+import com.google.code.morphia.mapping.Serializer;
 import com.google.code.morphia.mapping.cache.EntityCache;
+import com.google.code.morphia.utils.Assert;
+import com.google.code.morphia.utils.ReflectionUtils;
 import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
-import com.mongodb.Bytes;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
@@ -31,17 +39,17 @@ import com.mongodb.DBObject;
  *
  * @param <T> The type we will be querying for, and returning.
  */
-public class QueryImpl<T> extends CriteriaContainerImpl implements Query<T>, Criteria {
-	
-	private static final Logr log = MorphiaLoggerFactory.get(QueryImpl.class);
+public class QueryImpl<T> implements Query<T> {
+	private static final Logr log = MorphiaLoggerFactory.get(Mapper.class);
 	
 	private final EntityCache cache;
 	private boolean validatingNames = true;
 	private boolean validatingTypes = true;
 	
+	private Map<String, Object> query = null;
 	private String[] fields = null;
 	private Boolean includeFields = null;
-	private DBObject sort = null;
+	private BasicDBObjectBuilder sort = null;
 	private DatastoreImpl ds = null;
 	private DBCollection dbColl = null;
 	private int offset = 0;
@@ -49,24 +57,12 @@ public class QueryImpl<T> extends CriteriaContainerImpl implements Query<T>, Cri
 	private int batchSize = 0;
 	private String indexHint;
 	private Class<T> clazz = null;
-	private DBObject baseQuery = null;
-	private boolean snapshotted = false;
-	private boolean slaveOk = false;
-	private boolean noTimeout = false;
 	
 	public QueryImpl(Class<T> clazz, DBCollection coll, Datastore ds) {
-		super(CriteriaJoin.AND);
-		
-		this.query = this;
 		this.clazz = clazz;
 		this.ds = ((DatastoreImpl)ds);
 		this.dbColl = coll;
 		this.cache = this.ds.getMapper().createEntityCache();
-		
-		MappedClass mc = this.ds.getMapper().getMappedClass(clazz);
-		Entity entAn = mc == null ? null : mc.getEntityAnnotation();
-		if (entAn != null)
-			this.slaveOk = this.ds.getMapper().getMappedClass(clazz).getEntityAnnotation().slaveOk();
 	}
 	
 	public QueryImpl(Class<T> clazz, DBCollection coll, Datastore ds, int offset, int limit) {
@@ -75,14 +71,11 @@ public class QueryImpl<T> extends CriteriaContainerImpl implements Query<T>, Cri
 		this.limit = limit;
 	}
 
-	public QueryImpl(Class<T> clazz, DBCollection coll, DatastoreImpl ds, DBObject baseQuery) {
-		this(clazz, coll, ds);
-		this.baseQuery = baseQuery;
+	@SuppressWarnings("unchecked")
+	public void setQueryObject(DBObject query) {
+		this.query = (Map<String, Object>) query;
 	}
 	
-	public void setQueryObject(DBObject query) {
-		this.baseQuery = query;
-	}
 	public int getOffset() {
 		return offset;
 	}
@@ -92,19 +85,7 @@ public class QueryImpl<T> extends CriteriaContainerImpl implements Query<T>, Cri
 	}
 	
 	public DBObject getQueryObject() {
-		DBObject obj = new BasicDBObject();
-		
-		if (this.baseQuery != null) {
-			obj.putAll(this.baseQuery);
-		}
-		
-		this.addTo(obj);
-		
-		return obj;
-	}
-	
-	public DatastoreImpl getDatastore() {
-		return ds;
+		return (query == null) ? null : new BasicDBObject(query);
 	}
 	
 	public DBObject getFieldsObject() {
@@ -119,17 +100,9 @@ public class QueryImpl<T> extends CriteriaContainerImpl implements Query<T>, Cri
 	}
 	
 	public DBObject getSortObject() {
-		return (sort == null) ? null : sort;
+		return (sort == null) ? null : sort.get();
 	}
-	
-	public boolean isValidatingNames() {
-		return validatingNames;
-	}
-	
-	public boolean isValidatingTypes() {
-		return validatingTypes;
-	}
-	
+
 	public long countAll() {
 		DBObject query = getQueryObject();
 		if (log.isTraceEnabled())
@@ -151,27 +124,10 @@ public class QueryImpl<T> extends CriteriaContainerImpl implements Query<T>, Cri
 			cursor.limit(limit);
 		if (batchSize > 0)
 			cursor.batchSize(batchSize);
-		if (snapshotted)
-			cursor.snapshot();
 		if (sort != null)
-			cursor.sort(sort);
+			cursor.sort(getSortObject());
 		if (indexHint != null)
 			cursor.hint(indexHint);
-
-		if (slaveOk) {
-			int opts = dbColl.getOptions();
-			cursor.addOption(opts |= Bytes.QUERYOPTION_SLAVEOK);
-		}
-		
-		if (noTimeout) {
-			int opts = dbColl.getOptions();
-			cursor.addOption(opts |= Bytes.QUERYOPTION_NOTIMEOUT);
-		}
-		
-		//Check for bad options.
-		if (snapshotted && (sort!=null || indexHint!=null))
-			log.warning("Snapshotted query should not have hint/sort.");
-		
 		
 		return cursor;
 	}
@@ -204,18 +160,12 @@ public class QueryImpl<T> extends CriteriaContainerImpl implements Query<T>, Cri
 
 	public List<T> asList() {
 		List<T> results = new ArrayList<T>();
-		MorphiaIterator<T> iter = (MorphiaIterator<T>) fetch().iterator();
-		for(T ent : iter)
+		for(T ent : fetch())
 			results.add(ent);
 
 		if (log.isTraceEnabled())
-			log.trace(String.format("\nasList: %s \t %d entities, iterator time: driver %4.2f ms, mapper %4.2f ms \n cache: %s \n for $s \n ", 
-					dbColl.getName(),
-					results.size(),
-					iter.getDriverTime(),
-					iter.getMapperTime(),
-					cache.stats().toString(),
-					getQueryObject()));
+			log.trace("\nasList: " + dbColl.getName() + "\n result size " + results.size() + "\n cache: "
+				+ (cache.stats()) + "\n for " + ((query != null) ? new BasicDBObject(query) : "{}"));
 
 		return results;
 	}
@@ -280,6 +230,7 @@ public class QueryImpl<T> extends CriteriaContainerImpl implements Query<T>, Cri
 			throw new IllegalArgumentException("Unknown operator '" + operator + "'");
 	}
 	
+	@SuppressWarnings("unchecked")
 	public Query<T> filter(String condition, Object value) {
 		String[] parts = condition.trim().split(" ");
 		if (parts.length < 1 || parts.length > 6)
@@ -288,20 +239,85 @@ public class QueryImpl<T> extends CriteriaContainerImpl implements Query<T>, Cri
 		String prop = parts[0].trim();
 		FilterOperator op = (parts.length == 2) ? this.translate(parts[1]) : FilterOperator.EQUAL;
 		
-		this.add(new FieldCriteria(this, prop, op, value, this.validatingNames, this.validatingTypes));
-
+		//The field we are filtering on, in the java object; only known if we are validating
+		StringBuffer sb = new StringBuffer(prop); //validate might modify prop string to translate java field name to db field name
+		MappedField mf = validate(sb, value);
+		prop = sb.toString();
+		
+		//TODO differentiate between the key/value for maps; we will just get the mf for the field, not which part we are looking for
+		
+		if (query == null) query = new HashMap<String, Object>();
+		Mapper mapr = ds.getMapper();
+		Object mappedValue;
+		MappedClass mc = null;
+		try {
+			if (value != null && !ReflectionUtils.isPropertyType(value.getClass()) && !ReflectionUtils.implementsInterface(value.getClass(), Iterable.class))
+				if (mf != null && !mf.isTypeMongoCompatible())
+					mc = mapr.getMappedClass((mf.isSingleValue()) ? mf.getType() : mf.getSubType());
+				else
+					mc = mapr.getMappedClass(value);
+		} catch (Exception e) {
+			//Ignore these. It is likely they related to mapping validation that is unimportant for queries (the query will fail/return-empty anyway)
+			log.debug("Error during mapping filter criteria: ", e);
+		}
+	
+		//convert the value to Key (DBRef) if it is a entity/@Reference or the field type is Key
+		if ((mf!=null && (mf.hasAnnotation(Reference.class) || mf.getType().isAssignableFrom(Key.class)))
+				|| (mc != null && mc.getEntityAnnotation() != null)) {
+			try {
+				Key<?> k = (value instanceof Key) ? (Key<?>)value : ds.getKey(value);
+				mappedValue = k.toRef(mapr);
+			} catch (Exception e) {
+				log.debug("Error converting value(" + value + ") to reference.", e);
+				mappedValue = mapr.toMongoObject(value);
+			}
+		}
+		else if (mf!=null && mf.hasAnnotation(Serialized.class))
+			try {
+				mappedValue = Serializer.serialize(value, !mf.getAnnotation(Serialized.class).disableCompression());
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		else if (value instanceof DBObject)
+			mappedValue = value;
+		else
+			mappedValue = mapr.toMongoObject(value);
+		
+		Class<?> type = (mappedValue != null) ? mappedValue.getClass() : null;
+		
+		//convert single values into lists for $in/$nin
+		if (type != null && (op == FilterOperator.IN || op == FilterOperator.NOT_IN) && !type.isArray() && !ReflectionUtils.implementsAnyInterface(type, Iterable.class) ) {
+			mappedValue = Collections.singletonList(mappedValue);
+		}
+		
+		if (FilterOperator.EQUAL.equals(op))
+			query.put(prop, mappedValue); // no operator, prop equals value
+		else {
+			Object inner = query.get(prop); // operator within inner object
+			if (!(inner instanceof Map)) {
+				inner = new HashMap<String, Object>();
+				query.put(prop, inner);
+			}
+			((Map<String, Object>)inner).put(op.val(), mappedValue);
+		}
 		return this;	
 	}
 
-	public Query<T> where(CodeWScope js) {
-		this.add(new WhereCriteria(js));
-		return this;
-	}
-	
-	public Query<T> where(String js) {
-		this.add(new WhereCriteria(js));
-		return this;
-	}
+    protected Query<T> filterWhere(Object obj){
+		if (query == null) {
+            query = new HashMap<String, Object>();
+        }
+        query.put(FilterOperator.WHERE.val(), obj);
+        return this;
+    }
+
+    public Query<T> where(String js) {
+    	return filterWhere(js);
+    }
+
+    public Query<T> where(CodeWScope cws) {
+    	return filterWhere(cws);
+    }
 
 	public Query<T> enableValidation(){ validatingNames = validatingTypes = true; return this; }
 
@@ -310,6 +326,112 @@ public class QueryImpl<T> extends CriteriaContainerImpl implements Query<T>, Cri
 	QueryImpl<T> validateNames() {validatingNames = true; return this; }
 	QueryImpl<T> disableTypeValidation() {validatingTypes = false; return this; }
 	
+	/** Validate the path, and value type, returning the mappedfield for the field at the path */
+	private MappedField validate(StringBuffer origProp, Object value) {
+		//TODO: cache validations (in static?).
+		
+		MappedField mf = null;
+		String prop = origProp.toString();
+		boolean hasTranslations = false;
+		
+		if (validatingNames) {
+			String[] parts = prop.split("\\.");
+			if (this.clazz == null) return null;
+			MappedClass mc = ds.getMapper().getMappedClass(this.clazz);
+			for(int i=0; ; ) {
+				String part = parts[i];
+				mf = mc.getMappedField(part);
+				
+				//translate from java field name to stored field name
+				if (mf == null) {
+					mf = mc.getMappedFieldByJavaField(part);
+				    if (mf == null) throw new QueryException("The field '" + part + "' could not be found in '" + this.clazz.getName() + 
+				    										"' while validating - " + prop + 
+				    										"; if you wish to continue please disable validation.");
+				    hasTranslations = true;
+				    parts[i] = mf.getNameToStore();
+				}
+				
+				i++;
+				if (mf.isMap()) {
+					//skip the map key validation, and move to the next part
+					i++;
+				}
+				
+				//catch people trying to search into @Reference/@Serialized fields
+				if (i < parts.length && !canQueryPast(mf))
+					throw new QueryException("Can not use dot-notation past '" + part + "' could not be found in '" + this.clazz.getName()+ "' while validating - " + prop);
+				
+				if (i >= parts.length) break;
+				//get the next MappedClass for the next field validation
+				mc = ds.getMapper().getMappedClass((mf.isSingleValue()) ? mf.getType() : mf.getSubType());
+			}
+			
+			//record new property string if there has been a translation to any part
+			if (hasTranslations) {
+    			origProp.setLength(0); // clear existing content
+    			origProp.append(parts[0]);
+	    		for (int i = 1; i < parts.length; i++) {
+	    		    origProp.append('.');
+		    	    origProp.append(parts[i]);
+    			}
+    		}
+	
+			if (validatingTypes)
+				if (	 (mf.isSingleValue() && !isCompatibleForQuery(mf.getType(), value)) || 
+						((mf.isMultipleValues() && !isCompatibleForQuery(mf.getSubType(), value)))) {
+		
+					Throwable t = new Throwable();
+					StackTraceElement ste = getFirstClientLine(t);
+					if (log.isWarningEnabled())
+						log.warning("Datatypes for the query may be inconsistent; searching with an instance of "
+								+ value.getClass().getName() + " when the field " + mf.getDeclaringClass().getName()+ "." + mf.getJavaFieldName()
+								+ " is a " + mf.getType().getName() + (ste == null ? "" : "\r\n --@--" + ste));
+					if (log.isDebugEnabled())
+						log.debug("Location of warning:\r\n", t);
+				}			
+		}
+		return mf;
+	}
+	
+	/** Returns if the MappedField is a Reference or Serilized  */
+	public static boolean canQueryPast(MappedField mf) {
+		return !(mf.hasAnnotation(Reference.class) || mf.hasAnnotation(Serialized.class));
+	}
+	
+	/** Return the first {@link StackTraceElement} not in our code (package). */
+	public static StackTraceElement getFirstClientLine(Throwable t) {
+		for(StackTraceElement ste : t.getStackTrace())
+			if ( 	!ste.getClassName().startsWith("com.google.code.morphia") && 
+					!ste.getClassName().startsWith("sun.reflect") && 
+					!ste.getClassName().startsWith("org.junit") && 
+					!ste.getClassName().startsWith("org.eclipse") && 
+					!ste.getClassName().startsWith("java.lang"))
+				return ste;
+		
+		return null;
+	}
+	public static boolean isCompatibleForQuery(Class<?> type, Object value) {
+		if (value == null || type == null) 
+			return true;
+		else if (value instanceof Integer && (int.class.equals(type) || long.class.equals(type) || Long.class.equals(type)))
+			return true;
+		else if ((value instanceof Integer || value instanceof Long) && (double.class.equals(type) || Double.class.equals(type)))
+			return true;
+		else if (value instanceof Pattern && String.class.equals(type))
+			return true;
+		else if (value.getClass().getAnnotation(Entity.class) != null && Key.class.equals(type))
+			return true;
+		else if (value instanceof List)
+			return true;
+		else if (!value.getClass().isAssignableFrom(type) &&
+				//hack to let Long match long, and so on
+				!value.getClass().getSimpleName().toLowerCase().equals(type.getSimpleName().toLowerCase())) {
+			return false;
+		}
+		return true;
+	}
+
 	public T get() {
 		int oldLimit = limit;
 		limit = 1;
@@ -337,10 +459,6 @@ public class QueryImpl<T> extends CriteriaContainerImpl implements Query<T>, Cri
 		this.batchSize = value;
 		return this;
 	}
-	
-	public int getBatchSize() {
-		return batchSize;
-	}
 
 	public Query<T> skip(int value) {
 		this.offset = value;
@@ -354,18 +472,9 @@ public class QueryImpl<T> extends CriteriaContainerImpl implements Query<T>, Cri
 	
 
 	public Query<T> order(String condition) {
-		if (snapshotted)
-			throw new QueryException("order cannot be used on a snapshotted query.");
-		
-		sort = parseSortString(condition);
-		
-		return this;
-	}
-	
-	public static BasicDBObject parseSortString(String str) {
-		BasicDBObjectBuilder ret = BasicDBObjectBuilder.start();
-		String[] parts = str.split(",");
-		for (String s : parts) {
+		sort = BasicDBObjectBuilder.start();
+		String[] sorts = condition.split(",");
+		for (String s : sorts) {
 			s = s.trim();
 			int dir = 1;
 			
@@ -375,10 +484,11 @@ public class QueryImpl<T> extends CriteriaContainerImpl implements Query<T>, Cri
 				s = s.substring(1).trim();
 			}
 			
-			ret = ret.add(s, dir);
+			sort = sort.add(s, dir);
 		}
-		return (BasicDBObject) ret.get();
+		return this;
 	}
+	
 
 	public Iterator<T> iterator() {
 		return fetch().iterator();
@@ -388,33 +498,144 @@ public class QueryImpl<T> extends CriteriaContainerImpl implements Query<T>, Cri
 		return this.clazz;
 	}
 	
-	public String toString() {
-		return this.getQueryObject().toString();
-	}
-	
-	public FieldEnd<? extends Query<T>> field(String name) {
-		return this.field(name, this.validatingNames);
-	}
-	
-	private FieldEnd<? extends Query<T>> field(String field, boolean validate) {
-		return new FieldEndImpl<QueryImpl<T>>(this, field, this, validate);
-	}
-
-	public FieldEnd<? extends CriteriaContainerImpl> criteria(String field) {
-		return this.criteria(field, this.validatingNames);
-	}
-
-	private FieldEnd<? extends CriteriaContainerImpl> criteria(String field, boolean validate) {
-		CriteriaContainerImpl container = new CriteriaContainerImpl(this, CriteriaJoin.AND);
-		this.add(container);
+	public static class QueryFieldEndImpl<T> implements QueryFieldEnd<T>{
 		
-		return new FieldEndImpl<CriteriaContainerImpl>(this, field, container, validate);
+		protected final String fieldExpr;
+		protected final QueryImpl<T> query;
+		public QueryFieldEndImpl(String fe, QueryImpl<T> q) {this.fieldExpr = fe; this.query=q;}
+
+		public Query<T> startsWith(String prefix) {
+			Assert.parametersNotNull("prefix",prefix);
+			query.filter("" + fieldExpr, Pattern.compile("^" + prefix));
+			return query;
+		}
+		
+		public Query<T> startsWithIgnoreCase(String prefix) {
+			Assert.parametersNotNull("prefix", prefix);
+			query.filter("" + fieldExpr, Pattern.compile("^" + prefix, Pattern.CASE_INSENSITIVE));
+			return query;
+		}
+		
+		public Query<T> endsWith(String suffix) {
+			Assert.parametersNotNull("suffix", suffix);
+			query.filter("" + fieldExpr, Pattern.compile(suffix + "$"));
+			return query;
+		}
+		
+		public Query<T> endsWithIgnoreCase(String suffix) {
+			Assert.parametersNotNull("suffix", suffix);
+			query.filter("" + fieldExpr, Pattern.compile(suffix + "$", Pattern.CASE_INSENSITIVE));
+			return query;
+		}
+
+		public Query<T> contains(String chars) {
+			Assert.parametersNotNull("chars", chars);
+			query.filter("" + fieldExpr, Pattern.compile(chars));
+			return query;
+		}
+		
+		public Query<T> containsIgnoreCase(String chars) {
+			Assert.parametersNotNull("chars", chars);
+			query.filter("" + fieldExpr, Pattern.compile(chars, Pattern.CASE_INSENSITIVE));
+			return query;
+		}
+		
+		public Query<T> exists() {
+			query.disableTypeValidation().filter("" + fieldExpr + " exists", true).enableValidation();
+			return query;
+		}
+		public Query<T> doesNotExist() {
+			query.disableTypeValidation().filter("" + fieldExpr + " exists", false).enableValidation();
+			return query;
+		}
+
+		public Query<T> equal(Object val) {
+			query.filter(fieldExpr + " =", val);
+			return query;
+		}
+
+		public Query<T> near(int x, int y) {
+			ArrayList<Integer> point = new ArrayList<Integer>(2);
+			point.add(x); point.add(y);
+			query.filter(fieldExpr + " near", point);
+			return query;
+		}
+
+		public Query<T> greaterThan(Object val) {
+			Assert.parametersNotNull("val",val);
+			query.filter(fieldExpr + " >", val);
+			return query;
+		}
+
+		public Query<T> greaterThanOrEq(Object val) {
+			Assert.parametersNotNull("val",val);
+			query.filter(fieldExpr + " >=", val);
+			return query;
+		}
+
+		public Query<T> hasThisOne(Object val) {
+			query.filter(fieldExpr + " =", val);
+			return query;
+		}
+
+		public Query<T> hasAllOf(Iterable<?> vals) {
+			Assert.parametersNotNull("vals",vals);
+			Assert.parameterNotEmpty(vals,"vals");
+			query.filter(fieldExpr + " all", vals);
+			return query;
+		}
+
+		public Query<T> hasAnyOf(Iterable<?> vals) {
+			Assert.parametersNotNull("vals",vals);
+			Assert.parameterNotEmpty(vals,"vals");
+			query.filter(fieldExpr + " in", vals);
+			return query;
+		}
+
+		public Query<T> hasThisElement(Object val) {
+			Assert.parametersNotNull("val",val);
+			query.filter(fieldExpr + " elem", val);
+			return query;
+		}
+
+		public Query<T> hasNoneOf(Iterable<?> vals) {
+			Assert.parametersNotNull("vals",vals);
+			Assert.parameterNotEmpty(vals,"vals");
+			query.filter(fieldExpr + " nin", vals);
+			return query;
+		}
+
+		public Query<T> lessThan(Object val) {
+			Assert.parametersNotNull("val",val);
+			query.filter(fieldExpr + " <", val);
+			return query;
+		}
+
+		public Query<T> lessThanOrEq(Object val) {
+			Assert.parametersNotNull("val",val);
+			query.filter(fieldExpr + " <=", val);
+			return query;
+		}
+
+		public Query<T> notEqual(Object val) {
+			query.filter(fieldExpr + " <>", val);
+			return query;
+		}
+
+		public Query<T> sizeEq(int val) {
+			Assert.parametersNotNull("val",val);
+			query.filter(fieldExpr + " size", val);
+			return query;
+		}
+	}
+	
+	public QueryFieldEnd<T> field(String fieldExpr) {
+		return new QueryFieldEndImpl<T>(fieldExpr, this);
 	}
 
-	//TODO: test this.
+	//TODO: make me work!
 	public Query<T> hintIndex(String idxName) {
-		indexHint = idxName;
-		return this;
+		return null;
 	}
 
 	public Query<T> retrievedFields(boolean include, String...fields){
@@ -422,44 +643,6 @@ public class QueryImpl<T> extends CriteriaContainerImpl implements Query<T>, Cri
 			throw new IllegalStateException("You cannot mix include and excluded fields together!");
 		this.includeFields = include;
 		this.fields = fields;
-		return this;
-	}
-
-	/** Enabled snapshotted mode where duplicate results 
-	 * (which may be updated during the lifetime of the cursor) 
-	 *  will not be returned. Not compatible with order/sort and hint. 
-	 **/
-	public Query<T> enableSnapshotMode() {
-		snapshotted = true;
-		return this;
-	}
-
-	/** Disable snapshotted mode (default mode). This will be faster
-	 *  but changes made during the cursor may cause duplicates. **/
-	public Query<T> disableSnapshotMode() {
-		snapshotted = false;
-		return this;
-	}
-
-	public Query<T> queryNonPrimary() {
-		slaveOk = true;
-		return this;
-	}
-
-	public Query<T> queryPrimaryOnly() {
-		slaveOk = false;
-		return this;
-	}
-
-	/** Disables cursor timeout on server. */
-	public Query<T> disableTimeout() {
-		noTimeout = false;
-		return this;
-	}
-
-	/** Enables cursor timeout on server. */
-	public Query<T> enableTimeout(){
-		noTimeout = true;
 		return this;
 	}
 }

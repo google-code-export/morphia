@@ -50,7 +50,7 @@ class ReferenceMapper implements CustomMapper {
 	}
 	
 	private void writeSingle(BasicDBObject dbObject, String name, Object fieldValue, Mapper mapr) {
-		DBRef dbrefFromKey = mapr.keyToRef(getKey(fieldValue, mapr));
+		DBRef dbrefFromKey = getKey(fieldValue, mapr).toRef(mapr);
 		dbObject.put(name, dbrefFromKey);
 	}
 	
@@ -62,17 +62,17 @@ class ReferenceMapper implements CustomMapper {
 				ProxiedEntityReferenceList p = (ProxiedEntityReferenceList) fieldValue;
 				List<Key<?>> getKeysAsList = p.__getKeysAsList();
 				for (Key<?> key : getKeysAsList) {
-					values.add(mapr.keyToRef(key));
+					values.add(key.toRef(mapr));
 				}
 			} else {
 				
 				if (mf.getType().isArray()) {
 					for (Object o : (Object[]) fieldValue) {
-						values.add(mapr.keyToRef(getKey(o, mapr)));
+						values.add(getKey(o, mapr).toRef(mapr));
 					}
 				} else {
 					for (Object o : (Iterable) fieldValue) {
-						values.add(mapr.keyToRef(getKey(o, mapr)));
+						values.add(getKey(o, mapr).toRef(mapr));
 					}
 				}
 			}
@@ -94,12 +94,12 @@ class ReferenceMapper implements CustomMapper {
 				Map<String, Key<?>> refMap = proxy.__getReferenceMap();
 				for (Map.Entry<String, Key<?>> entry : refMap.entrySet()) {
 					String strKey = entry.getKey();
-					values.put(strKey, mapr.keyToRef(entry.getValue()));
+					values.put(strKey, entry.getValue().toRef(mapr));
 				}
 			} else {
 				for (Map.Entry<Object, Object> entry : map.entrySet()) {
 					String strKey = mapr.converters.encode(entry.getKey()).toString();
-					values.put(strKey, mapr.keyToRef(getKey(entry.getValue(), mapr)));
+					values.put(strKey, getKey(entry.getValue(), mapr).toRef(mapr));
 				}
 			}
 			if (values.size() > 0 || mapr.getOptions().storeEmpties) {
@@ -178,7 +178,7 @@ class ReferenceMapper implements CustomMapper {
 	private void readCollection(final DBObject dbObject, final MappedField mf, final Object entity, Reference refAnn,
 			EntityCache cache, Mapper mapr) {
 		// multiple references in a List
-		Class referenceObjClass = mf.getSubClass();
+		Class referenceObjClass = mf.getSubType();
 		Collection references = (Collection) ReflectionUtils.newInstance(mf.getCTor(), (!mf.isSet()) ? ArrayList.class
 				: HashSet.class);
 		
@@ -206,7 +206,7 @@ class ReferenceMapper implements CustomMapper {
 					referencesAsProxy.__addAll(keys);
 				} else {
 					DBRef dbRef = (DBRef) dbVal;
-					if (!exists(mf.getSubClass(), dbRef, cache, mapr)) {
+					if (!exists(mf.getSubType(), dbRef, cache, mapr)) {
 						String msg = "The reference(" + dbRef.toString() + ") could not be fetched for "
 								+ mf.getFullName();
 						if (!refAnn.ignoreMissing())
@@ -214,7 +214,7 @@ class ReferenceMapper implements CustomMapper {
 						else
 							log.warning(msg);
 					} else {
-						referencesAsProxy.__add(mapr.refToKey(dbRef));
+						referencesAsProxy.__add(new Key(dbRef));
 					}
 				}
 			}
@@ -227,7 +227,7 @@ class ReferenceMapper implements CustomMapper {
 					for (Object dbRefObj : refList) {
 						DBRef dbRef = (DBRef) dbRefObj;
 						
-						Key k = mapr.refToKey(dbRef);
+						Key k = new Key(dbRef);
 						Object cachedEntity = cache.getEntity(k);
 						if (cachedEntity != null) {
 							references.add(cachedEntity);
@@ -249,7 +249,7 @@ class ReferenceMapper implements CustomMapper {
 					}
 				} else {
 					DBRef dbRef = (DBRef) dbVal;
-					Key k = mapr.refToKey(dbRef);
+					Key k = new Key(dbRef);
 					Object cachedEntity = cache.getEntity(k);
 					if (cachedEntity != null) {
 						references.add(cachedEntity);
@@ -271,7 +271,7 @@ class ReferenceMapper implements CustomMapper {
 		}
 		
 		if (mf.getType().isArray()) {
-			Object[] array = ReflectionUtils.convertToArray(mf.getSubClass(), ReflectionUtils.iterToList(references));
+			Object[] array = ReflectionUtils.convertToArray(mf.getSubType(), ReflectionUtils.iterToList(references));
 			mf.setFieldValue(entity, array);
 		} else {
 			mf.setFieldValue(entity, references);
@@ -279,7 +279,7 @@ class ReferenceMapper implements CustomMapper {
 	}
 	
 	boolean exists(Class c, final DBRef dbRef, EntityCache cache, Mapper mapr) {
-		Key key = mapr.refToKey(dbRef);
+		Key key = new Key(dbRef);
 		Boolean cached = cache.exists(key);
 		if (cached != null)
 			return cached;
@@ -307,7 +307,6 @@ class ReferenceMapper implements CustomMapper {
 		if (cached != null)
 			return cached;
 		
-		//TODO: if _db is null, set it?
 		BasicDBObject refDbObject = (BasicDBObject) dbRef.fetch();
 		
 		if (refDbObject != null) {
@@ -327,7 +326,7 @@ class ReferenceMapper implements CustomMapper {
 	
 	private void readMap(final DBObject dbObject, final MappedField mf, final Object entity, final Reference refAnn,
 			EntityCache cache, Mapper mapr) {
-		Class referenceObjClass = mf.getSubClass();
+		Class referenceObjClass = mf.getSubType();
 		Map map = (Map) ReflectionUtils.newInstance(mf.getCTor(), HashMap.class);
 		
 		BasicDBObject dbVal = (BasicDBObject) mf.getDbObjectValue(dbObject);
@@ -342,7 +341,7 @@ class ReferenceMapper implements CustomMapper {
 				
 				if (refAnn.lazy() && LazyFeatureDependencies.assertDependencyFullFilled()) {
 					ProxiedEntityReferenceMap proxiedMap = (ProxiedEntityReferenceMap) map;
-					proxiedMap.__put(entry.getKey(), mapr.refToKey(dbRef));
+					proxiedMap.__put(entry.getKey(), new Key(dbRef));
 				} else {
 					Object resolvedObject = resolveObject(dbRef, referenceObjClass, refAnn.ignoreMissing(), mf, cache, mapr);
 					map.put(entry.getKey(), resolvedObject);
@@ -353,7 +352,7 @@ class ReferenceMapper implements CustomMapper {
 	}
 	
 	private Object createOrReuseProxy(final Class referenceObjClass, final DBRef dbRef, EntityCache cache, Mapper mapr) {
-		Key key = mapr.refToKey(dbRef);
+		Key key = new Key(dbRef);
 		Object proxyAlreadyCreated = cache.getProxy(key);
 		if (proxyAlreadyCreated != null) {
 			return proxyAlreadyCreated;

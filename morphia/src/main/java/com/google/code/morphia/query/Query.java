@@ -2,6 +2,8 @@ package com.google.code.morphia.query;
 
 import org.bson.types.CodeWScope;
 
+
+
 /**
  * @author Scott Hernandez
  */
@@ -34,13 +36,7 @@ public interface Query<T> extends QueryResults<T> {
 	Query<T> filter(String condition, Object value);
 	
 	/** Fluent query interface: {@code createQuery(Ent.class).field("count").greaterThan(7)...} */
-	FieldEnd<? extends Query<T>> field(String field);
-
-	/** Criteria builder interface */
-	FieldEnd<? extends CriteriaContainerImpl> criteria(String field);
-
-	CriteriaContainer and(Criteria... criteria);
-	CriteriaContainer or(Criteria... criteria);
+	QueryFieldEnd<T> field(String fieldExpr);
 
 	/** Limit the query using this javascript block; only one per query*/
     Query<T> where(String js);
@@ -93,27 +89,6 @@ public interface Query<T> extends QueryResults<T> {
 	
 	/** Limits the fields retrieved */
 	Query<T> retrievedFields(boolean include, String...fields);
-
-	/** Enabled snapshotted mode where duplicate results 
-	 * (which may be updated during the lifetime of the cursor) 
-	 *  will not be returned. Not compatible with order/sort and hint. **/
-	Query<T> enableSnapshotMode();
-	
-	/** Disable snapshotted mode (default mode). This will be faster 
-	 *  but changes made during the cursor may cause duplicates. **/
-	Query<T> disableSnapshotMode();
-	
-	/** Route query to non-primary node  */
-	Query<T> queryNonPrimary();
-
-	/** Route query to primary node  */
-	Query<T> queryPrimaryOnly();
-
-	/** Disables cursor timeout on server. */
-	Query<T> disableTimeout();
-
-	/** Enables cursor timeout on server. */
-	Query<T> enableTimeout();
 	
 	/**
 	 * <p>Generates a string that consistently and uniquely specifies this query.  There

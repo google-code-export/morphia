@@ -14,18 +14,13 @@ package com.google.code.morphia.mapping;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.google.code.morphia.EntityInterceptor;
 import com.google.code.morphia.Key;
-import com.google.code.morphia.annotations.Converters;
 import com.google.code.morphia.annotations.Embedded;
 import com.google.code.morphia.annotations.Id;
 import com.google.code.morphia.annotations.NotSaved;
@@ -37,7 +32,6 @@ import com.google.code.morphia.annotations.Property;
 import com.google.code.morphia.annotations.Reference;
 import com.google.code.morphia.annotations.Serialized;
 import com.google.code.morphia.converters.DefaultConverters;
-import com.google.code.morphia.converters.TypeConverter;
 import com.google.code.morphia.logging.Logr;
 import com.google.code.morphia.logging.MorphiaLoggerFactory;
 import com.google.code.morphia.mapping.cache.DefaultEntityCache;
@@ -50,7 +44,6 @@ import com.google.code.morphia.mapping.lazy.proxy.ProxyHelper;
 import com.google.code.morphia.utils.ReflectionUtils;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
-import com.mongodb.DBRef;
 
 /**
  * 
@@ -62,6 +55,7 @@ import com.mongodb.DBRef;
  */
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class Mapper {
+
 	public static final Logr logger = MorphiaLoggerFactory.get(Mapper.class);
 
 	/** The @{@link Id} field name that is stored with mongodb.*/
@@ -72,11 +66,8 @@ public class Mapper {
 	public static final String CLASS_NAME_FIELDNAME = "className";
 
 	/** Set of classes that registered by this mapper */
-	private final Map<String, MappedClass> mappedClasses = new ConcurrentHashMap<String, MappedClass>();
-	private final Map<String, Set<MappedClass>> mappedClassesByCollection = new ConcurrentHashMap<String, Set<MappedClass>>();
-	
-	private final List<EntityInterceptor> interceptors = new LinkedList<EntityInterceptor>();
-	
+	private final ConcurrentHashMap<String, MappedClass> mappedClasses = new ConcurrentHashMap<String, MappedClass>();
+	private final ConcurrentLinkedQueue<EntityInterceptor> interceptors = new ConcurrentLinkedQueue<EntityInterceptor>();
 	
 	private MapperOptions opts = new MapperOptions();
 	// TODO: make these configurable
@@ -123,47 +114,20 @@ public class Mapper {
 		return mappedClasses.containsKey(c.getName());
 	}
 
-	/** Creates a MappedClass and validates it. */
-	public MappedClass addMappedClass(Class c) {
+	public void addMappedClass(final Class c) {
 		MappedClass mc = new MappedClass(c, this);
-		return addMappedClass(mc, true);
+		mc.validate();
+		mappedClasses.put(c.getName(), mc);
 	}
-	
-	/** Validates MappedClass and adds to internal cache. */
-	public MappedClass addMappedClass(MappedClass mc) {
-		return addMappedClass(mc, true);
-	}
-	
-	
-	/** Add MappedClass to internal cache, possibly validating first. */
-	private MappedClass addMappedClass(MappedClass mc, boolean validate) {
-		if (validate)
-			mc.validate();
-		
-		Converters c = (Converters) mc.getAnnotation(Converters.class);
-		if (c != null)
-			for(Class<? extends TypeConverter> clazz : c.value())
-				if(!converters.isRegistered(clazz))
-					converters.addConverter(clazz);
-					
-		mappedClasses.put(mc.getClazz().getName(), mc);
-		
-		Set<MappedClass> mcs = mappedClassesByCollection.get(mc.getCollectionName());
-		if (mcs == null)
-			mcs = new HashSet();
-		mcs.add(mc);
 
+	public MappedClass addMappedClass(final MappedClass mc) {
+		mc.validate();
+		mappedClasses.put(mc.getClazz().getName(), mc);
 		return mc;
 	}
 
-	/** Returns collection of MappedClasses*/
-	public Collection<MappedClass> getMappedClasses() {
-		return new ArrayList<MappedClass>(mappedClasses.values());
-	}
-
-	/** Returns map of MappedClasses by class name */
-	public Map<String, MappedClass> getMCMap() {
-		return Collections.unmodifiableMap(mappedClasses);
+	public Map<String, MappedClass> getMappedClasses() {
+		return mappedClasses;
 	}
 
 	/**
@@ -184,9 +148,9 @@ public class Mapper {
 
 		MappedClass mc = mappedClasses.get(type.getName());
 		if (mc == null) {
-			mc = new MappedClass(type, this);
 			// no validation
-			addMappedClass(mc, false);
+			mc = new MappedClass(type, this);
+			mappedClasses.put(mc.getClazz().getName(), mc);
 		}
 		return mc;
 	}
@@ -212,9 +176,9 @@ public class Mapper {
 		// update id field, if there.		
 		if ((mc.getIdField() != null) && (dbObj != null) && (dbObj.get(ID_KEY) != null)) {
 			try {
-				MappedField mf = mc.getMappedIdField();
+				MappedField mf = mc.getMappedField(ID_KEY);
 				Object oldIdValue = mc.getIdField().get(entity);
-				readMappedField(dbObj, mf, entity, cache);
+				setIdValue(entity, mf, dbObj, cache);
 				Object dbIdValue = mc.getIdField().get(entity);
 				if (oldIdValue != null) {
 					// The entity already had an id set. Check to make sure it
@@ -265,10 +229,6 @@ public class Mapper {
 	 * </p>
 	 */
 	public Object toMongoObject(final Object javaObj) {
-		return toMongoObject(javaObj, false);
-	}
-	
-	public Object toMongoObject(final Object javaObj, boolean includeClassName) {
 		if (javaObj == null) {
 			return null;
 		}
@@ -283,9 +243,10 @@ public class Mapper {
 		
 		//TODO: think about this logic a bit more. 
 		//Even if the converter changed it, should it still be processed?
-
+		
+		
 		//The converter ran, and produced another type.
-		if (!bSameType && !ReflectionUtils.implementsAnyInterface(type, Iterable.class, Map.class))
+		if (!bSameType)
 			return newObj;
 		else {
 			
@@ -302,8 +263,7 @@ public class Mapper {
 	
 			if (isSingleValue && !ReflectionUtils.isPropertyType(type)) {
 				DBObject dbObj = toDBObject(newObj);
-				if(!includeClassName)
-					dbObj.removeField(CLASS_NAME_FIELDNAME);
+				dbObj.removeField(CLASS_NAME_FIELDNAME);
 				return dbObj;
 			} else if (newObj instanceof DBObject) {
 				return newObj;
@@ -313,19 +273,19 @@ public class Mapper {
 				else {
 					HashMap m = new HashMap();
 					for(Map.Entry e : (Iterable<Map.Entry>)((Map)newObj).entrySet())
-						m.put(e.getKey(), toMongoObject(e.getValue(), includeClassName));
+						m.put(e.getKey(), toMongoObject(e.getValue()));
 
-					return m;
+					return toDBObject(m);
 				}
 			//Set/List but needs elements converted
 			} else if (!isSingleValue && !ReflectionUtils.isPropertyType(subType)) {
 				ArrayList<Object> vals = new ArrayList<Object>();
 				if (type.isArray()) 
 					for (Object obj : (Object[]) newObj)
-						vals.add(toMongoObject(obj, includeClassName));
+						vals.add(toMongoObject(obj));
 				else
 					for (Object obj : (Iterable) newObj) 
-						vals.add(toMongoObject(obj, includeClassName));
+						vals.add(toMongoObject(obj));
 	
 				return vals;
 			} else {
@@ -360,7 +320,46 @@ public class Mapper {
 		dbObject = (BasicDBObject) mc.callLifecycleMethods(PrePersist.class, entity, dbObject, this);
 		for (MappedField mf : mc.getPersistenceFields()) {
 			try {
-				writeMappedField(dbObject, mf, entity, involvedObjects);
+				Class<? extends Annotation> annType = null;
+				
+				//skip not saved fields.
+				if (mf.hasAnnotation(NotSaved.class))
+						continue;
+			
+				// get the annotation from the field.
+				for (Class<? extends Annotation> testType : new Class[] { 	Id.class, 
+																			Property.class, 
+																			Embedded.class, 
+																			Serialized.class, 
+																			Reference.class }) {
+					if (mf.hasAnnotation(testType)) {
+						annType = testType;
+						break;
+					}
+				}
+				
+				if (Id.class.equals(annType)) {
+					Object idVal = mf.getFieldValue(entity);
+					if (idVal != null) {
+						if (!mf.isTypeMongoCompatible() && !converters.hasSimpleValueConverter(mf)) {
+							opts.embeddedMapper.toDBObject(entity, mf, dbObject, involvedObjects, this);
+						} else {
+							Object dbVal = converters.encode(idVal);							
+							dbObject.put(ID_KEY, dbVal);
+						}
+					}
+				} else if (Property.class.equals(annType) || Serialized.class.equals(annType)
+						|| mf.isTypeMongoCompatible() || (converters.hasSimpleValueConverter(mf)))
+					opts.valueMapper.toDBObject(entity, mf, dbObject, involvedObjects, this);
+				else if (Reference.class.equals(annType))
+					opts.referenceMapper.toDBObject(entity, mf, dbObject, involvedObjects, this);
+				else if (Embedded.class.equals(annType)) {
+					opts.embeddedMapper.toDBObject(entity, mf, dbObject, involvedObjects, this);
+				} else {
+					logger.debug("No annotation was found, embedding " + mf);
+					opts.embeddedMapper.toDBObject(entity, mf, dbObject, involvedObjects, this);
+				}
+
 			} catch (Exception e) {
 				throw new MappingException("Error mapping field:" + mf.getFullName(), e);
 			}
@@ -373,12 +372,6 @@ public class Mapper {
 	}
 	
 	Object fromDb(DBObject dbObject, final Object entity, EntityCache cache) {
-		//hack to bypass things and just read the value.
-		if (entity instanceof MappedField) {
-			readMappedField(dbObject, (MappedField) entity, entity, cache);
-			return entity;
-		}
-		
 		// check the history key (a key is the namespace + id)
 		
 		if (dbObject.containsField(ID_KEY) && getMappedClass(entity).getIdField() != null
@@ -388,15 +381,27 @@ public class Mapper {
 			if (cachedInstance != null)
 				return cachedInstance;
 			else
-				cache.putEntity(key, entity); // to avoid stackOverflow in recursive refs
+				cache.putEntity(key, entity); // to avoid stackOverflow in
+												// recursive refs
 		}
-		
+
 		MappedClass mc = getMappedClass(entity);
 		
 		dbObject = (BasicDBObject) mc.callLifecycleMethods(PreLoad.class, entity, dbObject, this);
 		try {
 			for (MappedField mf : mc.getPersistenceFields()) {
-				readMappedField(dbObject, mf, entity, cache);
+				if (mf.hasAnnotation(Id.class)) {
+					setIdValue(entity, mf, dbObject, cache);
+				} else if (mf.hasAnnotation(Property.class) || mf.hasAnnotation(Serialized.class)
+						|| mf.isTypeMongoCompatible() || converters.hasSimpleValueConverter(mf))
+					opts.valueMapper.fromDBObject(dbObject, mf, entity, cache, this);
+				else if (mf.hasAnnotation(Embedded.class))
+					opts.embeddedMapper.fromDBObject(dbObject, mf, entity, cache, this);
+				else if (mf.hasAnnotation(Reference.class))
+					opts.referenceMapper.fromDBObject(dbObject, mf, entity, cache, this);
+				else {
+					opts.embeddedMapper.fromDBObject(dbObject, mf, entity, cache, this);
+				}
 			}
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -410,49 +415,22 @@ public class Mapper {
 		return entity;
 	}
 	
-	private void readMappedField(DBObject dbObject, MappedField mf, Object entity, EntityCache cache) {
-		if (mf.hasAnnotation(Property.class) || mf.hasAnnotation(Serialized.class)
-				|| mf.isTypeMongoCompatible() || converters.hasSimpleValueConverter(mf))
-			opts.valueMapper.fromDBObject(dbObject, mf, entity, cache, this);
-		else if (mf.hasAnnotation(Embedded.class))
-			opts.embeddedMapper.fromDBObject(dbObject, mf, entity, cache, this);
-		else if (mf.hasAnnotation(Reference.class))
-			opts.referenceMapper.fromDBObject(dbObject, mf, entity, cache, this);
-		else {
-			opts.defaultMapper.fromDBObject(dbObject, mf, entity, cache, this);
-		}		
-	}
-
-	private void writeMappedField(BasicDBObject dbObject, MappedField mf, Object entity, Map<Object, DBObject> involvedObjects) {
-		Class<? extends Annotation> annType = null;
-		
-		//skip not saved fields.
-		if (mf.hasAnnotation(NotSaved.class))
-				return;
-	
-		// get the annotation from the field.
-		for (Class<? extends Annotation> testType : new Class[] {	Property.class, 
-																	Embedded.class, 
-																	Serialized.class, 
-																	Reference.class }) {
-			if (mf.hasAnnotation(testType)) {
-				annType = testType;
-				break;
+	private void setIdValue(Object entity, MappedField mf, DBObject dbObject, EntityCache cache) {
+		if (dbObject.get(ID_KEY) != null) {
+			Object dbVal = dbObject.get(ID_KEY);
+			Object idVal = null;
+			
+			if (!mf.isTypeMongoCompatible() && !converters.hasSimpleValueConverter(mf)) {
+				opts.embeddedMapper.fromDBObject(dbObject, mf, entity, cache, this);
+				idVal = mf.getFieldValue(entity);
+			} else {
+				idVal = converters.decode(mf.getType(), dbObject.get(ID_KEY), mf);							
+				mf.setFieldValue(entity, idVal);
 			}
+			
+			if (idVal == null)
+				throw new MappingException(String.format("@Id field (_id='" + dbVal +"') was converted to null"));
 		}
-		
-		if (Property.class.equals(annType) || Serialized.class.equals(annType) || mf.isTypeMongoCompatible() || 
-				(converters.hasSimpleValueConverter(mf) || (converters.hasSimpleValueConverter(mf.getFieldValue(entity)))))
-			opts.valueMapper.toDBObject(entity, mf, dbObject, involvedObjects, this);
-		else if (Reference.class.equals(annType))
-			opts.referenceMapper.toDBObject(entity, mf, dbObject, involvedObjects, this);
-		else if (Embedded.class.equals(annType)) {
-			opts.embeddedMapper.toDBObject(entity, mf, dbObject, involvedObjects, this);
-		} else {
-			logger.debug("No annotation was found, using default mapper " + opts.defaultMapper + " for " + mf);
-			opts.defaultMapper.toDBObject(entity, mf, dbObject, involvedObjects, this);
-		}
-
 	}
 
 	// TODO might be better to expose via some "options" object?
@@ -463,29 +441,4 @@ public class Mapper {
 	public EntityCache createEntityCache() {
 		return new DefaultEntityCache();// TODO choose impl
 	}
-	
-	public <T> Key<T> refToKey(DBRef ref) {
-		Key<T> key = new Key<T>(ref.getRef(), ref.getId());
-		return key;
-	}
-	
-	public DBRef keyToRef(Key key) {
-		if (key.getKindClass() == null && key.getKind() == null) 
-			throw new IllegalStateException("How can it be missing both?");
-		if (key.getKind() == null)
-			key.setKind(getCollectionName(key.getKindClass()));
-			
-		return new DBRef(null, key.getKind(), key.getId());
-	}
-	
-	public String updateKind(Key key) {
-		if (key.getKind() == null && key.getKindClass() == null)
-			throw new IllegalStateException("Key is invalid! " + toString());
-		else if (key.getKind() == null)
-			key.setKind(getMappedClass(key.getKindClass()).getCollectionName());
-		
-		return key.getKind();
-	}
-	
-	
 }

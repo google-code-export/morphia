@@ -19,19 +19,16 @@ package com.google.code.morphia;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
 
 import org.bson.types.CodeWScope;
 import org.bson.types.ObjectId;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.google.code.morphia.TestDatastore.FacebookUser;
@@ -134,11 +131,11 @@ public class TestQuery  extends TestBase {
     }
 
 
-    @Test @Ignore("test is wrong, in doesn't work like that")
+    @Test
     public void testItemInListQuery() throws Exception {
         ds.save(new Photo());
         Photo p = ds.find(Photo.class).field("keywords").hasThisOne("amazing").get();
-        assertNotNull(p);	
+        assertNotNull(p);
         p = ds.find(Photo.class, "keywords in", "foo").get();
         assertNull(p);
 
@@ -261,47 +258,6 @@ public class TestQuery  extends TestBase {
         assertNotNull(ds.find(PhotoWithKeywords.class, "keywords.keyword", "california").get());
         assertNull(ds.find(PhotoWithKeywords.class, "keywords.keyword", "not").get());
     }
-
-    @Test
-    public void testSnapshottedQuery() throws Exception {
-    	ds.delete(ds.find(PhotoWithKeywords.class));
-    	ds.save(new PhotoWithKeywords("scott", "hernandez"), new PhotoWithKeywords("scott", "hernandez"), new PhotoWithKeywords("scott", "hernandez"));
-        Iterator<PhotoWithKeywords> it = ds.find(PhotoWithKeywords.class, "keywords.keyword", "scott").enableSnapshotMode().batchSize(2).iterator();
-    	ds.save(new PhotoWithKeywords("1", "2"), new PhotoWithKeywords("3", "4"), new PhotoWithKeywords("5", "6"));
-    	
-    	PhotoWithKeywords pwkLoaded = null;
-    	pwkLoaded = it.next();
-        assertNotNull(pwkLoaded);
-    	pwkLoaded = it.next();
-        assertNotNull(pwkLoaded);
-    	//okay, now we should getmore...
-        assertTrue(it.hasNext());
-    	pwkLoaded = it.next();    	
-        assertNotNull(pwkLoaded);
-        assertTrue(!it.hasNext());
-    }
-
-    @Test
-    public void testNonSnapshottedQuery() throws Exception {
-    	ds.delete(ds.find(PhotoWithKeywords.class));
-    	ds.save(new PhotoWithKeywords("scott", "hernandez"), new PhotoWithKeywords("scott", "hernandez"), new PhotoWithKeywords("scott", "hernandez"));
-        Iterator<PhotoWithKeywords> it = ds.find(PhotoWithKeywords.class).enableSnapshotMode().batchSize(2).iterator();
-    	ds.save(new PhotoWithKeywords("1", "2"), new PhotoWithKeywords("3", "4"), new PhotoWithKeywords("5", "6"));
-        
-    	PhotoWithKeywords pwkLoaded = null;
-    	pwkLoaded = it.next();
-        assertNotNull(pwkLoaded);
-    	pwkLoaded = it.next();
-        assertNotNull(pwkLoaded);
-    	//okay, now we should getmore...
-        assertTrue(it.hasNext());
-    	pwkLoaded = it.next();    	
-        assertNotNull(pwkLoaded);
-        assertTrue(it.hasNext());
-    	pwkLoaded = it.next();    	
-        assertNotNull(pwkLoaded);
-    }
-
     
     @Test
     public void testIdOnlyQuery() throws Exception {
@@ -335,20 +291,8 @@ public class TestQuery  extends TestBase {
 
         q = ads.createQuery(PhotoWithKeywords.class).disableValidation().filter("$or", orList);
         Assert.assertEquals(1, q.countAll());
-    }
-
-    @Test
-    public void testFluentOrQuery() throws Exception {
-        PhotoWithKeywords pwk = new PhotoWithKeywords("scott", "hernandez");
-        ds.save(pwk);
         
-        AdvancedDatastore ads = (AdvancedDatastore) ds;
-        Query<PhotoWithKeywords> q = ads.createQuery(PhotoWithKeywords.class);
-        q.or(
-        		q.criteria("keywords.keyword").equal("scott"),
-        		q.criteria("keywords.keyword").equal("ralph")); 
-
-        Assert.assertEquals(1, q.countAll());
+        
     }
 
     @Test
@@ -665,50 +609,6 @@ public class TestQuery  extends TestBase {
 
         assertEquals(2, ds.getCount(ds.createQuery(Rectangle.class).filter("height >", 3).filter("height <", 8)));
         assertEquals(1, ds.getCount(ds.createQuery(Rectangle.class).filter("height >", 3).filter("height <", 8).filter("width", 10)));
-    }
-    
-    @Test
-    public void testCombinationQuery() throws Exception {
-        Rectangle[] rects = {
-                new Rectangle(1, 10),
-                new Rectangle(4, 2),
-                new Rectangle(6, 10),
-                new Rectangle(8, 5),
-                new Rectangle(10, 4),
-        };
-        for(Rectangle rect: rects)
-        {
-            ds.save(rect);
-        }
-        
-        Query<Rectangle> q;
-        
-        q = ds.createQuery(Rectangle.class);
-        q.and(
-        	q.criteria("width").equal(10),
-        	q.criteria("height").equal(1)
-        );
-        
-        assertEquals(1, ds.getCount(q));
-
-        q = ds.createQuery(Rectangle.class);
-        q.or(
-            	q.criteria("width").equal(10),
-            	q.criteria("height").equal(10)
-        );
-
-        assertEquals(3, ds.getCount(q));
-        
-        q = ds.createQuery(Rectangle.class);
-        q.or(
-            	q.criteria("width").equal(10),
-            	q.and(
-                   	q.criteria("width").equal(5),
-                   	q.criteria("height").equal(8)
-            	)
-        );
-
-        assertEquals(3, ds.getCount(q));
     }
 
 }

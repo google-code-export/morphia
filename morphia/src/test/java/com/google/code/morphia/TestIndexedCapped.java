@@ -27,12 +27,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.google.code.morphia.annotations.CappedAt;
-import com.google.code.morphia.annotations.Embedded;
 import com.google.code.morphia.annotations.Entity;
 import com.google.code.morphia.annotations.Id;
-import com.google.code.morphia.annotations.Index;
 import com.google.code.morphia.annotations.Indexed;
-import com.google.code.morphia.annotations.Indexes;
 import com.google.code.morphia.annotations.Property;
 import com.google.code.morphia.mapping.MappedClass;
 import com.google.code.morphia.utils.IndexDirection;
@@ -43,30 +40,31 @@ import com.mongodb.DBObject;
  *
  * @author Scott Hernandez
  */
-@SuppressWarnings("unused")
 public class TestIndexedCapped  extends TestBase{
 	@Entity(cap=@CappedAt(count=1))
-	private static class CurrentStatus{
+	public static class CurrentStatus{
 		@Id ObjectId id;
 		String message;
 		
+		@SuppressWarnings("unused")
 		private CurrentStatus() {}
 		public CurrentStatus(String msg) {message = msg;}
 	}
-	
-	private static class IndexedClass{
+
+	@Entity
+	public static class IndexedClass{
 		@Id ObjectId id;
 		@Indexed long l=4;
 	}
 
 	@Entity
-	private static class NamedIndexClass{
+	public static class NamedIndexClass{
 		@Id ObjectId id;
 		@Indexed(name="l_ascending") long l=4;	
 	}
 
 	@Entity
-	private static class UniqueIndexClass{
+	public static class UniqueIndexClass{
 		@Id ObjectId id;
 		@Indexed(name="l_ascending", unique=true) long l=4;
 		String name;
@@ -74,37 +72,17 @@ public class TestIndexedCapped  extends TestBase{
 		UniqueIndexClass(String name){this.name = name;}
 	}
 	
-	private static class Ad {
+	public static class Ad {
 		@Id public long id;
 
 		@Property("lastMod")
-		@Indexed public long lastModified;
+		@Indexed
+		public long lastModified;
 
-		@Indexed public boolean active;
+		@Indexed
+		public boolean active;
 	}
 
-	@Indexes(@Index("active,-lastModified"))
-	private static class Ad2 {
-		@Id public long id;
-
-		@Property("lastMod")
-		@Indexed public long lastModified;
-
-		@Indexed public boolean active;
-	}
-
-	@Embedded
-	private static class IndexedEmbed {
-		@Indexed(IndexDirection.DESC)
-		String name;
-	}
-	
-	private static class ContainsIndexedEmbed {
-		@Id ObjectId id;
-		IndexedEmbed e;
-	}
-	
-	
 	@Before @Override
 	public void setUp() {
 		super.setUp();
@@ -127,24 +105,6 @@ public class TestIndexedCapped  extends TestBase{
 		ds.save( new CurrentStatus("Kinda Bad4"));
 		assertEquals(ds.getCount(CurrentStatus.class), 1);
 	}
-	
-	@Test
-	public void testIndexes() {
-		MappedClass mc = this.morphia.getMapper().addMappedClass(Ad2.class);
-
-		assertFalse(hasNamedIndex("active_1_lastMod_-1",db.getCollection(mc.getCollectionName()).getIndexInfo()));
-		ds.ensureIndexes(Ad2.class);
-		assertTrue(hasNamedIndex("active_1_lastMod_-1",db.getCollection(mc.getCollectionName()).getIndexInfo()));
-	}
-
-	@Test
-	public void testEmbeddedIndex() {
-		MappedClass mc = this.morphia.getMapper().addMappedClass(ContainsIndexedEmbed.class);
-
-		assertFalse(hasNamedIndex("e.name_-1",db.getCollection(mc.getCollectionName()).getIndexInfo()));
-		ds.ensureIndexes(ContainsIndexedEmbed.class);
-		assertTrue(hasNamedIndex("e.name_-1",db.getCollection(mc.getCollectionName()).getIndexInfo()));
-	}
 
 	@Test
 	public void testMultipleIndexedFields() {
@@ -153,11 +113,11 @@ public class TestIndexedCapped  extends TestBase{
 
 		IndexFieldDef[] defs = {
 				new IndexFieldDef("lastMod"),
-				new IndexFieldDef("active", IndexDirection.DESC)
+				new IndexFieldDef("active", IndexDirection.ASC)
 		};
-		assertFalse(hasNamedIndex("lastMod_1_active_-1",db.getCollection(mc.getCollectionName()).getIndexInfo()));
+		assertFalse(hasNamedIndex("lastMod_1_active_1",db.getCollection(mc.getCollectionName()).getIndexInfo()));
 		ds.ensureIndex(Ad.class, defs);
-		assertTrue(hasNamedIndex("lastMod_1_active_-1",db.getCollection(mc.getCollectionName()).getIndexInfo()));
+		assertTrue(hasNamedIndex("lastMod_1_active_1",db.getCollection(mc.getCollectionName()).getIndexInfo()));
 	}
 	
 	

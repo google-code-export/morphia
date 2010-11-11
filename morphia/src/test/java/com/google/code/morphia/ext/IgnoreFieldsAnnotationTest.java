@@ -71,8 +71,8 @@ public class IgnoreFieldsAnnotationTest {
 	//remove any MappedField specified in @IngoreFields on the class.
 	void processIgnoreFieldsAnnotations(){
 		DatastoreImpl dsi = (DatastoreImpl) ds;
-		for(MappedClass mc : dsi.getMapper().getMappedClasses()) {
-			IgnoreFields ignores = (IgnoreFields) mc.getAnnotation(IgnoreFields.class);
+		for(MappedClass mc : dsi.getMapper().getMappedClasses().values()) {
+			IgnoreFields ignores = (IgnoreFields) mc.getReleventAnnotations().get(IgnoreFields.class);
 			if (ignores != null) {
 				for(String field : ignores.value().split(",")) {
 					MappedField mf = mc.getMappedFieldByJavaField(field);
