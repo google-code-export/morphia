@@ -70,6 +70,6 @@ As you can see here, _classes used solely as embedded objects should not use @Id
 By default, Morphia uses the field name as the value name in Mongo. This can be overridden by specifying a name on the @Embedded annotation:
 
 {{{
-    @Embedded(name = "blog_comments")
+    @Embedded("blog_comments")
     private List<Comment> comments;
 }}}
