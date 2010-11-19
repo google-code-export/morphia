@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>com.google.code.morphia</groupId>
+  <artifactId>morphia</artifactId>
+  <version>0.98-SNAPSHOT</version>
+  <versioning>
+    <snapshot>
+      <timestamp>20101119.033113</timestamp>
+      <buildNumber>1</buildNumber>
+    </snapshot>
+    <lastUpdated>20101119033128</lastUpdated>
+  </versioning>
+</metadata>
