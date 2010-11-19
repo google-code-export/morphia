@@ -15,7 +15,7 @@ new MorphiaValidation().applyTo(morphiaInstance);
 
 == Example ==
 
-Here is a simple example:
+Here is a simple example using (as an example) Hibernate validation:
 
 {{{
 ...
@@ -32,7 +32,7 @@ public class Userlike {
 
 = Implementation =
 
-This is a lightweight wrapper around the Hibernate implementation. It installs a simple global entity interceptor which listens to all [LifecycleMethods life-cycle methods] needed for validation.
+This is a lightweight wrapper around the JSR303 API. It installs a simple global entity interceptor which listens to all [LifecycleMethods life-cycle methods] needed for validation. You can use any implementation of JSR303 by just adding it to the classpath.
 
 You can look at the code [http://code.google.com/p/morphia/source/browse/trunk/validation/src/main/java/com/google/code/morphia/validation/MorphiaValidation.java here].
 
