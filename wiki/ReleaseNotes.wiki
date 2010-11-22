@@ -7,6 +7,14 @@
 *unreleased*:
   * *Requires* mongodb java driver 2.3+
 
+= 0.97.1 =
+*2010-11-22*:
+  * Bug fixes:
+    * Issue #161
+    * Issue #163
+    * Issue #164
+    * Issue #166
+
 = 0.97 =
 *2010-11-12*:
   * *Requires* mongodb java driver 2.2+
