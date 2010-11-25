@@ -1,11 +1,16 @@
-#summary Morphia Release Notes
 #labels Featured
+}{#summary Morphia Release Notes
 *Releases*:
 <wiki:toc/>
 
 = 0.98 =
 *unreleased*:
   * *Requires* mongodb java driver 2.3+
+  * DOA is now an interface and moved to dao package, along with BasicDAO
+  * Validation is now done on {{{UpdateOperations}}} for updates
+  * Fluent query interface now support geo-queries (near + spherical)
+  * Merge support (just update fields, instead of replacing like save)
+  * various bugs ;)
 
 = 0.97.1 =
 *2010-11-22*:
