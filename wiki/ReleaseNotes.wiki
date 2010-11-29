@@ -1,5 +1,5 @@
+#summary Morphia Release Notes
 #labels Featured
-}{#summary Morphia Release Notes
 *Releases*:
 <wiki:toc/>
 
@@ -10,6 +10,8 @@
   * Validation is now done on {{{UpdateOperations}}} for updates
   * Fluent query interface now support geo-queries (near + spherical)
   * Merge support (just update fields, instead of replacing like save)
+  * {{{@ConstructorArgs("field1","field2")}}}: Embedded objects can now get constructor args from the db.
+  * Parameterized fields supported: {{{class MyEntity extends BaseEntity<String> {... }}}
   * various bugs ;)
 
 = 0.97.1 =
