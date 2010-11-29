@@ -8,10 +8,10 @@
   * *Requires* mongodb java driver 2.3+
   * DOA is now an interface and moved to dao package, along with BasicDAO
   * Validation is now done on {{{UpdateOperations}}} for updates
-  * Fluent query interface now support geo-queries (near + spherical)
+  * Fluent query interface now support geo-queries (near/within + spherical)
   * Merge support (just update fields, instead of replacing like save)
   * {{{@ConstructorArgs("field1","field2")}}}: Embedded objects can now get constructor args from the db.
-  * Parameterized fields supported: {{{class MyEntity extends BaseEntity<String> {... }}}
+  * Parameterized field supported: {{{class MyEntity extends BaseEntity<String> {... }}}
   * various bugs ;)
 
 = 0.97.1 =
