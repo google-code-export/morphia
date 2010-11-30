@@ -11,12 +11,14 @@ Note: In java the default attribute for an annotations can be used without a nam
 == Entity ==
 Marks entities to be stored directly in a collection. Look [EntityAnnotation here] for more examples.
 
+This annotations is optional in most cases. There is no harm in including it to be more verbose, and make clear the intention for the class.
+
 === Collection Name ==
 Attribute name: *value*
 
 {{{@Entity("name")}}}
 
-=== Capped ==
+=== Capped ===
 Attribute name: *cap*
 
 {{{@Entity(cap = @CappedAt(...))}}}
@@ -25,4 +27,19 @@ Attribute name: *cap*
 Attribute name: *noClassnameStored*
 
 {{{@Entity(noClassnameStored = true)}}}
- 
+
+This attribute is temporary until polymorphism is completed.
+
+== Version ==
+Marks a field in an {{{@Entity}}} to be control optimistic locking for that entity. It will be automatically managed for you. There is no need to set a value.
+
+{{{
+@Entity
+class Myclass {
+   ...
+   @Version Long v;
+}
+}}}
+
+== Entity ==
+Marks entities to be stored directly in a collection. Look [EntityAnnotation here] for more examples.
