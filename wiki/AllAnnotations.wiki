@@ -40,6 +40,20 @@ class Myclass {
    ...
 }
 }}}
+== Transient ==
+The field with not be persisted.
+
+== Serialized ==
+The field with be converted to binary, and persisted.
+
+== {{{NotSaved}}} ==
+The field will not be saved, but can be loaded. Good for data migration.
+
+== {{{AlsoLoad}}} ==
+The field will can be loaded as any of the supplied names. Good for data migration.
+
+== Indexed ==
+The field will be indexed. See [Datastore the datastore docs].
 
 == Version ==
 Marks a field in an {{{@Entity}}} to be control optimistic locking for that entity. It will be automatically managed for you. There is no need to set a value.
