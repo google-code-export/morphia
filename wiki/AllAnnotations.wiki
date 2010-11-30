@@ -1,5 +1,6 @@
 #summary All the supported annotations
 #labels Featured
+<wiki:toc>
 
 = Annotations =
 
