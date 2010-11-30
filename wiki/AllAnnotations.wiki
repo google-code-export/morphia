@@ -41,5 +41,5 @@ class Myclass {
 }
 }}}
 
-== Entity ==
-Marks entities to be stored directly in a collection. Look [EntityAnnotation here] for more examples.
+== Reference ==
+Marks fields to be stored in another collection and which are linked (by a stored reference). Look [ReferenceAnnotation here] for more examples.
