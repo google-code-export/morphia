@@ -10,7 +10,7 @@ There are various annotations which can be used to register callbacks on certain
  * {{{@PreLoad}}} - Called before mapping the datastore object to the entity (POJO); the DBObject is passed as an argument (you can add/remove/change values)
  * {{{@PostLoad}}} - Called after mapping to the entity
 
-See the AnnotationReference for a full list of annotations supported.
+See the AllAnnotation for a full list of the annotations supported.
 == Examples ==
 
 Here is a one of the test classes: http://code.google.com/p/morphia/source/browse/trunk/morphia/src/test/java/com/google/code/morphia/TestDatastore.java#82
