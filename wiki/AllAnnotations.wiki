@@ -30,6 +30,17 @@ Attribute name: *noClassnameStored*
 
 This attribute is temporary until polymorphism is completed.
 
+== Id ==
+Marks a field in an {{{@Entity}}} to be the "_id" field in mongodb.
+
+{{{
+@Entity
+class Myclass {
+   @Id ObjectId id = new ObjectId();
+   ...
+}
+}}}
+
 == Version ==
 Marks a field in an {{{@Entity}}} to be control optimistic locking for that entity. It will be automatically managed for you. There is no need to set a value.
 
@@ -46,7 +57,6 @@ Marks fields to be stored in another collection and which are linked (by a store
 
 == Embedded ==
 Allows customization of certain options. Look [EmbeddedAnnotation here] for more examples.
-
 
 == Lifecycle Annotations ==
 See the this [LifecycleMethods page].
