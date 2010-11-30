@@ -43,3 +43,7 @@ class Myclass {
 
 == Reference ==
 Marks fields to be stored in another collection and which are linked (by a stored reference). Look [ReferenceAnnotation here] for more examples.
+
+
+== Lifecycle Annotations ==
+See the this [LifecycleMethods page].
