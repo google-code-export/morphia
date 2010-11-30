@@ -1,4 +1,5 @@
 #summary All the supported annotations
+#labels Featured
 
 = Annotations =
 
@@ -7,7 +8,7 @@ Below is a list of all the annotations and a brief descriptions of how to use th
 Note: In java the default attribute for an annotations can be used without a name. The name of the default attribute is always *value*. Any time you see {{{@MyAnnotation("arg")}}} it can be re-written as {{{@MyAnnotation(valeu = "arg")}}}, and must be if you add additional attributes.  
   
 == Entity ==
-Marks entities to be stored directly in a collection.
+Marks entities to be stored directly in a collection. Look [EntityAnnotation here] for more examples.
 
 === Collection Name ==
 Attribute name: *value*
