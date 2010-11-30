@@ -7,7 +7,7 @@
     * [Datastore Datastore Interface]
     * [Query Query Interface]
     * [LifecycleMethods Entity Lifecycle]
-    * Annotations
+    * [AllAnnotations Annotations]
       * [EntityAnnotation Defining your Entity]
       * [PropertyAnnotation Basic type annotation]
       * [EmbeddedAnnotation Embedded Annotation]
