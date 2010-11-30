@@ -18,6 +18,7 @@
   * {{{@ConstructorArgs("field1","field2")}}}: Embedded objects can now get constructor args from the db (currently support simple types only)
   * Parameterized field supported: {{{class MyEntity extends BaseEntity<String> {... }}}
   * Added support for isolation on updates, {{{UpdateOperations.isIsolated()}}}; multi updates will happen without yielding.
+  * Support for migrating from a single item to an array/collection.
   * various bugs ;)
 
 = 0.97.1 =
