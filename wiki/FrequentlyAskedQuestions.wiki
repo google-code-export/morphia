@@ -26,7 +26,12 @@ If you don't want to use an {{{ObjectId}}} type you can manage your {{{@Id}}} va
 
 == Do you have to close connections? ==
 
-Not really. The Mongo driver keeps a connection pool which is a field per Mongo instance. If you wish to release those resources, just make sure you stop using the Mongo instance.
+Not really. The Mongo driver keeps a connection pool per Mongo instance. If you wish to release those resources, just make sure you stop using the Mongo instance.
+
+
+== Should I use a capped collection for referenced/linked entities? ==
+
+You can but a reference is made up of the collection name + the {{{_id}}} field value. In capped collections the {{{_id}}} field is not unique and references might be ambiguous.
  
 == Huh, why is there a className field in my Document?  Can I remove it? ==
 
