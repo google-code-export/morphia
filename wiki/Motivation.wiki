@@ -2,17 +2,17 @@
 
 = Motivation =
 
-The motivation for this project is multi-faceted becuase there have been many contributors which have all focussed on different features and working from a different vision.
+Many visions have been brought together on this project. As with any project where there are many contributors this project has seen lots of different ideas. The over-arching goal is to provide a fast, easy and obvious way to use the strengths from java with the features of mongodb.
 
-Generally the motivation has come from wanted to work with Plain-Old-Java-Objects (POJO) and remove some of the knowledge needed to store data while providing more fluent and "javaesk" interface to data access.
+Generally the motivation has come from wanting to work with Plain-Old-Java-Objects (POJO) and to remove some of the knowledge needed to store data in mongodb while providing more fluent and "javaesk" interfaces to the data.
 
-The basic java driver provides a view of the data as one of nested {{{Map<String, Object>}}} with very dynamic (and less POJO) view of data. It provides a very malleable and consistent view of how to perform queries which is somewhat complicated, but can be very complete. The goal of this project is to keep all that control and power while making it much easier to integrate with basic java principles. 
+The basic java driver provides a view of the data as one of nested {{{Map<String, Object>}}} which is a very dynamic, but unfortunately less java-like, view of data. The mongodb driver provides a very malleable and consistent view of how to perform queries; however it is somewhat complicated (and cumbersome), but is very complete. The goal of this project is to keep all that control, and power, while making it much easier to integrate with java's principles and best practices. 
 
-The basic goals come down to this:
-  * Type-safe: we deal with POJOs (in/out of mongodb)
+The basic goals come down to these:
+  * Type-safe/preserving: we deal with POJOs -- java classes and fields
   * Annotation based configuration (less code)
   * Easy to use [Query] interface (intuitive)
-  * Flexibility to map to your domain objects (reduce DTO/DMOs)
+  * Flexibility in your domain objects (reduce the need for DTO/DMOs)
   * Fast enough never to give up on the items above to change your programming style
 
 For example, if we're storing information about hotels, we're likely to create a Hotel class, and add fields like title, description, address, rating, pictures, etc. 
