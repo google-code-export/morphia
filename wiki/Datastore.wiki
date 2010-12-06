@@ -75,7 +75,7 @@ ds.delete(Hotel.class, "Grand Sierra Resort");
 ds.delete(ds.createQuery(Hotel.class).filter("pendingDelete", true));
 }}}
 
-== FindAndDelete ==
+== {{{FindAndDelete}}} ==
 
 One of the underlying features in MongoDB is the ability to do some operations in an atomic fashion. This can be done by deleting an Entity, and returning the deleted item at the same time. The {{{FindAndDelete}}} method will find the first item, and delete it (while returning it).
 
