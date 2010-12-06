@@ -2,20 +2,13 @@
 
 = Using Collections =
 
-Morphia supports collections and arrays.
-
-These are supported for basic types, embedded, references, and serialized:
+Morphia supports collections (List, Set, Map) and arrays (Integer[]).
 
 {{{
-import com.google.code.morphia.annotations.Embedded;
-import com.google.code.morphia.annotations.Reference;
-import com.google.code.morphia.annotations.Serialized;
-import com.google.code.morphia.annotations.Property;
 ...
-@Property
+
 private Set<String> tags;
 
-@Embedded
 private Map<String,Translation> translations;
 
 @Reference
@@ -23,18 +16,14 @@ private List<Article> relatedArticles;
 ...
 }}}
 
-Morphia will use the following implementations by default when creating collections:
-
-* {{{java.util.ArrayList}}} for List (and things that are the types below)
-* {{{java.util.HashSet}}} for Set
-* {{{java.util.HashMap}}} for Map
+Morphia will use the following implementations (by default) when creating collections:
+  * {{{java.util.ArrayList}}} for List
+  * {{{java.util.HashSet}}} for Set
+  * {{{java.util.HashMap}}} for Map
 
 If you want to use another implementation, you can override this on the annotations:
 
 {{{
-import com.google.code.morphia.annotations.Embedded;
-import com.google.code.morphia.annotations.Reference;
-import com.google.code.morphia.annotations.Property;
 ...
 @Property(concreteClass = java.util.TreeSet.class)
 private Set<String> tags;
