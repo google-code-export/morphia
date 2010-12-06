@@ -20,6 +20,6 @@
       * [MappingObjects Using the Morphia instance]
       * [UsingInterfaces Programming to interfaces]
       * [DAOSupport Using Data Access Objects (DAO)]
-
+  * [FrequentlyAskedQuestions FAQ]
 
 <wiki:gadget url="http://www.ohloh.net/p/morphia/widgets/project_users.xml" height="100" border="0" />
