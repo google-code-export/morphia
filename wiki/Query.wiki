@@ -80,6 +80,26 @@ All of the geo-spatial query methods break down into "near, and within". All of 
 ||within(x,y,r) || $within + $center || ||
 ||within(x1,y1,x2,y2) || $within + $box || ||
 
+{{{
+@Entity
+static private class Place {
+	@Id protected ObjectId id;
+	protected String name = "";
+	@Indexed(IndexDirection.GEO2D)
+	protected double[] loc = null;
+	
+	public Place(String name, double[] loc) {
+		this.name = name;
+		this.loc = loc; }
+
+	private Place() {}
+}
+
+Place place1 = new Place("place1", new double[] {1,1});
+ds.save(place1);
+
+Place found = ds.find(Place.class).field("loc").near(0, 0).get();
+}}}
 
 == Or ==
 
@@ -175,7 +195,7 @@ To return your data just call one of the {{{QueryResults}}} methods. None of the
 || get() || returns the first Entity -- using limit(1) ||
 || asList() || return all items in a List -- could be costly with large result sets ||
 || fetch() || explicit method to get Iterable instance ||
-|| asKeyList() || return all items in a List of their Key<T> -- This only retrieves the _id field from the server. ||
+|| asKeyList() || return all items in a List of their {{{Key<T>}}} -- This only retrieves the _id field from the server. ||
 || fetchEmptyEntities() || Just like a {{{fetch()}}} but only retrieves, and fills in the _id field. ||
 
 {{{
