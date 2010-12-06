@@ -70,7 +70,7 @@ q.field("bar").lessThan(40);
 ||hasThisElement || $elemMatch || ||
 ||sizeEq || $size || ||
 
-=== Geo-spatial Methods ===
+=== Geo-spatial ===
 
 All of the geo-spatial query methods break down into "near, and within". All of the {{{near}}} queries will produce results in order of distance, closest first. All of the methods below also accept a final parameter of {{{spherical}}} to indicate if they should use the new {{{$sphere}}} option.
   
@@ -101,7 +101,7 @@ ds.save(place1);
 Place found = ds.find(Place.class).field("loc").near(0, 0).get();
 }}}
 
-== Or ==
+=== Or ===
 
 Using the fluent query interface you can also do "or" queries like this:
 {{{
