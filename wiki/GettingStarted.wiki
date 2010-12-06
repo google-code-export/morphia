@@ -8,7 +8,11 @@ This will consist of a few code snippets to get you going!
 
 == First Entity ==
 {{{
-//@Entity here....
+@Entity
+class MyEntity {
+  @Id ObjectId id;
+  String name;
+}
 }}}
 == Initialize Morphia/Mongo ==
 {{{
@@ -28,14 +32,19 @@ ds.ensureCaps(); //creates capped collections from @Entity
 MyEntity e = ...;
 
 ds.save(e);
+
 }}}
 
 == Querying ==
 
 {{{
 MyEntity e = ds.find(MyEntity.class).get(); //get the first one by type
+MyEntity e = ds.find(MyEntity.class).field("name").equal("someName").get(); //get the first one where name = "someName"
+
 }}}
 
 == Datastore ==
+
+The datastore represents a type-safe wrapper against the basic mongodb operations (find, save, delete). For each operation you can specify the class type you are working with and parameters to the operation.
 
 see more at the [Datastore] page...
