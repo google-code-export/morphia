@@ -70,6 +70,31 @@ q.field("bar").lessThan(40);
 ||hasThisElement || $elemMatch || ||
 ||sizeEq || $size || ||
 
+=== Geo-spatial Methods ===
+
+All of the geo-spatial query methods break down into "near, and within". All of the {{{near}}} queries will produce results in order of distance, closest first. All of the methods below also accept a final parameter of {{{spherical}}} to indicate if they should use the new {{{$sphere}}} option.
+  
+|| method || operation || comment ||
+||near(x,y) || $near || ||
+||near(x,y,r) || $near || (w/maxDistance of r) ||
+||within(x,y,r) || $within + $center || ||
+||within(x1,y1,x2,y2) || $within + $box || ||
+
+
+== Or ==
+
+Using the fluent query interface you can also do "or" queries like this:
+{{{
+Query<Person> q = ad.createQuery(Person.class);
+q.or(
+	q.criteria("firstName").equal("scott"),
+	q.criteria("lastName").equal("scott")
+); 
+
+}}}
+
+*Note*: In this example the method {{{criteria}}} is used. It you use {{{field}} as one of the {{{or}}} parameters then you will get a compiler error.
+
 = Fields =
 
 Field names can be used much like they can in [http://www.mongodb.org/display/DOCS/Advanced+Queries native mongodb queries], with [http://www.mongodb.org/display/DOCS/Dot+Notation+(Reaching+into+Objects) "dot" notation].
@@ -86,7 +111,7 @@ Query q = ds.find(Person.class, "addresses.city", "San Francisco");
 
 Validation is done on the field names, and data types used. If a field name is not found on the java class specified in the query then an exception is thrown. If the field name is in "dot" notation then each part of the expression is checked against your java object graph (with the exception of a map, where the key name is skipped).
 
-Problems in the data type (comparing the field type and parameter type) are logged as warnings since it is possible that the server can coerce the values, or that you meant to send something which didn't seem to make sense; The server uses the byte representation of the parameter so some values can match even if the date types are different (numbers for example).
+Problems in the data type (comparing the field type and parameter type) are logged as warnings since it is possible that the server can coerce the values, or that you meant to send something which didn't seem to make sense; The server uses the byte representation of the parameter so some values can match even if the data types are different (numbers for example).
 
 == Disabling Validation ==
 
@@ -150,6 +175,8 @@ To return your data just call one of the {{{QueryResults}}} methods. None of the
 || get() || returns the first Entity -- using limit(1) ||
 || asList() || return all items in a List -- could be costly with large result sets ||
 || fetch() || explicit method to get Iterable instance ||
+|| asKeyList() || return all items in a List of their Key<T> -- This only retrieves the _id field from the server. ||
+|| fetchEmptyEntities() || Just like a {{{fetch()}}} but only retrieves, and fills in the _id field. ||
 
 {{{
 Datastore ds = ...
