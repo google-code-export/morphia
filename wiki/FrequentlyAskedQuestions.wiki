@@ -58,7 +58,6 @@ class MyEntity {
 }
 }}}
   # {{{@Property("old_name")/@Embedded("old_name")}}} 
-
 {{{
 class MyEntity {
   @Id long id;
