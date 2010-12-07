@@ -5,6 +5,7 @@
  * Type-safe [Query] support
  * *Annotations* describe mapping behavior; there are no XML files.
  * *Extensions*: [ValidationExtension Validation (jsr330)], and [SLF4JExtension SLF4J Logging]
+
 {{{
 @Entity("employees")
 class Employee {
