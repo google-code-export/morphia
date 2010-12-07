@@ -34,12 +34,18 @@ class Employee {
 ...
 
 Datastore ds = ...; // like new Morphia(new Mongo()).createDatastore("hr")
+morphia.map(Employee.class);
+
+ds.save(new Employee("Mister", "GOD", null, 0));
 
 Employee boss = ds.find(Employee.class).field("manager").equal(null).get(); // get an employee without a manager
 
 Key<Employee> scottsKey = ds.save(new Employee("Scott", "Hernandez", ds.getKey(boss), 150*1000));
 
-ds.updateFirst(boss, ds.createUpdateOperations(Employee.class).add("underlings", scottsKey)); //add Scott as an employee of his manager
+//add Scott as an employee of his manager
+UpdateResults<Employee> res = ds.update(boss, ds.createUpdateOperations(Employee.class).add("underlings", scottsKey)); 
+
+Employee scottsBoss = ds.find(Employee.class).filter("underlings", scottsKey).get(); // get Scott's boss; the same as the one above.
 
 for (Employee e : ds.find(Employee.class, "manager", boss))
    print(e);
