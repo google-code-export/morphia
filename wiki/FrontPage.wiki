@@ -12,24 +12,38 @@ class Employee {
   String firstName, lastName; // value types are automatically persisted
   Long salary = null; // only non-null values are stored 
 
-  @Embedded Address address;
+  Address address; // by default fields are @Embedded
 
-  @Reference Employee manager; // refs are stored*, and loaded automatically
-  @Reference List<Employee> underlings; // interfaces are supported
+  Key<Employee> manager; //references can be saved without automatic loading
+  @Reference List<Employee> underlings = new ArrayList<Employee>(); //refs are stored*, and loaded automatically
 
   @Serialized EncryptedReviews; // stored in one binary field 
  
   @Property("started") Date startDate; //fields can be renamed
-  @Property("left")Date endDate;
+  @Property("left") Date endDate;
 
   @Indexed boolean active = false; //fields can be indexed for better performance
-  @NotSaved string readButNotStored; //fields can read, but not saved
-  @Transient int notStored; //fields can be ignored (load/save)
+  @NotSaved string readButNotStored; //fields can loaded, but not saved
+  @Transient int notStored; //fields can be ignored (no load/save)
   transient boolean stored = true; //not @Transient, will be ignored by Serialization/GWT for example.
 
-  //Lifecycle methods -- Pre/PostLoad, Pre/PostSave...
+  //Lifecycle methods -- Pre/PostLoad, Pre/PostPersist...
   @PostLoad void postLoad(DBObject dbObj) { ... }
 }
+
+...
+
+Datastore ds = ...; // like new Morphia(new Mongo()).createDatastore("hr")
+
+Employee boss = ds.find(Employee.class).field("manager").equal(null).get(); // get an employee without a manager
+
+Key<Employee> scottsKey = ds.save(new Employee("Scott", "Hernandez", ds.getKey(boss), 150*1000));
+
+ds.updateFirst(boss, ds.createUpdateOperations(Employee.class).add("underlings", scottsKey)); //add Scott as an employee of his manager
+
+for (Employee e : ds.find(Employee.class, "manager", boss))
+   print(e);
+
 }}}
  * Works great with Guice, Spring, and other DI frameworks.
  * Many extension points (new annotations, converters, mapping behavior, logging, etc.)
@@ -37,8 +51,6 @@ class Employee {
  * GWT support (entities are just POJOs) -- (GWT ignores annotations)
  * Advanced mapper which allows raw conversion, {{{void toObject(DBObject)}}} or {{{ DBObject fromObject(Object)}}}
 
-Please continue by reading the [QuickStart quick start guide].
-
-*Note*: The documentation is being re-written; please be patient.
+Please continue by reading the QuickStart or looking at a list of AllAnnotation.
 
 *Note*: @Reference will not save objects, just a reference to them; You must save them yourself.
