@@ -4,6 +4,7 @@
 
 There are many ways to manage concurrency controls for mongodb. One way that [http://code.google.com/p/morphia Morphia] (a java-based type-safe mapper - ODM) does this is by supplying a special annotation, {{{@Version}}}, which is used to make sure that changes made by multiple clients don't step on each other.
 
+== The Entity Definition (model) ==
 {{{
 
 class Person {
@@ -14,12 +15,18 @@ class Person {
   long v;
 ...
 }
+}}}
 
+== The Plan ==
+Now that we have our class properly mocked up, and annotated, we can start to create some test instances and check things out. The goal of this test is to show that with a single line of code in our entity (model) we can make sure that nobody accidentally saves over something that has already been updated.   
+
+{{{
 Datastore ds = ...;
 
 Person me = new Person("Scott Hernandez");
 
 ds.save(me) // all good
+}}}
 Person meAgain = ds.get(Person.class, "Scott Hernandez");
 
 me.setPhone("111-376-7379"); 
