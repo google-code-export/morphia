@@ -1,8 +1,14 @@
 #summary The morphia related article for the Dec 2010 MongoDB Newsletter
 
-= Building Concurrency Controls =
+= Building [http://en.wikipedia.org/wiki/Concurrency_control Concurrency Controls] =
 
 There are many ways to manage concurrency controls for mongodb. One way that [http://code.google.com/p/morphia Morphia] (a java-based type-safe mapper - ODM) does this is by supplying a special annotation, {{{@Version}}}, which is used to make sure that changes made by multiple clients don't step on each other.
+
+One way to control this is through an [http://en.wikipedia.org/wiki/Optimistic_concurrency_control optimistic locking] algorithm. We will let anyone read the entity, but will check when we write that no one has updated it before us. To do this we just need a special field on the entity which we  can increment as each update occurs. This models helps when you update a single entity at a time; for multiple updates this will not help (without making each update individually).
+
+There are also pessimistic models where an explicit lock can be acquired before, or during, the update. These generally perform more poorly, have a higher management cost, and are more complicated to implement, but they keep have many benefits as well.
+
+Now let's dive into the actual code.
 
 == The Entity Definition (model) ==
 {{{
@@ -20,6 +26,9 @@ class Person {
 == The Plan ==
 Now that we have our class properly mocked up, and annotated, we can start to create some test instances and check things out. The goal of this test is to show that with a single line of code in our entity (model) we can make sure that nobody accidentally saves over something that has already been updated.   
 
+=== Setup ===
+Now we create our [Datastore http://code.google.com/p/morphia/wiki/Datastore] which will used to access mongodb. We then create a {{{new Person(...)}}} and save me.
+
 {{{
 Datastore ds = ...;
 
@@ -27,6 +36,12 @@ Person me = new Person("Scott Hernandez");
 
 ds.save(me) // all good
 }}}
+
+After the {{{save(...)}}} has completed our person now has a value stored in the {{{@Version}}} field which will be used by [http://code.google.com/p/morphia Morphia] to manage things for us. If you look you will see that by default it is a counter set to the current milliseconds, but it could be a mono-atomically increasing number as well.
+
+=== Handling The Error ===
+
+{{{
 Person meAgain = ds.get(Person.class, "Scott Hernandez");
 
 me.setPhone("111-376-7379"); 
@@ -39,5 +54,6 @@ try {
   // ooppsss... someone modified it since we got it.
   // try again, but get the new version to work from... or notify the user.
 }
-
 }}}
+
+Now that we have created two instances of the same person, and updated them one at a time, we can cause a {{{ConcurrentModificationException}}} to be thrown.
