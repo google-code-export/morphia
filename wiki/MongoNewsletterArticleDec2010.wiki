@@ -1,0 +1,36 @@
+#summary The morphia related article for the Dec 2010 MongoDB Newsletter
+
+= Building Concurrency Controls =
+
+There are many ways to manage concurrency controls for mongodb. One way that [http://code.google.com/p/morphia Morphia] (a java-based type-safe mapper - ODM) does this is by supplying a special annotation, {{{@Version}}}, which is used to make sure that changes made by multiple clients don't step on each other.
+
+{{{
+
+class Person {
+  @Id String name;
+  String phone;
+
+  @Version
+  long v;
+...
+}
+
+Datastore ds = ...;
+
+Person me = new Person("Scott Hernandez");
+
+ds.save(me) // all good
+Person meAgain = ds.get(Person.class, "Scott Hernandez");
+
+me.setPhone("111-376-7379"); 
+ds.save(me); // now "me" and "meAgain" are different versions
+
+try {
+  ds.setPhone("123-376-7379");
+  ds.save(meAgain);
+} catch (ConcurrentModificationException e) {
+  // ooppsss... someone modified it since we got it.
+  // try again, but get the new version to work from... or notify the user.
+}
+
+}}}
