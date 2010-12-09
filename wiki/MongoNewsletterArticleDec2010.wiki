@@ -8,7 +8,7 @@ One way to control this is through an [http://en.wikipedia.org/wiki/Optimistic_c
 
 There are also pessimistic models where an explicit lock can be acquired before, or during, the update. These generally perform more poorly, have a higher management cost, and are more complicated to implement, but they keep have many benefits as well.
 
-Now let's dive into the actual code.
+Now let's dive into the actual code. In the code and descriptions below you can replace the word *entity* with *document* if you like. I will be speaking in Java terms.
 
 == The Entity Definition (model) ==
 {{{
@@ -18,7 +18,7 @@ class Person {
   String phone;
 
   @Version
-  long v;
+  long version;
 ...
 }
 }}}
@@ -52,8 +52,26 @@ try {
   ds.save(meAgain);
 } catch (ConcurrentModificationException e) {
   // ooppsss... someone modified it since we got it.
-  // try again, but get the new version to work from... or notify the user.
+  // try again, but this time get the new version to work from... or notify the user.
 }
 }}}
 
 Now that we have created two instances of the same person, and updated them one at a time, we can cause a {{{ConcurrentModificationException}}} to be thrown.
+
+== Under the Covers ==
+
+Deep, well not so deep, in the Morphia code is a check to see if there is a {{{@Version}}} field in the entity. If so then the value is added to the list of fields used to do the update. Normally when you save it will just do an update based on the {{{_id}}} field. Here is the javascript from the shell:
+{{{
+> db.c.save
+function (obj) {
+... //insert or
+    return this.update({_id:obj._id}, obj, true);
+}
+}}}
+
+To support the new version field we simply add it to the query on the update:
+{{{
+var oldVersion = obj.version;
+obj.version = newVersion;
+...update({_id:obj._id, version:obj.version}, obj);
+}}}
