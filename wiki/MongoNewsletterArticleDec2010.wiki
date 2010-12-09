@@ -6,7 +6,7 @@ There are many ways to manage concurrency controls for mongodb. One way that [ht
 
 One way to control this is through an [http://en.wikipedia.org/wiki/Optimistic_concurrency_control optimistic locking] algorithm. We will let anyone read the entity, but will check when we write that no one has updated it before us. To do this we just need a special field on the entity which we  can increment as each update occurs. This concurrency model helps when you update a single entity at a time; for multiple updates this will not help (without making each update individually in a loop).
 
-There are also pessimistic models where an explicit lock can be acquired before, or during, the update. These generally perform more poorly, have a higher management cost, and are more complicated to implement, but they keep have many benefits as well.
+There are also pessimistic models where an explicit lock can be acquired before, or during, the update. These generally perform more poorly, have a higher management cost, and are more complicated to implement, but they have many benefits as well.
 
 Now let's dive into the actual code. In the code and descriptions below you can replace the word *entity* with *document* if you like. I will be speaking in Java terms.
 
