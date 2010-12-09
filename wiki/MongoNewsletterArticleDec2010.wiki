@@ -81,4 +81,4 @@ obj.version = newVersion;
 
 == Wrap-up ==
 
-As you can see this is very easy for the user while providing a good level of checking in the framework. Some frameworks not only support this, but also a form of pessimistic locking (by create an external document to indicate that the update is in process) like the [http://www.doctrine-project.org/projects/mongodb_odm/1.0/docs/reference/introduction/en Doctrine PHP ODM] framework. I'm sure that many mappers have implemented optimistic concurrency controls like this.
+As you can see this is very easy for the user while providing a good level of checking in the framework. Some frameworks not only support this, but also a form of pessimistic locking (by create an external document to indicate that the update is in process) like the [http://www.doctrine-project.org/projects/mongodb_odm/1.0/docs/reference/introduction/en Doctrine PHP ODM] framework. I'm sure that many mappers (like Doctrine, MongoKit) have implemented optimistic concurrency controls like this.
