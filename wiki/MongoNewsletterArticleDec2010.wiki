@@ -2,9 +2,9 @@
 
 = Building [http://en.wikipedia.org/wiki/Concurrency_control Concurrency Controls] =
 
-There are many ways to manage concurrency controls for mongodb. One way that [http://code.google.com/p/morphia Morphia] (a java-based type-safe mapper - ODM) does this is by supplying a special annotation, {{{@Version}}}, which is used to make sure that changes made by multiple clients don't step on each other.
+There are many ways to manage concurrency controls for mongodb. One way that [http://code.google.com/p/morphia Morphia] (a java-based type-safe mapper - ODM) does this is by supplying a special annotation, {{{@Version}}}, which is used to make sure that changes made by multiple clients don't step on each other, without generating an error.
 
-One way to control this is through an [http://en.wikipedia.org/wiki/Optimistic_concurrency_control optimistic locking] algorithm. We will let anyone read the entity, but will check when we write that no one has updated it before us. To do this we just need a special field on the entity which we  can increment as each update occurs. This models helps when you update a single entity at a time; for multiple updates this will not help (without making each update individually).
+One way to control this is through an [http://en.wikipedia.org/wiki/Optimistic_concurrency_control optimistic locking] algorithm. We will let anyone read the entity, but will check when we write that no one has updated it before us. To do this we just need a special field on the entity which we  can increment as each update occurs. This concurrency model helps when you update a single entity at a time; for multiple updates this will not help (without making each update individually in a loop).
 
 There are also pessimistic models where an explicit lock can be acquired before, or during, the update. These generally perform more poorly, have a higher management cost, and are more complicated to implement, but they keep have many benefits as well.
 
@@ -27,7 +27,7 @@ class Person {
 Now that we have our class properly mocked up, and annotated, we can start to create some test instances and check things out. The goal of this test is to show that with a single line of code in our entity (model) we can make sure that nobody accidentally saves over something that has already been updated.   
 
 === Setup ===
-Now we create our [Datastore http://code.google.com/p/morphia/wiki/Datastore] which will used to access mongodb. We then create a {{{new Person(...)}}} and save me.
+Now we create our [http://code.google.com/p/morphia/wiki/Datastore Datastore] which will used to access mongodb. We then create a {{{new Person(...)}}} and save me.
 
 {{{
 Datastore ds = ...;
@@ -56,11 +56,13 @@ try {
 }
 }}}
 
-Now that we have created two instances of the same person, and updated them one at a time, we can cause a {{{ConcurrentModificationException}}} to be thrown.
+Now that we have created two instances of the same person, and updated them one at a time, we can cause a {{{ConcurrentModificationException}}} to be thrown. You can imagine that this might happens on different threads or machines.
 
 == Under the Covers ==
 
-Deep, well not so deep, in the Morphia code is a check to see if there is a {{{@Version}}} field in the entity. If so then the value is added to the list of fields used to do the update. Normally when you save it will just do an update based on the {{{_id}}} field. Here is the javascript from the shell:
+Deep, well not so deep, in the Morphia persistence code is a check to see if there is a {{{@Version}}} field in the entity. If so, then the value is added to the list of fields used to do the query part of the update. Normally when you do a save it will just do an update based on the {{{_id}}} field.
+
+Here is the "save" javascript from the shell:
 {{{
 > db.c.save
 function (obj) {
@@ -69,9 +71,14 @@ function (obj) {
 }
 }}}
 
-To support the new version field we simply add it to the query on the update:
+To support the new version field we simply add it to the query on the update. In addition we must increment the version to a new one. This pseudo-code might give you the simple idea:
+
 {{{
 var oldVersion = obj.version;
 obj.version = newVersion;
 ...update({_id:obj._id, version:obj.version}, obj);
 }}}
+
+== Wrap-up ==
+
+As you can see this is very easy for the user while providing a good level of checking in the framework. Some frameworks not only support this, but also a form of pessimistic locking (by create an external document to indicate that the update is in process) like the [http://www.doctrine-project.org/projects/mongodb_odm/1.0/docs/reference/introduction/en Doctrine PHP ODM] framework. I'm sure that many mappers have implemented optimistic concurrency controls like this.
