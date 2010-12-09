@@ -1,6 +1,6 @@
 #summary The morphia related article for the Dec 2010 MongoDB Newsletter
 
-= Be optimistic on your updates, but too much =
+= Be optimistic, but not *too* much =
 
 There are many ways to manage [http://en.wikipedia.org/wiki/Concurrency_control concurrency controls] for MongoDB. One way that [http://code.google.com/p/morphia Morphia] does this is by supplying a special annotation, {{{@Version}}}. [http://code.google.com/p/morphia Morphia] is a lightweight, type safe, and type preserving, java-based mapper for MongoDB; in simple terms it allows you to save java object to and from mongodb without writing much code. The [http://code.google.com/p/morphia Morphia] {{{@Version}}} annotation is used to provide optimistic locking when updating an Entity; this makes sure that changes made by multiple clients don't stomp on each other -- at least not without generating an error. 
 
