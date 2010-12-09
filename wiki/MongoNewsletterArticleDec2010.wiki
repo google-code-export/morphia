@@ -1,14 +1,14 @@
 #summary The morphia related article for the Dec 2010 MongoDB Newsletter
 
-= Building [http://en.wikipedia.org/wiki/Concurrency_control Concurrency Controls] =
+= Be optimistic on your updates, but too much =
 
-There are many ways to manage concurrency controls for mongodb. One way that [http://code.google.com/p/morphia Morphia] (a java-based type-safe mapper - ODM) does this is by supplying a special annotation, {{{@Version}}}, which is used to make sure that changes made by multiple clients don't step on each other, without generating an error.
+There are many ways to manage [http://en.wikipedia.org/wiki/Concurrency_control concurrency controls] for MongoDB. One way that [http://code.google.com/p/morphia Morphia] does this is by supplying a special annotation, {{{@Version}}}. [http://code.google.com/p/morphia Morphia] is a lightweight, type safe, and type preserving, java-based mapper for MongoDB; in simple terms it allows you to save java object to and from mongodb without writing much code. The [http://code.google.com/p/morphia Morphia] {{{@Version}}} annotation is used to provide optimistic locking when updating an Entity; this makes sure that changes made by multiple clients don't stomp on each other -- at least not without generating an error. 
 
-One way to control this is through an [http://en.wikipedia.org/wiki/Optimistic_concurrency_control optimistic locking] algorithm. We will let anyone read the entity, but will check when we write that no one has updated it before us. To do this we just need a special field on the entity which we  can increment as each update occurs. This concurrency model helps when you update a single entity at a time; for multiple updates this will not help (without making each update individually in a loop).
+This type of concurrency control will let anyone read the entity, but will check when writes occur that no one has updated between your read and update. To do this you just need a special field on the entity; we can increment this field as each update happens to provide these assurances. This concurrency model helps when you update a single entity at a time, but not for multiple updates.
 
-There are also pessimistic models where an explicit lock can be acquired before, or during, the update. These generally perform more poorly, have a higher management cost, and are more complicated to implement, but they have many benefits as well.
+There are also pessimistic (locking) models where an explicit lock can be acquired before, or during, the update process. These generally perform more poorly, have a higher management cost, and are more complicated to implement, but they have many benefits as well. I will not address these and I will continue to talk about optimistic and/or time-stamp based algorithms.
 
-Now let's dive into the actual code. In the code and descriptions below you can replace the word *entity* with *document* if you like. I will be speaking in Java terms.
+Now let's dive into the actual code. In the code, and descriptions, below you can replace the word *entity* with *document* if you like. I will be speaking in Java terms.
 
 == The Entity Definition (model) ==
 {{{
@@ -81,4 +81,4 @@ obj.version = newVersion;
 
 == Wrap-up ==
 
-As you can see this is very easy for the user while providing a good level of checking in the framework. Some frameworks not only support this, but also a form of pessimistic locking (by create an external document to indicate that the update is in process) like the [http://www.doctrine-project.org/projects/mongodb_odm/1.0/docs/reference/introduction/en Doctrine PHP ODM] framework. I'm sure that many mappers (like Doctrine, MongoKit) have implemented optimistic concurrency controls like this.
+Using {{{@Version}}} is trivial in Morphia. It provides additional concurrency control from what MongoDB offers without costing anything but a little extra space per Entity and very tiny bit of extra work on matching/updating. This type of optimistic locking pattern is very easy for any framework to implement and solves many problems that read-world developers have. Some frameworks not only support optimistic, but also a form of pessimistic locking; you can create an external document, a lock basically, to indicate that the update is in process for some other document, like the [http://www.doctrine-project.org/projects/mongodb_odm/1.0/docs/reference/introduction/en Doctrine PHP ODM] framework does. I'm sure that many mappers -- which include Morphia, Doctrine and MongoKit, and more -- have implemented optimistic concurrency controls like this.
