@@ -1,8 +1,12 @@
 #summary A quick 2 minute intro to Morphia.
 #labels Featured
-= So you want to store your POJOs in MongoDB? =
+
+= Storing your POJOs in MongoDB? =
 
 Morphia makes that very easy. Here's what you need to do.
+== Libs ==
+
+Go take care of getting the [Dependencies] for your project.
 
 == Annotate your Java classes ==
 
