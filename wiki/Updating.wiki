@@ -223,9 +223,9 @@ ops = datastore.createUpdateOperations(Hotel.class).removeAll("roomNumbers", Arr
 datastore.update(updateQuery, ops);  // [ 1 ]
 }}}
 
-== multiple upOps ==
+== Multiple Operations ==
 
-You can also perform multiple update operations within a single operation.
+You can also perform multiple update operations within a single update.
 
 {{{
 
