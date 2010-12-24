@@ -7,6 +7,7 @@
 = 0.99 =
 *unreleased*:
   * *Requires* mongodb java driver 2.3+
+  * Sparse index support in {{{@Indexed}}} (for mongodb 1.7.4+)
   * Mapreduce support (no temp collection support -- always specifies out)
   * {{{java.sql.Timestamp}}} support
   * {{{findAndModify}}} support for createIfMissing (upsert)
