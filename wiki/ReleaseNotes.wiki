@@ -7,6 +7,13 @@
 = 0.99 =
 *unreleased*:
   * *Requires* mongodb java driver 2.3+
+  * Mapreduce support (no temp collection support -- always specifies out)
+  * {{{java.sql.Timestamp}}} support
+  * {{{findAndModify}}} support for createIfMissing (upsert)
+  * [Updating Update] supports {{{@Refence}}}/{{{Key<T>}}} fields better
+  * [updating Update] validation improvements
+  * GWT Support for {{{DBRef/ObjectId/Key<T>}}}
+  * Misc bugs and improvements
 
 = 0.98 =
 *2010-11-30*:
