@@ -1,0 +1,17 @@
+#summary People and places using morphia
+
+= Morphia in Action =
+
+
+
+= Articles/Blogs =
+
+  * [http://storypodders.com/dasBlog/2010/10/18/UsingMongoDBAndMorphiaToPersistAndRetrievePOJOsNoSQL.aspx Using MongoDB and Morphia to persist and retrieve POJO’s- NoSQL!]
+  *[http://www.scalabiliti.com/blog/mongodb_and_morphia_performance morphia performance blog post] [http://www.scalabiliti.com/blog/morphia_performance_revisited revisited]
+  *[http://jameswilliams.be/blog/entry/177 Morphia + Groovy]
+  *[http://nosql.mypopescu.com/post/816470307/tutorial-mongodb-in-java#morphia_jpa-like morphia mentioned in a comparison]
+  *[http://www.playframework.org/modules/morphia Play Framework with MongoDB (Morphia)]
+  *[http://sleeplessinslc.blogspot.com/2010/10/mongodb-with-morphia-example.html another blog]
+  *[http://it-republik.de/jaxenter/artikel/Morphia---POJO-Persistenz-mit-mongoDB-3372.html german blog post]
+  *[http://blog.adampresley.com/2010/my-grails-and-mongodb-experience-so-far/ grails morphia example]
+  *more?
