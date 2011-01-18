@@ -78,6 +78,6 @@ This makes sense, really. In terms of the example above, it means that you must 
 By default, Morphia uses the field name as the value name in Mongo. This can be overridden by specifying a name on the @Reference annotation:
 
 {{{
-    @Reference(name = "blog_authors")
+    @Reference("blog_authors")
     private List<Author> authors;
 }}}
