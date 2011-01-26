@@ -4,16 +4,20 @@
 <wiki:toc/>
 
 
-= 0.99 =
+= 1.00 =
 *unreleased*:
+
+= 0.99 =
+*2011-01-25*:
   * *Requires* mongodb java driver 2.3+
   * Sparse index support in {{{@Indexed}}} (for mongodb 1.7.4+)
   * Mapreduce support (no temp collection support -- always specifies out)
   * {{{java.sql.Timestamp}}} support
   * {{{findAndModify}}} support for createIfMissing (upsert)
   * [Updating Update] supports {{{@Refence}}}/{{{Key<T>}}} fields better
-  * [updating Update] validation improvements
+  * [Updating Update] validation improvements
   * GWT Support for {{{DBRef/ObjectId/Key<T>}}}
+  * insert/delete operations return {{{WriteResult}}}
   * Misc bugs and improvements
 
 = 0.98 =
