@@ -24,7 +24,7 @@ MorphiaLoggerFactory.registerLogger(SLF4JLoggerImplFactory.class);
 {{{
 <dependency>
 	<groupId>com.google.code.morphia</groupId>
-	<artifactId>logging-slf4j</artifactId>
-	<version>0.96</version>
+	<artifactId>morphia-logging-slf4j</artifactId>
+	<version>0.99</version>
 </dependency>
 }}}
