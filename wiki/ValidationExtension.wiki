@@ -49,6 +49,6 @@ You can look at the code [http://code.google.com/p/morphia/source/browse/trunk/v
 <dependency>
 	<groupId>com.google.code.morphia</groupId>
 	<artifactId>validation</artifactId>
-	<version>0.96</version>
+	<version>0.99</version>
 </dependency>
 }}}
