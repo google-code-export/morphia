@@ -18,6 +18,7 @@
   * [Updating Update] validation improvements
   * GWT Support for {{{DBRef/ObjectId/Key<T>}}}
   * insert/delete operations return {{{WriteResult}}}
+  * cleaned up maven versions in repo
   * Misc bugs and improvements
 
 = 0.98 =
