@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>com.google.code.morphia</groupId>
+  <artifactId>morphia-validation</artifactId>
+  <version>0.99</version>
+  <versioning>
+    <versions>
+      <version>0.99</version>
+    </versions>
+    <lastUpdated>20110127005832</lastUpdated>
+  </versioning>
+</metadata>
