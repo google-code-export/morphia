@@ -4,7 +4,7 @@
  * [Datastore] and [DAOSupport DAO]<T,V> access abstractions, or roll your own...
  * Type-safe [Query] support
  * *Annotations* describe mapping behavior; there are no XML files.
- * *Extensions*: [ValidationExtension Validation (jsr330)], and [SLF4JExtension SLF4J Logging]
+ * *Extensions*: [ValidationExtension Validation (jsr303)], and [SLF4JExtension SLF4J Logging]
 
 {{{
 @Entity("employees")
