@@ -30,6 +30,38 @@ Attribute name: *noClassnameStored*
 
 This attribute is temporary until polymorphism is completed.
 
+== Indexes ==
+
+In addition to being able to declare an index on a single field you can also declare the indexes at the class level. This allows you to create more than just a single field index; it allows you to create compound indexes with multiple fields.
+
+=== Compound Indexes ===
+Compound indexes are indexes that include several fields, in a specific order. They are annotated on the the class itself since they include multiple fields. As an example imagine you have a collection that stores changes made by a user. If you want to be able to quickly query recent changes for a given user, you would want to create an index containing both user and date; the order of the fields is significant so please read up on the mongo side of things for optimal performance.
+
+{{{
+@Entity // this is require to know where the indexes are to be created
+@Indexes( @Index("user, -date")
+public class ChangeLog{
+ Date date;
+ String user;
+ Record changedRecord;
+} 
+
+}}}
+
+The minus on "-date" indicates that the field is indexed in descending order making it quicker to sort from most recent to oldest. This is the same syntax used when sorting or ordering results from a query.
+
+Say you decided you also needed to be able to quickly find recent changes for the record being changed. You could change the annotation to:
+{{{
+@Indexes({
+   @Index("user, -cs"),
+   @Index("changedRecord, -cs")})
+}}}
+
+And now you will have two compound indexes on that collection.
+
+If you like you can also define single field indexes in this fashion as well; it is recommended that you don't since it is more error prone.
+
+
 == Id ==
 Marks a field in an {{{@Entity}}} to be the "_id" field in mongodb.
 
@@ -40,6 +72,7 @@ class Myclass {
    ...
 }
 }}}
+
 == Transient ==
 The field with not be persisted.
 
