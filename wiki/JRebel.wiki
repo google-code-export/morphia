@@ -26,7 +26,7 @@ If you´re using Eclipse with the JRebel Plugin this can be skipped and instead 
 Register the Extension to your Morphia instance
 
 {{{
-morphia.addExtension(new JRebelMorphiaExtension());
+morphia.addExtension(new JRebelExtension());
 }}}
 
 == Dependencies ==
