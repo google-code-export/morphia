@@ -16,6 +16,7 @@
     * Extensions
       * [ValidationExtension Validation]
       * [SLF4JExtension SLF4J Logging]
+      * [JRebel JRebel plugin]
       * GoogleWebToolkit
     * Manually Mapping objects to/from MongoDB (DBObjects)
       * [MappingObjects Using the Morphia instance]
