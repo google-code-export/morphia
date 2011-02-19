@@ -9,8 +9,7 @@ This is a simple extension to Morphia to process JSR303 Validation Annotations.
 Add this at the start of your application (or wherever you create your morphia instances).
 
 {{{
-Morphia morphiaInstance = ...
-new MorphiaValidation().applyTo(morphiaInstance);
+morphia.addExtension(new ValidationExtension());
 }}}
 
 == Example ==
