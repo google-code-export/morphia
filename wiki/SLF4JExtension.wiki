@@ -9,7 +9,7 @@ This is a simple extension to Morphia to redirect logging to SFL4J.
 Add this at the start of your application. It is done once, statically.
 
 {{{
-MorphiaLoggerFactory.registerLogger(SLF4JLoggerImplFactory.class);
+morphia.addExtension(new SLF4JExtension());
 }}}
 
 == Dependencies ==
