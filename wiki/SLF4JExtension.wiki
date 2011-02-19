@@ -9,7 +9,7 @@ This is a simple extension to Morphia to redirect logging to SFL4J.
 Add this at the start of your application. It is done once, statically.
 
 {{{
-morphia.addExtension(new SLF4JExtension());
+MorphiaLoggerFactory.registerLogger(SLF4JLoggerImplFactory.class);
 }}}
 
 == Dependencies ==
@@ -23,8 +23,8 @@ morphia.addExtension(new SLF4JExtension());
     * Project Settings: 
 {{{
 <dependency>
-	<groupId>com.google.code.morphia</groupId>
-	<artifactId>morphia-logging-slf4j</artifactId>
-	<version>0.99</version>
+        <groupId>com.google.code.morphia</groupId>
+        <artifactId>morphia-logging-slf4j</artifactId>
+        <version>0.99</version>
 </dependency>
 }}}
