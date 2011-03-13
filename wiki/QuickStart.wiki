@@ -115,6 +115,9 @@ address.setCity("Some city");
 address.setPostCode("123 456");
 address.setCountry("Some country");
 
+//set address
+hotel.setAddress(address);
+
 Morphia morphia = ...;
 Datastore ds = morphia.createDatastore("testDB");
 
