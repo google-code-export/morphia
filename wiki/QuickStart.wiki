@@ -92,9 +92,10 @@ Next, we create an instance of Morphia, and map the classes we want to use:
 {{{
 import com.google.code.morphia.Morphia;
 ...
+Mongo mongo = ...;
 Morphia morphia = new Morphia();
 morphia.map(Hotel.class).map(Address.class);
-Datastore ds = morphia.createDatastore("my_database");
+Datastore ds = morphia.createDatastore(mongo, "my_database");
 ...
 }}}
 
