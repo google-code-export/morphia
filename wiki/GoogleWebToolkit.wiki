@@ -1,4 +1,5 @@
 #summary Using Morphia with GWT
+#labels Extension
 
 = Using Morphia with GWT =
 
