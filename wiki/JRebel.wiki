@@ -1,4 +1,5 @@
 #summary JRebel Extension
+#labels Extension
 
 = Introduction =
 
