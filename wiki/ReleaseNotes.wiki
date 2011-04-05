@@ -9,6 +9,8 @@
   * *Requires* mongodb java driver 2.5+
   * Added {{{Helper}}} object to get Query/Datastore internals useful for the driver methods on DB/DBCollection/DBCursor/...
   * {{{GridFS}}} support for mappings
+  * Validate and translate sort fields.
+
 = 0.99 =
 *2011-01-26*:
   * *Requires* mongodb java driver 2.3+
