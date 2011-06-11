@@ -104,6 +104,7 @@ Marks fields as stored in another collection and which are linked (by a dbref re
 
 
 Attribute name: *lazy*
+
 Instead of loading the referenced field with the Entity, it will be lazily loaded on the first method call of the proxy instance.
 
 Look [ReferenceAnnotation here] for more examples.
