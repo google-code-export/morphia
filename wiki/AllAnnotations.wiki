@@ -100,7 +100,13 @@ class Myclass {
 }}}
 
 == Reference ==
-Marks fields to be stored in another collection and which are linked (by a stored reference). Look [ReferenceAnnotation here] for more examples.
+Marks fields as stored in another collection and which are linked (by a dbref reference field). When the Entity is loaded, so is the (direct) reference. 
+
+
+Attribute name: *lazy*
+Instead of loading the referenced field with the Entity, it will be lazily loaded on the first method call of the proxy instance.
+
+Look [ReferenceAnnotation here] for more examples.
 
 == Embedded ==
 Allows customization of certain options. Look [EmbeddedAnnotation here] for more examples.
