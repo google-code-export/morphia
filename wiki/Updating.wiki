@@ -193,7 +193,7 @@ ops = datastore.createUpdateOperations(Hotel.class).add("roomNumbers", 12, false
 datastore.update(updateQuery, ops); // [ 11, 12 ]
 
 // add even if its a duplicate
-ops = datastore.createUpdateOperations(Hotel.class).add("roomNumbers", 11, false);
+ops = datastore.createUpdateOperations(Hotel.class).add("roomNumbers", 11, true);
 datastore.update(updateQuery, ops); // [ 11, 12, 11 ]
 }}}
 
