@@ -39,7 +39,7 @@ Compound indexes are indexes that include several fields, in a specific order. T
 
 {{{
 @Entity // this is require to know where the indexes are to be created
-@Indexes( @Index("user, -date")
+@Indexes( @Index("user, -date") )
 public class ChangeLog{
  Date date;
  String user;
