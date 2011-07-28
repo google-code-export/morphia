@@ -160,6 +160,15 @@ Query q = ds.createQuery(MyEntity.class).filter("foo >", 12).order("-dateAdded")
 Query q = ds.createQuery(MyEntity.class).filter("foo >", 12).order("dateAdded, -foo");
 }}}
 
+= Limit =
+
+You can also limit for the number of elements.
+
+{{{
+Datastore ds = ...
+Query q = ds.createQuery(MyEntity.class).filter("foo >", 12).limit(100);
+}}}
+
 = Offset (skip) =
 
 You can also ask the server to skip over a number of elements on the server by specifying an offset value for the query. This will less efficient than a range filter using some field, for pagination for example.
