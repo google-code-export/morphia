@@ -102,10 +102,17 @@ class Myclass {
 == Reference ==
 Marks fields as stored in another collection and which are linked (by a dbref reference field). When the Entity is loaded, so is the (direct) reference. 
 
-
 Attribute name: *lazy*
 
 Instead of loading the referenced field with the Entity, it will be lazily loaded on the first method call of the proxy instance.
+
+Attribute name: *ignoreMissing*
+
+When loading bad references won't generate an exception
+
+Attribute name: *concreteClass*
+
+The class type to create for these references
 
 Look [ReferenceAnnotation here] for more examples.
 
