@@ -6,7 +6,9 @@
 
 = 1.00 =
 *unreleased*:
-  * *Requires* mongodb java driver 2.5+
+= 0.99.1=
+*unreleased*:
+  * *Requires* mongodb java driver 2.7+
   * Added {{{Helper}}} object to get Query/Datastore internals useful for the driver methods on DB/DBCollection/DBCursor/...
   * {{{GridFS}}} support for mappings
   * Validate and translate sort fields.
