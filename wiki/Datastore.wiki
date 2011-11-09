@@ -122,9 +122,11 @@ Read more on [Updating].
  
 == Ensure Indexes and Caps ==
 
-These methods should be called after you have registered you entities with Morphia. It will then *synchronously* create your indexes, and capped collections. This should probably be done each time you start your application. 
+These methods should be called after you have registered you entities with Morphia. It will then *synchronously*, by default, create your indexes, and capped collections. One option is call them each time you start your application, or via an administrative interface, or during a deployment script. It might be best to make sure indexes can be built in the *background* if there is *already data*.
 
-*Note:* Doing this on an existing system, with existing indexes and capped collections, should take no time (and do nothing).
+If you delay index building to later in the application life-cycle you should *make sure to create the capped collections (ensureCaps) at startup*, before any data is persisted.
+
+*Note:* Doing this on an existing system, with existing indexes and capped collections, should take no time (and do nothing). If the collection isn't capped, or has different setting you will get an error in the logs, but nothing will be done to the existing collections.
 
 {{{
 Morphia m = ...
