@@ -40,7 +40,6 @@ public class Address {
 We want to save instances of these objects to MongoDB. All we need to do is add the Morphia annotations to the class fields we want to persist:
 
 {{{
-import com.google.code.morphia.annotations.CollectionName;
 import com.google.code.morphia.annotations.Entity;
 import com.google.code.morphia.annotations.Embedded;
 import com.google.code.morphia.annotations.Id;
@@ -160,7 +159,7 @@ To take advantage of the basic Morphia DAO support:
 
 {{{
 import com.google.code.morphia.Morphia;
-import com.google.code.morphia.dao.DAO;
+import com.google.code.morphia.dao.BasicDAO;
 import com.mongodb.DBCollection;
 import com.mongodb.Mongo;
 
