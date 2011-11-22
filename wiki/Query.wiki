@@ -196,6 +196,16 @@ val = e.getFoo(); // only field not returned
 
 }}}
 
+The string for the field names can be a comma separated list like this:
+{{{
+MyEntity e = ds.createQuery(MyEntity.class).retrievedFields(true, "foo, bar").get();
+
+val = e.getFoo(); // fields returned
+vak = e.getBar(); // fields returned
+
+}}}
+
+
 = Returning Data =
 
 To return your data just call one of the {{{QueryResults}}} methods. None of these methods affect the Query. They will leave the Query alone so you can continue to use it to retrieve new results by calling these methods again.
