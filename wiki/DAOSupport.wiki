@@ -57,7 +57,7 @@ So, if we wanted to create a finder method that returns all blog entries where t
 {{{
 ..
 public List<BlogEntry> findByTitle( String title ) {
-    Pattern regExp = Pattern.compile(name + ".*", Pattern.CASE_INSENSITIVE);
+    Pattern regExp = Pattern.compile(title + ".*", Pattern.CASE_INSENSITIVE);
     return ds.find(entityClazz).filter("title", regExp).sort("title").asList();
 }
 ...
