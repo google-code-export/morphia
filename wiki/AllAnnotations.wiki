@@ -73,6 +73,9 @@ class Myclass {
 }
 }}}
 
+== Property ==
+See [PropertyAnnotation]
+
 == Transient ==
 The field with not be persisted.
 
