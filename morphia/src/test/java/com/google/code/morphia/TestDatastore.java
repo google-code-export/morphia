@@ -23,7 +23,9 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.bson.types.ObjectId;
 import org.junit.Test;
@@ -42,10 +44,9 @@ import com.google.code.morphia.testmodel.Hotel;
 import com.google.code.morphia.testmodel.Rectangle;
 import com.google.code.morphia.testutil.AssertedFailure;
 import com.mongodb.BasicDBObject;
-import com.mongodb.DBDecoderFactory;
+import com.mongodb.BasicDBObjectBuilder;
+import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
-import com.mongodb.LazyDBDecoder;
-import com.mongodb.LazyWriteableDBDecoder;
 
 /**
  *
@@ -146,8 +147,7 @@ public class TestDatastore  extends TestBase {
 		@SuppressWarnings("rawtypes")
 		@PreLoad
 		DBObject PreLoadWithParamAndReturn(DBObject dbObj) {
-			BasicDBObject retObj = new BasicDBObject();
-			retObj.putAll(dbObj);
+			DBObject retObj = new BasicDBObject((Map)dbObj);
 			retObj.put("preLoadWithParamAndReturn", true);
 			return retObj;
 		}
@@ -187,53 +187,49 @@ public class TestDatastore  extends TestBase {
 //		Datastore ds = new Morphia().createDatastore(mongo);
 		Datastore ds = new Morphia().createDatastore(mongo, "test");
 	}
+	@Test
+    public void testLowlevelbyteArray() throws Exception {
+		DBCollection c = mongo.getDB("test").getCollection( "testBinary" );
+	    c.drop();
+	    DBObject loaded;
+	    Iterator<DBObject> it = c.find(new BasicDBObject(), null, 0, 1);
+	    if (it != null && it.hasNext()) loaded = it.next();
+	    
+	    c.save( BasicDBObjectBuilder.start().add( "a" , "eliot".getBytes() ).get() );
+	    
+	    DBObject out = c.findOne();
+	    loaded = c.find(new BasicDBObject(), null, 0, 1).next();
+	    assertEquals(new String((byte[])out.get("a")), new String((byte[])loaded.get("a")));
+	    byte[] b = (byte[])(out.get( "a" ) );
+	    assertEquals( "eliot" , new String( b ) );
+	}
 	
 	@Test
     public void testLifecycle() throws Exception {
-		DBDecoderFactory oldFactory = ads.setDecoderFact(LazyWriteableDBDecoder.FACTORY);
-
-		//only replace if using lazy decoder
-		if (!(oldFactory instanceof LazyDBDecoder))
-			ads.setDecoderFact(oldFactory);
+		LifecycleTestObj life1 = new LifecycleTestObj();
+		((DatastoreImpl)ds).getMapper().addMappedClass(LifecycleTestObj.class);
+		ds.save(life1);
+		assertTrue(life1.prePersist);
+		assertTrue(life1.prePersistWithParam);
+		assertTrue(life1.prePersistWithParamAndReturn);
+		assertTrue(life1.postPersist);
+		assertTrue(life1.postPersistWithParam);
 		
-		try {
-			LifecycleTestObj life1 = new LifecycleTestObj();
-			((DatastoreImpl) ds).getMapper().addMappedClass(LifecycleTestObj.class);
-			ds.save(life1);
-			assertTrue(life1.prePersist);
-			assertTrue(life1.prePersistWithParam);
-			assertTrue(life1.prePersistWithParamAndReturn);
-			assertTrue(life1.postPersist);
-			assertTrue(life1.postPersistWithParam);
-
-			LifecycleTestObj loaded = ds.get(life1);
-			assertTrue(loaded.preLoad);
-			assertTrue(loaded.preLoadWithParam);
-			assertTrue(loaded.preLoadWithParamAndReturn);
-			assertTrue(loaded.postLoad);
-			assertTrue(loaded.postLoadWithParam);
-		} finally {
-			ads.setDecoderFact(oldFactory);
-		}
+		LifecycleTestObj loaded = ds.get(life1);
+		assertTrue(loaded.preLoad);
+		assertTrue(loaded.preLoadWithParam);
+		assertTrue(loaded.preLoadWithParamAndReturn);
+		assertTrue(loaded.postLoad);
+		assertTrue(loaded.postLoadWithParam);
 	}
 	
 	@Test
     public void testLifecycleListeners() throws Exception {
-		DBDecoderFactory oldFactory = ads.setDecoderFact(LazyWriteableDBDecoder.FACTORY);
-
-		//only replace if using lazy decoder
-		if (!(oldFactory instanceof LazyDBDecoder))
-			ads.setDecoderFact(oldFactory);
-
-		try {
-			LifecycleTestObj life1 = new LifecycleTestObj();
-			((DatastoreImpl)ds).getMapper().addMappedClass(LifecycleTestObj.class);
-			ds.save(life1);
-			assertTrue(LifecycleListener.prePersist);
-			assertTrue(LifecycleListener.prePersistWithEntity);
-		} finally {
-			ads.setDecoderFact(oldFactory);
-		}
+		LifecycleTestObj life1 = new LifecycleTestObj();
+		((DatastoreImpl)ds).getMapper().addMappedClass(LifecycleTestObj.class);
+		ds.save(life1);
+		assertTrue(LifecycleListener.prePersist);
+		assertTrue(LifecycleListener.prePersistWithEntity);
 	}
 	@Test
     public void testCollectionNames() throws Exception {

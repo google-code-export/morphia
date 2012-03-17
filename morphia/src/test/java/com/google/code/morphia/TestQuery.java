@@ -43,13 +43,11 @@ import com.google.code.morphia.annotations.Id;
 import com.google.code.morphia.annotations.Property;
 import com.google.code.morphia.annotations.Reference;
 import com.google.code.morphia.query.Query;
-import com.google.code.morphia.query.QueryImpl;
 import com.google.code.morphia.query.ValidationException;
 import com.google.code.morphia.testmodel.Hotel;
 import com.google.code.morphia.testmodel.Rectangle;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
-import com.mongodb.MongoException;
 import com.mongodb.MongoInternalException;
 
 /**
@@ -225,7 +223,6 @@ public class TestQuery  extends TestBase {
 	        assertNotNull(ds.find(PhotoWithKeywords.class).where(hasKeyword.getCode()).get());
 			Assert.fail("Invalid javascript magically isn't invalid anymore?");
 		} catch (MongoInternalException e) {
-		} catch (MongoException e) {
 			// fine
 		}
 
@@ -235,14 +232,6 @@ public class TestQuery  extends TestBase {
     public void testRegexQuery() throws Exception {
         ds.save(new PhotoWithKeywords());
         assertNotNull(ds.find(PhotoWithKeywords.class).disableValidation().filter("keywords.keyword", Pattern.compile("california")).get());
-        assertNull(ds.find(PhotoWithKeywords.class, "keywords.keyword",  Pattern.compile("blah")).get());
-    }
-    
-    @Test
-    public void testRegexInsensitiveQuery() throws Exception {
-        ds.save(new PhotoWithKeywords());
-        Pattern p = Pattern.compile("(?i)caLifornia");
-        assertNotNull(ds.find(PhotoWithKeywords.class).disableValidation().filter("keywords.keyword", p).get());
         assertNull(ds.find(PhotoWithKeywords.class, "keywords.keyword",  Pattern.compile("blah")).get());
     }
 
@@ -348,57 +337,7 @@ public class TestQuery  extends TestBase {
 
         Assert.assertEquals(1, q.countAll());
     }
-    
-    @Test
-    public void testFluentAndOrQuery() throws Exception {
-        PhotoWithKeywords pwk = new PhotoWithKeywords("scott", "hernandez");
-        ds.save(pwk);
-        
-        AdvancedDatastore ads = (AdvancedDatastore) ds;
-        Query<PhotoWithKeywords> q = ads.createQuery(PhotoWithKeywords.class);
-        q.and(
-        		q.or(q.criteria("keywords.keyword").equal("scott")),
-        		q.or(q.criteria("keywords.keyword").equal("hernandez")));
-    
-        Assert.assertEquals(1, q.countAll());
-        QueryImpl<PhotoWithKeywords> qi = (QueryImpl<PhotoWithKeywords>)q;
-        DBObject realCriteria = qi.prepareCursor().getQuery();
-        Assert.assertTrue(realCriteria.containsField("$and"));
-        
-    }
 
-    @Test
-    public void testFluentAndQuery1() throws Exception {
-        PhotoWithKeywords pwk = new PhotoWithKeywords("scott", "hernandez");
-        ds.save(pwk);
-        
-        AdvancedDatastore ads = (AdvancedDatastore) ds;
-        Query<PhotoWithKeywords> q = ads.createQuery(PhotoWithKeywords.class);
-        q.and(
-        		q.criteria("keywords.keyword").hasThisOne("scott"),
-        		q.criteria("keywords.keyword").hasAnyOf(Arrays.asList("scott", "hernandez")));
-        
-        Assert.assertEquals(1, q.countAll());
-        QueryImpl<PhotoWithKeywords> qi = (QueryImpl<PhotoWithKeywords>)q;
-        DBObject realCriteria = qi.prepareCursor().getQuery();
-        Assert.assertTrue(realCriteria.containsField("$and"));
-        
-    }
-
-
-    @Test
-    public void testFluentNotQuery() throws Exception {
-        PhotoWithKeywords pwk = new PhotoWithKeywords("scott", "hernandez");
-        ds.save(pwk);
-        
-        AdvancedDatastore ads = (AdvancedDatastore) ds;
-        Query<PhotoWithKeywords> q = ads.createQuery(PhotoWithKeywords.class);
-        q.criteria("keywords.keyword").not().startsWith("ralph"); 
-
-        Assert.assertEquals(1, q.countAll());
-    }
-
-    
     @Test
     public void testIdFieldNameQuery() throws Exception {
         PhotoWithKeywords pwk = new PhotoWithKeywords("scott", "hernandez");
@@ -435,30 +374,6 @@ public class TestQuery  extends TestBase {
     	this.ds.save(ucio);
                 
     	UsesCustomIdObject ucioLoaded = ds.find(UsesCustomIdObject.class, "_id.t", "banker").get();
-        assertNotNull(ucioLoaded);
-    }
-
-    @Test
-    public void testQBE() throws Exception {
-    	CustomId cId = new CustomId();
-    	cId.id = new ObjectId();
-    	cId.type = "banker";
-    	
-    	UsesCustomIdObject ucio = new UsesCustomIdObject();
-    	ucio.id = cId;
-    	ucio.text = "hllo";
-    	this.ds.save(ucio);
-    	UsesCustomIdObject ucioLoaded  = null;
-
-//		Add back if/when query by example for embedded fields is supported (require dot'n each field).			
-//    	CustomId exId = new CustomId();
-//    	exId.type = cId.type;
-//    	ucioLoaded = ds.find(UsesCustomIdObject.class, "_id", exId).get();
-//      assertNotNull(ucioLoaded);
-        
-    	UsesCustomIdObject ex = new UsesCustomIdObject();
-    	ex.text = ucio.text;
-    	ucioLoaded = ds.queryByExample(ex).get();
         assertNotNull(ucioLoaded);
     }
     
@@ -624,29 +539,6 @@ public class TestQuery  extends TestBase {
         assertEquals(1, r1.getWidth(), 0);
 
         r1 = ds.find(Rectangle.class).limit(1).order("-width").get();
-        assertNotNull(r1);
-        assertEquals(10, r1.getWidth(), 0);
-    }
-
-    @Test
-    public void testAliasedFieldSort() throws Exception {
-        Rectangle[] rects = {
-                new Rectangle(1, 10),
-                new Rectangle(3, 8),
-                new Rectangle(6, 10),
-                new Rectangle(10, 10),
-                new Rectangle(10, 1),
-        };
-        for(Rectangle rect: rects)
-        {
-            ds.save(rect);
-        }
-
-        Rectangle r1 = ds.find(Rectangle.class).limit(1).order("w").get();
-        assertNotNull(r1);
-        assertEquals(1, r1.getWidth(), 0);
-
-        r1 = ds.find(Rectangle.class).limit(1).order("-w").get();
         assertNotNull(r1);
         assertEquals(10, r1.getWidth(), 0);
     }

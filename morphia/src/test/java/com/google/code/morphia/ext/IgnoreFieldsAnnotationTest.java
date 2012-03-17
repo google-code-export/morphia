@@ -26,8 +26,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.google.code.morphia.Datastore;
 import com.google.code.morphia.DatastoreImpl;
-import com.google.code.morphia.TestBase;
+import com.google.code.morphia.Morphia;
 import com.google.code.morphia.annotations.Entity;
 import com.google.code.morphia.annotations.Id;
 import com.google.code.morphia.annotations.Transient;
@@ -38,12 +39,10 @@ import com.google.code.morphia.mapping.MappedField;
  *
  * @author Scott Hernandez
  */
-public class IgnoreFieldsAnnotationTest extends TestBase {
+public class IgnoreFieldsAnnotationTest {
 
-	public IgnoreFieldsAnnotationTest () {
-		super();
-	}
-	
+	Datastore ds;
+
 	Transient transAnn;
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target({ElementType.TYPE})
@@ -61,9 +60,11 @@ public class IgnoreFieldsAnnotationTest extends TestBase {
 
 	@Before
 	public void setUp() {
-		super.setUp();
+		Morphia m = new Morphia();
+        ds = m.createDatastore("morphia_test");
+        ds.getDB().dropDatabase();
 		MappedClass.interestingAnnotations.add(IgnoreFields.class);
-		this.morphia.map(User.class);
+		m.map(User.class);
 		processIgnoreFieldsAnnotations();
 	}
 	

@@ -6,6 +6,7 @@ package com.google.code.morphia.mapping;
 import java.util.Map;
 
 import com.google.code.morphia.mapping.cache.EntityCache;
+import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
 /**
@@ -14,6 +15,6 @@ import com.mongodb.DBObject;
  *
  */
 public interface CustomMapper {
-	void toDBObject(Object entity, MappedField mf, DBObject dbObject, Map<Object, DBObject> involvedObjects, Mapper mapr);
+	void toDBObject(Object entity, MappedField mf, BasicDBObject dbObject, Map<Object, DBObject> involvedObjects, Mapper mapr);
 	void fromDBObject(DBObject dbObject, MappedField mf, Object entity, EntityCache cache, Mapper mapr);
 }

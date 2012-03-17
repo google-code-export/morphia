@@ -2,8 +2,6 @@ package com.google.code.morphia.query;
 
 import org.bson.types.CodeWScope;
 
-import com.mongodb.ReadPreference;
-
 /**
  * @author Scott Hernandez
  */
@@ -96,9 +94,6 @@ public interface Query<T> extends QueryResults<T>, Cloneable {
 	/** Limits the fields retrieved */
 	Query<T> retrievedFields(boolean include, String...fields);
 
-	/** Limits the fields retrieved to those of the query type -- dangerous with interfaces and abstract classes*/
-	Query<T> retrieveKnownFields();
-
 	/** Enabled snapshotted mode where duplicate results 
 	 * (which may be updated during the lifetime of the cursor) 
 	 *  will not be returned. Not compatible with order/sort and hint. **/
@@ -114,14 +109,11 @@ public interface Query<T> extends QueryResults<T>, Cloneable {
 	/** Route query to primary node  */
 	Query<T> queryPrimaryOnly();
 
-	/** Route query ReadPreference */
-	Query<T> useReadPreference(ReadPreference readPref);
-	
 	/** Disables cursor timeout on server. */
-	Query<T> disableCursorTimeout();
+	Query<T> disableTimeout();
 
 	/** Enables cursor timeout on server. */
-	Query<T> enableCursorTimeout();
+	Query<T> enableTimeout();
 	
 	/**
 	 * <p>Generates a string that consistently and uniquely specifies this query.  There

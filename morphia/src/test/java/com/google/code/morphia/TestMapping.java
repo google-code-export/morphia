@@ -72,23 +72,6 @@ import com.mongodb.DBRef;
 @SuppressWarnings({"unchecked", "rawtypes", "unused"})
 public class TestMapping  extends TestBase {
 
-	public static abstract class BaseEntity implements Serializable{
-		private static final long serialVersionUID = 1L;
-
-		public BaseEntity() {}
-	
-		// generally a bad thing but left over...
-		@Id ObjectId id;
-		public String getId() {
-			return id.toString();
-		}
-	
-       public void setId(String id) {
-    	   this.id = new ObjectId(id);
-       }
-	}
-
-	
 	@Entity
 	private static class MissingId {
 		String id;
@@ -104,17 +87,13 @@ public class TestMapping  extends TestBase {
 	}
 
 	@Embedded
-	private static class IdOnEmbedded {
+	public static class IdOnEmbedded {
 		@Id ObjectId id;
 	}
 	
 	@Embedded("no-id")
-	private static class RenamedEmbedded {
+	public static class RenamedEmbedded {
 		String name;
-	}
-
-	private static class StranglyNamedIdField {
-		@Id ObjectId id_ = new ObjectId();
 	}
 	
 	private static class ContainsEmbeddedArray {
@@ -122,20 +101,20 @@ public class TestMapping  extends TestBase {
 		RenamedEmbedded[] res;
 	}
 	
-	private static class NotEmbeddable {
+	public static class NotEmbeddable {
 		String noImNot = "no, I'm not";
 	}
-	private static class SerializableClass implements Serializable {
+	public static class SerializableClass implements Serializable {
 		private static final long serialVersionUID = 1L;
 		String someString = "hi, from the ether.";
 	}
 
-	private static class ContainsRef {
+	public static class ContainsRef {
 		public @Id ObjectId id;
 		public DBRef rect;
 	}
 
-	private static class HasFinalFieldId{
+	public static class HasFinalFieldId{
 		public final @Id long id;
 		public String name = "some string";
 		
@@ -149,7 +128,7 @@ public class TestMapping  extends TestBase {
 		}
 	}
 
-	private static class ContainsFinalField{
+	public static class ContainsFinalField{
 		public @Id ObjectId id;
 		public final String name;
 		
@@ -162,33 +141,28 @@ public class TestMapping  extends TestBase {
 		}
 	}
 
-	private static class ContainsTimestamp {
+	public static class ContainsTimestamp {
 		@Id ObjectId id;
 		Timestamp ts = new Timestamp(System.currentTimeMillis());
 	}
-
-	private static class ContainsDBObject {
-		@Id ObjectId id;
-		DBObject dbObj = BasicDBObjectBuilder.start("field", "val").get();
-	}
 	
-	private static class ContainsbyteArray {
+	public static class ContainsbyteArray {
 		@Id ObjectId id;
 		byte[] bytes = "Scott".getBytes();
 	}
 
-	private static class ContainsSerializedData{
+	public static class ContainsSerializedData{
 		@Id ObjectId id;
 		@Serialized SerializableClass data = new SerializableClass();
 	}
 
-	private static class ContainsLongAndStringArray {
+	public static class ContainsLongAndStringArray {
 		@Id ObjectId id;
 		private Long[] longs = {0L, 1L, 2L};
 		String[] strings = {"Scott", "Rocks"};
 	}
 	
-	private static class ContainsCollection {
+	public static class ContainsCollection {
 		@Id ObjectId id;
 		Collection<String> coll = new ArrayList<String>();
 		
@@ -197,29 +171,13 @@ public class TestMapping  extends TestBase {
 		}
 	}
 	
-	private static class ContainsPrimitiveMap{
+	public static class ContainsPrimitiveMap{
 		@Id ObjectId id;
 		@Embedded public Map<String, Long> embeddedValues = new HashMap();
 		public Map<String, Long> values = new HashMap();
 	}
 
-	private static interface Foo {
-	}
-	
-	private static class Foo1 implements Foo {
-		String s;
-	}
-
-	private static class Foo2 implements Foo {
-		int i;
-	}
-	
-	private static class ContainsMapWithEmbeddedInterface{
-		@Id ObjectId id;
-		@Embedded public Map<String, Foo> embeddedValues = new HashMap();
-	}
-
-	private static class ContainsEmbeddedEntity{
+	public static class ContainsEmbeddedEntity{
 		@Id ObjectId id = new ObjectId();
 		@Embedded ContainsIntegerList cil = new ContainsIntegerList();
 	}
@@ -227,19 +185,19 @@ public class TestMapping  extends TestBase {
 	public enum Enum1 { A, B }
 
 	@Entity(value="cil", noClassnameStored=true)
- 	private static class ContainsIntegerList {
+ 	public static class ContainsIntegerList {
 		@Id ObjectId id;
 		List<Integer> intList = new ArrayList<Integer>();
 	}
 
- 	private static class ContainsIntegerListNewAndOld {
+ 	public static class ContainsIntegerListNewAndOld {
 		@Id ObjectId id;
 		List<Integer> intList = new ArrayList<Integer>();
 		List<Integer> ints = new ArrayList<Integer>();
 	}
 
 	@Entity(value="cil", noClassnameStored=true)
-	private static class ContainsIntegerListNew {
+	public static class ContainsIntegerListNew {
 		@Id ObjectId id;
 		@AlsoLoad("intList") List<Integer> ints = new ArrayList<Integer>();
 	}
@@ -255,52 +213,62 @@ public class TestMapping  extends TestBase {
 		@Id UUID id = UUID.randomUUID();
 	}
 	
-	private static class ContainsEnum1KeyMap{
+	public static class ContainsEnum1KeyMap{
 		@Id ObjectId id;
 		public Map<Enum1, String> values = new HashMap<Enum1,String>();
 		@Embedded
 		public Map<Enum1, String> embeddedValues = new HashMap<Enum1,String>();
 	}
 
-	private static class ContainsIntKeyMap {
+	public static class ContainsIntKeyMap {
 		@Id ObjectId id;
 		public Map<Integer, String> values = new HashMap<Integer,String>();
 	}
 
-	private static class ContainsIntKeySetStringMap {
+	public static class ContainsIntKeySetStringMap {
 		@Id ObjectId id;
 		@Embedded
 		public Map<Integer, Set<String>> values = new HashMap<Integer,Set<String>>();
 	}
 	
-	private static class ContainsObjectIdKeyMap{
+	public static class ContainsObjectIdKeyMap{
 		@Id ObjectId id;
 		public Map<ObjectId, String> values = new HashMap<ObjectId,String>();
 	}
 	
-	private static class ContainsXKeyMap<T>{
+	public static class ContainsXKeyMap<T>{
 		@Id ObjectId id;
 		public Map<T, String> values = new HashMap<T,String>();
 	}
 	
-	private static class ContainsMapLike {
+	public static class ContainsMapLike {
 		@Id ObjectId id;
 		MapLike m = new MapLike();
 	}
 	
+	public static abstract class BaseEntity implements Serializable{
+		private static final long serialVersionUID = 1L;
+
+		public BaseEntity() {}
+	
+		@Id ObjectId id;
+		public String getId() {
+			return id.toString();
+		}
+	
+       public void setId(String id) {
+    	   this.id = new ObjectId(id);
+       }
+	}
 	@Entity
-	private static class UsesBaseEntity extends BaseEntity{
+	public static class UsesBaseEntity extends BaseEntity{
 		private static final long serialVersionUID = 1L;
 		
 	}
 
-	private static class MapSubclass extends LinkedHashMap<String, Object> {
+	public static class MapSubclass extends LinkedHashMap<String, Object> {
 		private static final long serialVersionUID = 1L;
 		@Id ObjectId id;
-	}
-	
-	private class NonStaticInnerClass {
-		@Id long id = 1;
 	}
 
 	@Test
@@ -314,13 +282,6 @@ public class TestMapping  extends TestBase {
 		assertNotNull(loaded.id);
 		assertNotNull(loaded.uuid);
 		assertEquals(before, loaded.uuid);
-	}
-	@Test
-    public void testEmbeddedDBObject() throws Exception {
-		morphia.map(ContainsDBObject.class);
-		ContainsDBObject cdbo = new ContainsDBObject();
-		ds.save(cdbo);
-		assertNotNull(ds.find(ContainsDBObject.class).get());
 	}
 	
 	@Test
@@ -547,11 +508,11 @@ public class TestMapping  extends TestBase {
 	}
 
 	@Test
-    public void testPrimMapWithNullValue() throws Exception {
+    public void testMapWithEmbeddedInterface() throws Exception {
 		ContainsPrimitiveMap primMap = new ContainsPrimitiveMap();
-		primMap.embeddedValues.put("first",null);
+		primMap.embeddedValues.put("first",1L);
 		primMap.embeddedValues.put("second",2L);
-		primMap.values.put("first",null);
+		primMap.values.put("first",1L);
 		primMap.values.put("second",2L);
 		Key<ContainsPrimitiveMap> primMapKey = ds.save(primMap);
 		
@@ -562,30 +523,6 @@ public class TestMapping  extends TestBase {
 		assertEquals(2,primMapLoaded.values.size());
 	}
 
-	@Test
-    public void testMapWithEmbeddedInterface() throws Exception {
-		ContainsMapWithEmbeddedInterface aMap = new ContainsMapWithEmbeddedInterface();
-		Foo f1 = new Foo1();
-		Foo f2 = new Foo2();
-		
-		aMap.embeddedValues.put("first",f1);
-		aMap.embeddedValues.put("second",f2);
-		ds.save(aMap);
-		
-		ContainsMapWithEmbeddedInterface mapLoaded = ds.find(ContainsMapWithEmbeddedInterface.class).get();
-		
-		assertNotNull(mapLoaded);
-		assertEquals(2, mapLoaded.embeddedValues.size());
-		assertTrue(mapLoaded.embeddedValues.get("first") instanceof Foo1);
-		assertTrue(mapLoaded.embeddedValues.get("second") instanceof Foo2);
-		
-	}
-	
-	@Test
-    public void testIdFieldWithUnderscore() throws Exception {
-		morphia.map(StranglyNamedIdField.class);
-	}
-	
 	@Test
     public void testFinalIdField() throws Exception {
 		morphia.map(HasFinalFieldId.class);
@@ -642,7 +579,7 @@ public class TestMapping  extends TestBase {
 		morphia.map(ContainsbyteArray.class);
 		Key<ContainsbyteArray> savedKey = ds.save(new ContainsbyteArray());
 		ContainsbyteArray loaded = ds.get(ContainsbyteArray.class, savedKey.getId());
-		assertEquals(new String((new ContainsbyteArray()).bytes), new String(loaded.bytes));
+		assertEquals(new String(loaded.bytes), new String((new ContainsbyteArray()).bytes));
 		assertNotNull(loaded.id);        
 	}
 	@Test
@@ -747,132 +684,135 @@ public class TestMapping  extends TestBase {
         	allGood = true;
         }
         assertTrue("Validation: Missing @Id field not not caught", allGood);
-        
-        allGood = false;
-        try {
-        	morphia.map(NonStaticInnerClass.class);
-        } catch (MappingException e) {
-        	allGood = true;
-        }
-        assertTrue("Validation: Non-static inner class allowed", allGood);    }
+    }
     
     
     @Test
     public void testBasicMapping() throws Exception {
-        DBCollection hotels = db.getCollection("hotels");
-        DBCollection agencies = db.getCollection("agencies");
+        try {
+            DBCollection hotels = db.getCollection("hotels");
+            DBCollection agencies = db.getCollection("agencies");
 
-        morphia.map(Hotel.class);
-        morphia.map(TravelAgency.class);
+            morphia.map(Hotel.class);
+            morphia.map(TravelAgency.class);
 
-        Hotel borg = Hotel.create();
-        borg.setName("Hotel Borg");
-        borg.setStars(4);
-        borg.setTakesCreditCards(true);
-        borg.setStartDate(new Date());
-        borg.setType(Hotel.Type.LEISURE);
-        borg.getTags().add("Swimming pool");
-        borg.getTags().add("Room service");
-        borg.setTemp("A temporary transient value");
-        borg.getPhoneNumbers().add(new PhoneNumber(354,5152233,PhoneNumber.Type.PHONE));
-        borg.getPhoneNumbers().add(new PhoneNumber(354,5152244,PhoneNumber.Type.FAX));
+            Hotel borg = Hotel.create();
+            borg.setName("Hotel Borg");
+            borg.setStars(4);
+            borg.setTakesCreditCards(true);
+            borg.setStartDate(new Date());
+            borg.setType(Hotel.Type.LEISURE);
+            borg.getTags().add("Swimming pool");
+            borg.getTags().add("Room service");
+            borg.setTemp("A temporary transient value");
+            borg.getPhoneNumbers().add(new PhoneNumber(354,5152233,PhoneNumber.Type.PHONE));
+            borg.getPhoneNumbers().add(new PhoneNumber(354,5152244,PhoneNumber.Type.FAX));
 
-        Address borgAddr = new Address();
-        borgAddr.setStreet("Posthusstraeti 11");
-        borgAddr.setPostCode("101");
-        borg.setAddress(borgAddr);
-        
-        BasicDBObject hotelDbObj = (BasicDBObject) morphia.toDBObject(borg);
-        assertTrue( !( ((DBObject)((List)hotelDbObj.get("phoneNumbers")).get(0)).containsField(Mapper.CLASS_NAME_FIELDNAME)) ); 
-        
-        
-        hotels.save(hotelDbObj);
+            Address borgAddr = new Address();
+            borgAddr.setStreet("Posthusstraeti 11");
+            borgAddr.setPostCode("101");
+            borg.setAddress(borgAddr);
+            
+            BasicDBObject hotelDbObj = (BasicDBObject) morphia.toDBObject(borg);
+            assertTrue( !( ((DBObject)((List)hotelDbObj.get("phoneNumbers")).get(0)).containsField(Mapper.CLASS_NAME_FIELDNAME)) ); 
+            
+            
+            hotels.save(hotelDbObj);
 
-		Hotel borgLoaded = morphia.fromDBObject(Hotel.class, hotelDbObj, new DefaultEntityCache());
+			Hotel borgLoaded = morphia.fromDBObject(Hotel.class, hotelDbObj, new DefaultEntityCache());
 
-        assertEquals(borg.getName(), borgLoaded.getName());
-        assertEquals(borg.getStars(), borgLoaded.getStars());
-        assertEquals(borg.getStartDate(), borgLoaded.getStartDate());
-        assertEquals(borg.getType(), borgLoaded.getType());
-        assertEquals(borg.getAddress().getStreet(), borgLoaded.getAddress().getStreet());
-        assertEquals(borg.getTags().size(), borgLoaded.getTags().size());
-        assertEquals(borg.getTags(), borgLoaded.getTags());
-        assertEquals(borg.getPhoneNumbers().size(), borgLoaded.getPhoneNumbers().size());
-        assertEquals(borg.getPhoneNumbers().get(1), borgLoaded.getPhoneNumbers().get(1));
-        assertNull(borgLoaded.getTemp());
-        assertTrue(borgLoaded.getPhoneNumbers() instanceof Vector);
-        assertNotNull(borgLoaded.getId());
+            assertEquals(borg.getName(), borgLoaded.getName());
+            assertEquals(borg.getStars(), borgLoaded.getStars());
+            assertEquals(borg.getStartDate(), borgLoaded.getStartDate());
+            assertEquals(borg.getType(), borgLoaded.getType());
+            assertEquals(borg.getAddress().getStreet(), borgLoaded.getAddress().getStreet());
+            assertEquals(borg.getTags().size(), borgLoaded.getTags().size());
+            assertEquals(borg.getTags(), borgLoaded.getTags());
+            assertEquals(borg.getPhoneNumbers().size(), borgLoaded.getPhoneNumbers().size());
+            assertEquals(borg.getPhoneNumbers().get(1), borgLoaded.getPhoneNumbers().get(1));
+            assertNull(borgLoaded.getTemp());
+            assertTrue(borgLoaded.getPhoneNumbers() instanceof Vector);
+            assertNotNull(borgLoaded.getId());
 
-        TravelAgency agency = new TravelAgency();
-        agency.setName("Lastminute.com");
-        agency.getHotels().add(borgLoaded);
-        
-        BasicDBObject agencyDbObj = (BasicDBObject) morphia.toDBObject(agency);
-        agencies.save(agencyDbObj);
+            TravelAgency agency = new TravelAgency();
+            agency.setName("Lastminute.com");
+            agency.getHotels().add(borgLoaded);
+            
+            BasicDBObject agencyDbObj = (BasicDBObject) morphia.toDBObject(agency);
+            agencies.save(agencyDbObj);
 
-		TravelAgency agencyLoaded = morphia.fromDBObject(TravelAgency.class,
-				(BasicDBObject) agencies.findOne(new BasicDBObject(Mapper.ID_KEY, agencyDbObj.get(Mapper.ID_KEY))),
-				new DefaultEntityCache());
+			TravelAgency agencyLoaded = morphia.fromDBObject(TravelAgency.class,
+					(BasicDBObject) agencies.findOne(new BasicDBObject(Mapper.ID_KEY, agencyDbObj.get(Mapper.ID_KEY))),
+					new DefaultEntityCache());
 
-        assertEquals(agency.getName(), agencyLoaded.getName());
-        assertEquals(agency.getHotels().size(), 1);
-        assertEquals(agency.getHotels().get(0).getName(), borg.getName());
+            assertEquals(agency.getName(), agencyLoaded.getName());
+            assertEquals(agency.getHotels().size(), 1);
+            assertEquals(agency.getHotels().get(0).getName(), borg.getName());
 
-        // try clearing values
-        borgLoaded.setAddress(null);
-        borgLoaded.getPhoneNumbers().clear();
-        borgLoaded.setName(null);
+            // try clearing values
+            borgLoaded.setAddress(null);
+            borgLoaded.getPhoneNumbers().clear();
+            borgLoaded.setName(null);
 
-        hotelDbObj = (BasicDBObject) morphia.toDBObject(borgLoaded);
-        hotels.save(hotelDbObj);
+            hotelDbObj = (BasicDBObject) morphia.toDBObject(borgLoaded);
+            hotels.save(hotelDbObj);
 
-        hotelDbObj = (BasicDBObject)hotels.findOne(new BasicDBObject(Mapper.ID_KEY, hotelDbObj.get(Mapper.ID_KEY)));
+            hotelDbObj = (BasicDBObject)hotels.findOne(new BasicDBObject(Mapper.ID_KEY, hotelDbObj.get(Mapper.ID_KEY)));
 
-		borgLoaded = morphia.fromDBObject(Hotel.class, hotelDbObj, new DefaultEntityCache());
-        assertNull(borgLoaded.getAddress());
-        assertEquals(0, borgLoaded.getPhoneNumbers().size());
-        assertNull(borgLoaded.getName());
+			borgLoaded = morphia.fromDBObject(Hotel.class, hotelDbObj, new DefaultEntityCache());
+            assertNull(borgLoaded.getAddress());
+            assertEquals(0, borgLoaded.getPhoneNumbers().size());
+            assertNull(borgLoaded.getName());
+
+        } finally {
+            db.dropDatabase();
+        }
     }
     
     @Test
     public void testMaps() throws Exception {
-        DBCollection articles = db.getCollection("articles");
-        morphia.map(Article.class).map(Translation.class).map(Circle.class);
+        try {
+            DBCollection articles = db.getCollection("articles");
+            morphia.map(Article.class).map(Translation.class).map(Circle.class);
 
-        Article related = new Article();
-        BasicDBObject relatedDbObj = (BasicDBObject) morphia.toDBObject(related);
-        articles.save(relatedDbObj);
+            Article related = new Article();
+            BasicDBObject relatedDbObj = (BasicDBObject) morphia.toDBObject(related);
+            articles.save(relatedDbObj);
 
-		Article relatedLoaded = morphia
-				.fromDBObject(Article.class, (BasicDBObject) articles.findOne(new BasicDBObject(Mapper.ID_KEY,
-						relatedDbObj.get(Mapper.ID_KEY))), new DefaultEntityCache());
+			Article relatedLoaded = morphia
+					.fromDBObject(Article.class, (BasicDBObject) articles.findOne(new BasicDBObject(Mapper.ID_KEY,
+							relatedDbObj.get(Mapper.ID_KEY))), new DefaultEntityCache());
 
-        Article article = new Article();
-        article.setTranslation("en", new Translation("Hello World", "Just a test"));
-        article.setTranslation("is", new Translation("Halló heimur", "Bara að prófa"));
+            Article article = new Article();
+            article.setTranslation("en", new Translation("Hello World", "Just a test"));
+            article.setTranslation("is", new Translation("Halló heimur", "Bara að prófa"));
 
-        article.setAttribute("myDate", new Date());
-        article.setAttribute("myString", "Test");
-        article.setAttribute("myInt", 123);
+            article.setAttribute("myDate", new Date());
+            article.setAttribute("myString", "Test");
+            article.setAttribute("myInt", 123);
 
-        article.putRelated("test", relatedLoaded);
+            article.putRelated("test", relatedLoaded);
 
-        BasicDBObject articleDbObj = (BasicDBObject) morphia.toDBObject(article);
-        articles.save(articleDbObj);
+            BasicDBObject articleDbObj = (BasicDBObject) morphia.toDBObject(article);
+            articles.save(articleDbObj);
 
-		Article articleLoaded = morphia
-				.fromDBObject(Article.class, (BasicDBObject) articles.findOne(new BasicDBObject(Mapper.ID_KEY,
-						articleDbObj.get(Mapper.ID_KEY))), new DefaultEntityCache());
+			Article articleLoaded = morphia
+					.fromDBObject(Article.class, (BasicDBObject) articles.findOne(new BasicDBObject(Mapper.ID_KEY,
+							articleDbObj.get(Mapper.ID_KEY))), new DefaultEntityCache());
 
-        assertEquals(article.getTranslations().size(), articleLoaded.getTranslations().size());
-        assertEquals(article.getTranslation("en").getTitle(), articleLoaded.getTranslation("en").getTitle());
-        assertEquals(article.getTranslation("is").getBody(), articleLoaded.getTranslation("is").getBody());
-        assertEquals(article.getAttributes().size(), articleLoaded.getAttributes().size());
-        assertEquals(article.getAttribute("myDate"), articleLoaded.getAttribute("myDate"));
-        assertEquals(article.getAttribute("myString"), articleLoaded.getAttribute("myString"));
-        assertEquals(article.getAttribute("myInt"), articleLoaded.getAttribute("myInt"));
-        assertEquals(article.getRelated().size(), articleLoaded.getRelated().size());
-        assertEquals(article.getRelated("test").getId(), articleLoaded.getRelated("test").getId());
+            assertEquals(article.getTranslations().size(), articleLoaded.getTranslations().size());
+            assertEquals(article.getTranslation("en").getTitle(), articleLoaded.getTranslation("en").getTitle());
+            assertEquals(article.getTranslation("is").getBody(), articleLoaded.getTranslation("is").getBody());
+            assertEquals(article.getAttributes().size(), articleLoaded.getAttributes().size());
+            assertEquals(article.getAttribute("myDate"), articleLoaded.getAttribute("myDate"));
+            assertEquals(article.getAttribute("myString"), articleLoaded.getAttribute("myString"));
+            assertEquals(article.getAttribute("myInt"), articleLoaded.getAttribute("myInt"));
+            assertEquals(article.getRelated().size(), articleLoaded.getRelated().size());
+            assertEquals(article.getRelated("test").getId(), articleLoaded.getRelated("test").getId());
+
+        } finally {
+            db.dropDatabase();
+        }
     }
 
     

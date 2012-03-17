@@ -18,16 +18,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.regex.Pattern;
 
 import org.bson.BSONEncoder;
-import org.bson.BasicBSONEncoder;
 
 import com.google.code.morphia.EntityInterceptor;
 import com.google.code.morphia.Key;
@@ -83,7 +82,7 @@ public class Mapper {
 
 	/** Set of classes that registered by this mapper */
 	private final Map<String, MappedClass> mappedClasses = new ConcurrentHashMap<String, MappedClass>();
-	private final ConcurrentHashMap<String, Set<MappedClass>> mappedClassesByCollection = new ConcurrentHashMap<String, Set<MappedClass>>();
+	private final Map<String, Set<MappedClass>> mappedClassesByCollection = new ConcurrentHashMap<String, Set<MappedClass>>();
 	
 	//EntityInterceptors; these are called before EntityListeners and lifecycle methods on an Entity, for all Entities
 	private final List<EntityInterceptor> interceptors = new LinkedList<EntityInterceptor>();
@@ -163,12 +162,8 @@ public class Mapper {
 		mappedClasses.put(mc.getClazz().getName(), mc);
 		
 		Set<MappedClass> mcs = mappedClassesByCollection.get(mc.getCollectionName());
-		if (mcs == null) {
-			mcs = new CopyOnWriteArraySet<MappedClass>();
-			Set<MappedClass> temp = mappedClassesByCollection.putIfAbsent(mc.getCollectionName(), mcs);
-			if (temp != null) mcs = temp;
-		}
-		
+		if (mcs == null)
+			mcs = new HashSet();
 		mcs.add(mc);
 
 		return mc;
@@ -210,8 +205,6 @@ public class Mapper {
 	}
 
 	public String getCollectionName(Object object) {
-		if (object == null) throw new IllegalArgumentException();
-		
 		MappedClass mc = getMappedClass(object);
 		return mc.getCollectionName();
 	}
@@ -289,10 +282,6 @@ public class Mapper {
 			return null;
 		}
 		Class origClass = javaObj.getClass();
-		
-		if (origClass.isAnonymousClass() && origClass.getSuperclass().isEnum())
-			origClass = origClass.getSuperclass();
-
 		Object newObj = converters.encode(origClass, javaObj);
 		if (newObj == null) {
 			log.warning("converted " + javaObj + " to null");
@@ -352,50 +341,19 @@ public class Mapper {
 		}
 	}
 	
-
-	/**
-	 * <p>
-	 * Converts a java object to a mongo-compatible object (possibly a DBObject
-	 * for complex mappings). Very similar to {@link Mapper.toDBObject}
-	 * </p>
-	 * <p>
-	 * Used (mainly) by query/update operations
-	 * </p>
-	 */
 	public Object toMongoObject(MappedField mf, MappedClass mc, Object value) {
 		Object mappedValue = value;
 		
 		//convert the value to Key (DBRef) if the field is @Reference or type is Key/DBRef, or if the destination class is an @Entity
 		if ((mf!=null && (	mf.hasAnnotation(Reference.class) || 
 							mf.getType().isAssignableFrom(Key.class) || 
-							mf.getType().isAssignableFrom(DBRef.class) ||
-							//Collection/Array/???
-							(value instanceof Iterable  && mf.isMultipleValues() && (
-									mf.getSubClass().isAssignableFrom(Key.class) || 
-									mf.getSubClass().isAssignableFrom(DBRef.class) )
-							)
-						 )) || (mc != null && mc.getEntityAnnotation() != null)) {
+							mf.getType().isAssignableFrom(DBRef.class))
+						 ) || (mc != null && mc.getEntityAnnotation() != null)) {
 			try {
-				if (value instanceof Iterable) {
-					ArrayList<DBRef> refs = new ArrayList<DBRef>();
-					Iterable it = (Iterable)value;
-					for(Object o : it){
-						Key<?> k = (o instanceof Key) ? (Key<?>)o : getKey(o);
-						DBRef dbref = keyToRef(k);
-						refs.add(dbref);
-					}
-					mappedValue = refs;
-				} else {
-					if (value == null) 
-						mappedValue = null;
-					
-					Key<?> k = (value instanceof Key) ? (Key<?>)value : getKey(value);
-					mappedValue = keyToRef(k);
-					if (mappedValue == value)
-						throw new ValidationException("cannnot map to @Reference/Key<T>/DBRef field: " + value);
-				}
+				Key<?> k = (value instanceof Key) ? (Key<?>)value : getKey(value);
+				mappedValue = keyToRef(k);
 			} catch (Exception e) {
-				log.error("Error converting value(" + value + ") to reference.", e);
+				log.debug("Error converting value(" + value + ") to reference.", e);
 				mappedValue = toMongoObject(value, false);
 			}
 		}//serialized
@@ -418,7 +376,6 @@ public class Mapper {
 	}
 
 	public Object getId(Object entity) {
-		if (entity == null) return null;
 		entity = ProxyHelper.unwrap(entity);
 //		String keyClassName = entity.getClass().getName();
 		MappedClass mc = getMappedClass(entity.getClass());
@@ -471,14 +428,14 @@ public class Mapper {
 	
 	DBObject toDBObject(Object entity, Map<Object, DBObject> involvedObjects, boolean lifecycle) {
 		
-		DBObject dbObject = new BasicDBObject();
+		BasicDBObject dbObject = new BasicDBObject();
 		MappedClass mc = getMappedClass(entity);
 		
 		if (mc.getEntityAnnotation() == null || !mc.getEntityAnnotation().noClassnameStored())
 			dbObject.put(CLASS_NAME_FIELDNAME, entity.getClass().getName());
 
 		if (lifecycle)
-			dbObject = (DBObject) mc.callLifecycleMethods(PrePersist.class, entity, dbObject, this);
+			dbObject = (BasicDBObject) mc.callLifecycleMethods(PrePersist.class, entity, dbObject, this);
 		
 		for (MappedField mf : mc.getPersistenceFields()) {
 			try {
@@ -517,7 +474,7 @@ public class Mapper {
 		
 		MappedClass mc = getMappedClass(entity);
 		
-		dbObject = (DBObject) mc.callLifecycleMethods(PreLoad.class, entity, dbObject, this);
+		dbObject = (BasicDBObject) mc.callLifecycleMethods(PreLoad.class, entity, dbObject, this);
 		try {
 			for (MappedField mf : mc.getPersistenceFields()) {
 				readMappedField(dbObject, mf, entity, cache);
@@ -547,7 +504,7 @@ public class Mapper {
 		}		
 	}
 
-	private void writeMappedField(DBObject dbObject, MappedField mf, Object entity, Map<Object, DBObject> involvedObjects) {
+	private void writeMappedField(BasicDBObject dbObject, MappedField mf, Object entity, Map<Object, DBObject> involvedObjects) {
 		Class<? extends Annotation> annType = null;
 		
 		//skip not saved fields.
@@ -589,13 +546,11 @@ public class Mapper {
 	}
 	
 	public <T> Key<T> refToKey(DBRef ref) {
-		if (ref == null) return null;
 		Key<T> key = new Key<T>(ref.getRef(), ref.getId());
 		return key;
 	}
 	
 	public DBRef keyToRef(Key key) {
-		if (key == null) return null;
 		if (key.getKindClass() == null && key.getKind() == null) 
 			throw new IllegalStateException("How can it be missing both?");
 		if (key.getKind() == null)
@@ -622,7 +577,7 @@ public class Mapper {
 			return createKey(clazz, (Serializable) id);
 		
 		//TODO: cache the encoders, maybe use the pool version of the buffer that the driver does.
-		BSONEncoder enc = new BasicBSONEncoder();
+		BSONEncoder enc = new BSONEncoder();
 		return new Key<T>(clazz, enc.encode(toDBObject(id)));
 	}
 

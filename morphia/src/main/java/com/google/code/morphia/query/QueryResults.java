@@ -1,6 +1,5 @@
 package com.google.code.morphia.query;
 
-import java.util.Iterator;
 import java.util.List;
 
 import com.google.code.morphia.Key;
@@ -54,20 +53,4 @@ public interface QueryResults<T>  extends Iterable<T> {
 	 * <p>Count the total number of values in the result, <strong>ignoring <em>limit</em> and <em>offset</em>.</p>
 	 */
 	long countAll();
-	
-	/**
-	 * Calls <code>tail(true);</code>
-	 * @return an Iterator.
-	 * @see tail(boolean)
-	 */
-	Iterator<T> tail();
-	
-	/**
-	 * Returns an tailing iterator over a set of elements of type T. If awaitData is true, this
-	 * iterator blocks on hasNext() until new data is avail (or some amount of time has passed). Note that if no data is available 
-	 * at all, hasNext() might return immediately. You should wrap tail calls in a loop if you want this to be blocking.
-	 * 
-	 * @return an Iterator.
-	 */
-	Iterator<T> tail(boolean awaitData);
 }

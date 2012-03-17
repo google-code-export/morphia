@@ -32,10 +32,9 @@ public abstract class TestBase
         this.db = this.mongo.getDB("morphia_test");
         this.ds = this.morphia.createDatastore(this.mongo, this.db.getName());
         this.ads = (AdvancedDatastore) ds;
-        //ads.setDecoderFact(LazyDBDecoder.FACTORY);
     }
 	
-    protected void cleanup() {
+    protected void dropDB() {
         //this.mongo.dropDatabase("morphia_test");
 		for(MappedClass mc : morphia.getMapper().getMappedClasses())
 //			if( mc.getEntityAnnotation() != null )
@@ -45,7 +44,6 @@ public abstract class TestBase
     
 	@After
 	public void tearDown() {
-    	cleanup();
-		mongo.close();
+    	dropDB();
 	}
 }

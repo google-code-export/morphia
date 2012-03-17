@@ -10,8 +10,11 @@ package com.google.code.morphia;
 public class VersionHelper {
 	
 	public static long nextValue(Long oldVersion) {
-		long newVersion = oldVersion == null ? 1 : oldVersion + 1;
-		return newVersion;
+		long currentTimeMillis = System.currentTimeMillis();
+		// very unlikely, but you never know
+		if (oldVersion != null && oldVersion.longValue() == currentTimeMillis)
+			currentTimeMillis++;
+		return currentTimeMillis;
 	}
 	
 }

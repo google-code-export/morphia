@@ -19,10 +19,8 @@ import com.google.code.morphia.mapping.lazy.proxy.ProxiedEntityReference;
 import com.google.code.morphia.mapping.lazy.proxy.ProxiedEntityReferenceList;
 import com.google.code.morphia.mapping.lazy.proxy.ProxiedEntityReferenceMap;
 import com.google.code.morphia.mapping.lazy.proxy.ProxyHelper;
-import com.google.code.morphia.utils.IterHelper;
-import com.google.code.morphia.utils.IterHelper.IterCallback;
-import com.google.code.morphia.utils.IterHelper.MapIterCallback;
 import com.google.code.morphia.utils.ReflectionUtils;
+import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.DBRef;
@@ -31,7 +29,7 @@ import com.mongodb.DBRef;
 class ReferenceMapper implements CustomMapper {
 	public static final Logr log = MorphiaLoggerFactory.get(ReferenceMapper.class);
 	
-	public void toDBObject(Object entity, MappedField mf, DBObject dbObject, Map<Object, DBObject> involvedObjects, Mapper mapr) {
+	public void toDBObject(Object entity, MappedField mf, BasicDBObject dbObject, Map<Object, DBObject> involvedObjects, Mapper mapr) {
 		String name = mf.getNameToStore();
 		
 		Object fieldValue = mf.getFieldValue(entity);
@@ -49,16 +47,12 @@ class ReferenceMapper implements CustomMapper {
 		
 	}
 	
-	private void writeSingle(DBObject dbObject, String name, Object fieldValue, Mapper mapr) {
-		if (fieldValue == null) 
-			if(mapr.getOptions().storeNulls)
-				dbObject.put(name, null);
-		
+	private void writeSingle(BasicDBObject dbObject, String name, Object fieldValue, Mapper mapr) {
 		DBRef dbrefFromKey = mapr.keyToRef(getKey(fieldValue, mapr));
 		dbObject.put(name, dbrefFromKey);
 	}
 	
-	private void writeCollection(MappedField mf, DBObject dbObject, String name, Object fieldValue, Mapper mapr) {
+	private void writeCollection(MappedField mf, BasicDBObject dbObject, String name, Object fieldValue, Mapper mapr) {
 		if (fieldValue != null) {
 			List values = new ArrayList();
 			
@@ -66,17 +60,17 @@ class ReferenceMapper implements CustomMapper {
 				ProxiedEntityReferenceList p = (ProxiedEntityReferenceList) fieldValue;
 				List<Key<?>> getKeysAsList = p.__getKeysAsList();
 				for (Key<?> key : getKeysAsList) {
-					addValue(values, key, mapr);
+					values.add(mapr.keyToRef(key));
 				}
 			} else {
 				
 				if (mf.getType().isArray()) {
 					for (Object o : (Object[]) fieldValue) {
-						addValue(values, o, mapr);
+						values.add(mapr.keyToRef(getKey(o, mapr)));
 					}
 				} else {
 					for (Object o : (Iterable) fieldValue) {
-						addValue(values, o, mapr);
+						values.add(mapr.keyToRef(getKey(o, mapr)));
 					}
 				}
 			}
@@ -86,19 +80,7 @@ class ReferenceMapper implements CustomMapper {
 		}
 	}
 	
-	private void addValue(List vals, Object o, Mapper mapr) {
-		if (o == null && mapr.getOptions().storeNulls) {
-			vals.add(null);
-			return;
-		}
-		
-		if (o instanceof Key)
-			vals.add(mapr.keyToRef((Key)o));
-		else
-			vals.add(mapr.keyToRef(getKey(o, mapr)));
-	}
-	
-	private void writeMap(final MappedField mf, final DBObject dbObject, String name, Object fieldValue,
+	private void writeMap(final MappedField mf, final BasicDBObject dbObject, String name, Object fieldValue,
 			Mapper mapr) {
 		Map<Object, Object> map = (Map<Object, Object>) fieldValue;
 		if ((map != null)) {
@@ -171,6 +153,7 @@ class ReferenceMapper implements CustomMapper {
 
 		DBRef dbRef = (DBRef) mf.getDbObjectValue(dbObject);
 		if (dbRef != null) {
+			
 			Object resolvedObject = null;
 			if (refAnn.lazy() && LazyFeatureDependencies.assertDependencyFullFilled()) {
 				if (exists(referenceObjClass, dbRef, cache, mapr)) {
@@ -185,14 +168,13 @@ class ReferenceMapper implements CustomMapper {
 				resolvedObject = resolveObject(dbRef, mf, cache, mapr);
 			}
 			
-			if ( resolvedObject != null )
-				mf.setFieldValue(entity, resolvedObject);
+			mf.setFieldValue(entity, resolvedObject);
 			
 		}
 	}
 	
 	private void readCollection(final DBObject dbObject, final MappedField mf, final Object entity, Reference refAnn,
-			final EntityCache cache, final Mapper mapr) {
+			EntityCache cache, Mapper mapr) {
 		// multiple references in a List
 		Class referenceObjClass = mf.getSubClass();
 		Collection references = mf.isSet() ? mapr.getOptions().objectFactory.createSet(mf) : mapr.getOptions().objectFactory.createList(mf);
@@ -235,17 +217,22 @@ class ReferenceMapper implements CustomMapper {
 			}
 		} else {
 			Object dbVal = mf.getDbObjectValue(dbObject);
-			final Collection refs = references;
-			new IterHelper<String, Object>().loopOrSingle((Object)dbVal, new IterCallback<Object>() {
-				@Override
-				public void eval(Object val) {
-					DBRef dbRef = (DBRef) val;
+			if (dbVal != null) {
+				if (dbVal instanceof List) {
+					List refList = (List) dbVal;
+					for (Object dbRefObj : refList) {
+						DBRef dbRef = (DBRef) dbRefObj;
+						Object ent = resolveObject(dbRef, mf, cache, mapr);
+						if (ent != null) 
+							references.add(ent);
+					}
+				} else {
+					DBRef dbRef = (DBRef) dbVal;
 					Object ent = resolveObject(dbRef, mf, cache, mapr);
-					if (ent == null)
-						log.warning("Null reference found when retrieving value for " + mf.getFullName());
-					else
-						refs.add(ent);
-				}});
+					if (ent != null) 
+						references.add(ent);
+				}
+			}
 		}
 		
 		if (mf.getType().isArray()) {
@@ -275,8 +262,6 @@ class ReferenceMapper implements CustomMapper {
 	}
 	
 	Object resolveObject(final DBRef dbRef, final MappedField mf, EntityCache cache, Mapper mapr) {
-		if (dbRef == null)
-			return null;
 		
 		Key key = mapr.createKey(mf.isSingleValue() ? mf.getType() : mf.getSubClass(), dbRef.getId());
 		
@@ -285,7 +270,7 @@ class ReferenceMapper implements CustomMapper {
 			return cached;
 		
 		//TODO: if _db is null, set it?
-		DBObject refDbObject = (DBObject) dbRef.fetch();
+		BasicDBObject refDbObject = (BasicDBObject) dbRef.fetch();
 		
 		if (refDbObject != null) {
 			Object refObj = mapr.getOptions().objectFactory.createInstance(mapr, mf, refDbObject);
@@ -304,34 +289,30 @@ class ReferenceMapper implements CustomMapper {
 	}
 	
 	private void readMap(final DBObject dbObject, final MappedField mf, final Object entity, final Reference refAnn,
-			final EntityCache cache, final Mapper mapr) {
+			EntityCache cache, Mapper mapr) {
 		Class referenceObjClass = mf.getSubClass();
-		Map m = mapr.getOptions().objectFactory.createMap(mf);
+		Map map = mapr.getOptions().objectFactory.createMap(mf);
 		
-		DBObject dbVal = (DBObject) mf.getDbObjectValue(dbObject);
+		BasicDBObject dbVal = (BasicDBObject) mf.getDbObjectValue(dbObject);
 		if (dbVal != null) {
 			if (refAnn.lazy() && LazyFeatureDependencies.assertDependencyFullFilled()) {
 				// replace map by proxy to it.
-				m = mapr.proxyFactory.createMapProxy(m, referenceObjClass, refAnn.ignoreMissing(),
+				map = mapr.proxyFactory.createMapProxy(map, referenceObjClass, refAnn.ignoreMissing(),
 						mapr.datastoreProvider);
 			}
-			
-			final Map map = m;
-			new IterHelper<String, Object>().loopMap((Object)dbVal, new MapIterCallback<String, Object>() {
-				@Override
-				public void eval(String key, Object val) {
-					DBRef dbRef = (DBRef) val;
-					
-					if (refAnn.lazy() && LazyFeatureDependencies.assertDependencyFullFilled()) {
-						ProxiedEntityReferenceMap proxiedMap = (ProxiedEntityReferenceMap) map;
-						proxiedMap.__put(key, mapr.refToKey(dbRef));
-					} else {
-						Object resolvedObject = resolveObject(dbRef, mf, cache, mapr);
-						map.put(key, resolvedObject);
-					}
-				}});
+			for (Map.Entry<String, ?> entry : dbVal.entrySet()) {
+				DBRef dbRef = (DBRef) entry.getValue();
+				
+				if (refAnn.lazy() && LazyFeatureDependencies.assertDependencyFullFilled()) {
+					ProxiedEntityReferenceMap proxiedMap = (ProxiedEntityReferenceMap) map;
+					proxiedMap.__put(entry.getKey(), mapr.refToKey(dbRef));
+				} else {
+					Object resolvedObject = resolveObject(dbRef, mf, cache, mapr);
+					map.put(entry.getKey(), resolvedObject);
+				}
+			}
 		}
-		mf.setFieldValue(entity, m);
+		mf.setFieldValue(entity, map);
 	}
 	
 	private Object createOrReuseProxy(final Class referenceObjClass, final DBRef dbRef, EntityCache cache, Mapper mapr) {

@@ -20,7 +20,7 @@ import com.google.code.morphia.testutil.TestEntity;
  * 
  */
 @SuppressWarnings("unchecked")
-public class SerializedMapTest extends TestBase {
+public class TestSerializedMap extends TestBase {
 	
 	public static class Map1 extends TestEntity {
 		/**

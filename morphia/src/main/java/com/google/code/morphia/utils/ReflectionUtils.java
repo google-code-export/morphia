@@ -28,7 +28,6 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
-import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
@@ -51,8 +50,6 @@ import com.google.code.morphia.Key;
 import com.google.code.morphia.annotations.Embedded;
 import com.google.code.morphia.annotations.Entity;
 import com.google.code.morphia.mapping.MappingException;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
 import com.mongodb.DBRef;
 
 /**
@@ -205,8 +202,7 @@ public class ReflectionUtils
         }
 
         return  isPrimitiveLike(type) || (type == DBRef.class) || (type == Pattern.class) || 
-        		(type == CodeWScope.class) || (type == ObjectId.class) || (type == Key.class) || 
-        		(type == DBObject.class) || (type == BasicDBObject.class)  ;
+        		(type == CodeWScope.class) || (type == ObjectId.class) || (type == Key.class) ;
     }
     
     public static boolean isPrimitiveLike(final Class type) {
@@ -220,7 +216,7 @@ public class ReflectionUtils
                 || (type == long.class) 	|| (type == Double.class) 	|| (type == double.class) 	|| (type == float.class)
                 || (type == Float.class) 	|| (type == Boolean.class) 	|| (type == boolean.class) 	|| (type == Byte.class)
                 || (type == byte.class) 	|| (type == Date.class) 	|| (type == Locale.class) 	|| (type == Class.class) 
-                || (type == UUID.class) 	|| (type == URI.class)		|| type.isEnum();
+                || (type == UUID.class) 	|| type.isEnum();
     }
 
     /**
@@ -414,44 +410,34 @@ public class ReflectionUtils
         return false;
     }
 
-    public static <T> T getAnnotation(final Class c, final Class<T> annClass){
-    	ArrayList<T> found = getAnnotations(c, annClass);
-    	if (found != null && found.size()>0)
-    		return found.get(0);
-    	else 
-    		return null;
-    }
-    
     /**
      * Returns the (first) instance of the annotation, on the class (or any
      * superclass, or interfaces implemented).
      */
-    public static <T> ArrayList<T> getAnnotations(final Class c, final Class<T> annClass)
+    public static <T> T getAnnotation(final Class c, final Class<T> ann)
     {
-		ArrayList<T> found = new ArrayList<T>();
         // TODO isn't that actually breaking the contract of @Inherited?
-        if (c.isAnnotationPresent(annClass))
+        if (c.isAnnotationPresent(ann))
         {
-             found.add((T) c.getAnnotation(annClass));
+            return (T) c.getAnnotation(ann);
         }
-//        else
-//        {
+        else
+        {
             // need to check all superclasses
-    		
             Class parent = c.getSuperclass();
             while ((parent != null) && (parent != Object.class))
             {
-                if (parent.isAnnotationPresent(annClass))
+                if (parent.isAnnotationPresent(ann))
                 {
-                    found.add((T) parent.getAnnotation(annClass));
+                    return (T) parent.getAnnotation(ann);
                 }
 
                 // ...and interfaces that the superclass implements
                 for (Class interfaceClass : parent.getInterfaces())
                 {
-                    if (interfaceClass.isAnnotationPresent(annClass))
+                    if (interfaceClass.isAnnotationPresent(ann))
                     {
-                    	found.add((T) interfaceClass.getAnnotation(annClass));
+                        return (T) interfaceClass.getAnnotation(ann);
                     }
                 }
 
@@ -461,14 +447,14 @@ public class ReflectionUtils
             // ...and all implemented interfaces
             for (Class interfaceClass : c.getInterfaces())
             {
-                if (interfaceClass.isAnnotationPresent(annClass))
+                if (interfaceClass.isAnnotationPresent(ann))
                 {
-                	found.add((T)interfaceClass.getAnnotation(annClass));
+                    return (T) interfaceClass.getAnnotation(ann);
                 }
             }
-//        }
+        }
         // no annotation found, use the defaults
-        return found;
+        return null;
     }
 
     public static Embedded getClassEmbeddedAnnotation(final Class c)
@@ -660,7 +646,7 @@ public class ReflectionUtils
 		return ar;
 	}
 
-	public static Object convertToArray(final Class type, final List<?> values) {
+	public static Object convertToArray(final Class type, final ArrayList<?> values) {
 		Object exampleArray = Array.newInstance(type, values.size());
 		try {
 			Object[] array = values.toArray((Object[]) exampleArray);

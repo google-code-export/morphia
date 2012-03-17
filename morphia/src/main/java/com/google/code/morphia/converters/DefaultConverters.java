@@ -58,7 +58,6 @@ public class DefaultConverters {
 		addConverter(new SerializedObjectConverter());
 		addConverter(new CharArrayConverter());
 		addConverter(new DateConverter());
-		addConverter(new URIConverter());
 		addConverter(new KeyConverter());
 		addConverter(new MapOfValuesConverter(this));
 		addConverter(new IterableConverter(this));
@@ -205,8 +204,6 @@ public class DefaultConverters {
 	}
 	
 	public Object encode(Object o) {
-		if (o == null)
-			return null;
 		return encode(o.getClass(), o);
 	}
 	

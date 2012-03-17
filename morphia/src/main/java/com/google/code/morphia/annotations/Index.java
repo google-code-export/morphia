@@ -44,7 +44,5 @@ public @interface Index {
 	boolean background() default false;
 	/** Create the index with the sparse option*/
 	boolean sparse() default false;
-	/** disables validation for the field name*/
-	boolean disableValidation() default false;
 
 }

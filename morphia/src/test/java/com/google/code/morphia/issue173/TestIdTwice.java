@@ -10,7 +10,6 @@ import org.junit.Test;
 import com.google.code.morphia.TestBase;
 import com.google.code.morphia.annotations.Converters;
 import com.google.code.morphia.testutil.TestEntity;
-import com.mongodb.WriteConcern;
 
 public class TestIdTwice extends TestBase {
 
@@ -19,8 +18,7 @@ public class TestIdTwice extends TestBase {
 		morphia.map(A.class);
 		A a = new A();
 		a.c = GregorianCalendar.getInstance();
-		ds.save(a, WriteConcern.SAFE);
-		// occasionally failed, so i suspected a race cond.
+		ds.save(a);
 		A loaded = ds.find(A.class).get();
 		Assert.assertNotNull(loaded.c);
 		Assert.assertEquals(a.c, loaded.c);

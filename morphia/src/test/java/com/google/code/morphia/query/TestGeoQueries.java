@@ -10,7 +10,6 @@ import com.google.code.morphia.annotations.Entity;
 import com.google.code.morphia.annotations.Id;
 import com.google.code.morphia.annotations.Indexed;
 import com.google.code.morphia.utils.IndexDirection;
-import com.mongodb.MongoException;
 import com.mongodb.MongoInternalException;
 
 public class TestGeoQueries extends TestBase {
@@ -50,10 +49,8 @@ public class TestGeoQueries extends TestBase {
 		ds.ensureIndexes();
 		Place place1 = new Place("place1", new double[] {1,1});
 		ds.save(place1);
-		Place found = ds.find(Place.class).field("loc").near(0, 0, 1.5).get();
+		Place found = ds.find(Place.class).field("loc").near(0, 0, 12).get();
 		Assert.assertNotNull(found);
-		Place notFound = ds.find(Place.class).field("loc").near(0, 0, 1).get();
-		Assert.assertNull(notFound);
 	}
 	
 	@Test 
@@ -66,8 +63,6 @@ public class TestGeoQueries extends TestBase {
 			Assert.assertFalse(true);
 		} catch (MongoInternalException e) {
 			Assert.assertNull(found);
-		} catch (MongoException e) {
-			Assert.assertNull(found);
 		}
 	}
 
@@ -77,15 +72,6 @@ public class TestGeoQueries extends TestBase {
 		Place place1 = new Place("place1", new double[] {1,1});
 		ds.save(place1);
 		Place found = ds.find(Place.class).field("loc").within(0, 1, 1.1).get();
-		Assert.assertNotNull(found);
-	}
-	
-	@Test
-	public void testWithinRadius2() throws Exception {
-		ds.ensureIndexes();
-		Place place1 = new Place("place1", new double[] {1,1});
-		ds.save(place1);
-		Place found = ds.find(Place.class).field("loc").within(0.5, 0.5, 0.77).get();
 		Assert.assertNotNull(found);
 	}
 

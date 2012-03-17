@@ -57,6 +57,7 @@ public class MappedField {
 	protected Field field; // the field :)
 	protected Class realType; // the real type
 	protected Constructor ctor; // the constructor for the type
+	protected String name; // the name to store in mongodb {name:value}
 	// Annotations that have been found relevant to mapping
 	protected Map<Class<? extends Annotation>, Annotation> foundAnnotations = new HashMap<Class<? extends Annotation>, Annotation>();
 	protected Type subType = null; // the type (T) for the Collection<T>/T[]/Map<?,T>
@@ -84,6 +85,8 @@ public class MappedField {
 	protected void discover() {
 		for (Class<? extends Annotation> clazz : interestingAnnotations)
 			addAnnotation(clazz);
+		
+		name = getMappedFieldName();
 		
 		//type must be discovered before the constructor.
 		realType = discoverType();
@@ -143,10 +146,7 @@ public class MappedField {
 			pt = (ParameterizedType) gType;
 		
 		if (tv != null) {
-//			type = ReflectionUtils.getTypeArgument(persistedClass, tv);
-			Class typeArgument = ReflectionUtils.getTypeArgument(persistedClass, tv);
-			if(typeArgument != null)
-				type = typeArgument;
+			type = ReflectionUtils.getTypeArgument(persistedClass, tv);
 		} else if (pt != null) {
 			if(log.isDebugEnabled())
 				log.debug("found instance of ParameterizedType : " + pt);
@@ -213,13 +213,13 @@ public class MappedField {
 	
 	/** Returns the name of the field's (key)name for mongodb */
 	public String getNameToStore() {
-		return getMappedFieldName();
+		return name;
 	}
 	
 	/** Returns the name of the field's (key)name for mongodb, in order of loading. */
 	public List<String> getLoadNames() {
 		ArrayList<String> names = new ArrayList<String>();
-		names.add(getMappedFieldName());
+		names.add(name);
 		
 		AlsoLoad al = (AlsoLoad)this.foundAnnotations.get(AlsoLoad.class);
 		if (al != null && al.value() != null && al.value().length > 0)
@@ -257,10 +257,6 @@ public class MappedField {
 	public <T extends Annotation> T getAnnotation(Class<T> clazz) {
 		return (T) foundAnnotations.get(clazz);
 	}
-
-	public Map<Class<? extends Annotation>, Annotation> getAnnotations() {
-		return foundAnnotations;
-	}
 	
 	/** Indicates whether the annotation is present in the mapping (does not check the java field annotations, just the ones discovered) */
 	public boolean hasAnnotation(Class ann) {
@@ -271,16 +267,6 @@ public class MappedField {
 	public void addAnnotation(Class<? extends Annotation> clazz) {
 		if (field.isAnnotationPresent(clazz))
 			this.foundAnnotations.put(clazz, field.getAnnotation(clazz));
-	}
-	
-	/** Adds the annotation, if it exists on the field. */
-	public void addAnnotation(Class<? extends Annotation> clazz, Annotation ann) {
-		this.foundAnnotations.put(clazz, ann);
-	}
-	
-	/** Adds the annotation even if not on the declared class/field. */
-	public Annotation putAnnotation(Annotation ann) {
-		return this.foundAnnotations.put(ann.getClass(), ann);
 	}
 
 	/** returns the full name of the class plus java field name */
@@ -310,10 +296,6 @@ public class MappedField {
 			Serialized me = (Serialized) foundAnnotations.get(Serialized.class);
 			if (!me.value().equals(Mapper.IGNORED_FIELDNAME))
 				return me.value();
-		} else if (hasAnnotation(Version.class)) {
-			Version me = (Version) foundAnnotations.get(Version.class);
-			if (!me.value().equals(Mapper.IGNORED_FIELDNAME))
-				return me.value();
 		}
 		
 		return this.field.getName();
@@ -322,7 +304,7 @@ public class MappedField {
 	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
-		sb.append(getMappedFieldName()).append(" (");
+		sb.append(name).append(" (");
 		sb.append(" type:").append(realType.getSimpleName()).append(",");
 		
 		if(isSingleValue())

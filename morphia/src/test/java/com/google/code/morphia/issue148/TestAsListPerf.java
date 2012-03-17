@@ -38,7 +38,7 @@ public class TestAsListPerf extends TestBase {
 	final int threadPool = 10;
 	
 	@Override
-	public void cleanup() {
+	public void dropDB() {
 		//do nothing...
 	}
 	
