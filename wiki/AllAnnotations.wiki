@@ -92,7 +92,7 @@ The field will can be loaded as any of the supplied names. Good for data migrati
 The field will be indexed. See [Datastore the datastore docs].
 
 == Version ==
-Marks a field in an {{{@Entity}}} to be control optimistic locking for that entity. It will be automatically managed for you. There is no need to set a value.
+Marks a field in an {{{@Entity}}} to control optimistic locking for that entity. If the versions change while modifying an entity a ConcurrentModificationException will be throw in the write method (save/delete/etc). This field will be automatically managed for you -- there is no need to set a value and you should not do so anyway.
 
 {{{
 @Entity
