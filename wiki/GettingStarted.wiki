@@ -22,6 +22,7 @@ Datastore ds = new Morphia().createDatastore("myDB"); //best to use (Mongo, Stri
 ...
 
 //at application start
+//map classes before calling with morphia map* methods
 ds.ensureIndexes(); //creates indexes from @Index annotations in your entities
 ds.ensureCaps(); //creates capped collections from @Entity
 }}}
