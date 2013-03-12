@@ -2,11 +2,11 @@
 <metadata>
   <groupId>com.google.code.morphia</groupId>
   <artifactId>morphia-validation</artifactId>
-  <version>0.99</version>
   <versioning>
     <versions>
       <version>0.99</version>
+      <version>1.00-SNAPSHOT</version>
     </versions>
-    <lastUpdated>20110127005832</lastUpdated>
+    <lastUpdated>20130312012445</lastUpdated>
   </versioning>
 </metadata>
