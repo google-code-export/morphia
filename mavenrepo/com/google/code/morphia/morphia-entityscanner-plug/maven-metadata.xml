@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>com.google.code.morphia</groupId>
+  <artifactId>morphia-entityscanner-plug</artifactId>
+  <versioning>
+    <versions>
+      <version>1.00-SNAPSHOT</version>
+    </versions>
+    <lastUpdated>20130312012649</lastUpdated>
+  </versioning>
+</metadata>
