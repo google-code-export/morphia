@@ -8,6 +8,7 @@
 
 = 0.100 =
 *unreleased*:
+  * *Requires* mongodb java driver 2.11+
   * stuff
   * https://code.google.com/p/morphia/issues/list?can=1&q=label%3AMilestone-Release0.99.1
   
