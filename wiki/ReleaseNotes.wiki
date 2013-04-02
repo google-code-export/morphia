@@ -3,9 +3,14 @@
 *Releases*:
 <wiki:toc/>
 
-
 = 1.00 =
 *unreleased*:
+
+= 0.100 =
+*unreleased*:
+  * stuff
+  * https://code.google.com/p/morphia/issues/list?can=1&q=label%3AMilestone-Release0.99.1
+  
 = 0.99.1=
 *unreleased*:
   * *Requires* mongodb java driver 2.7+
