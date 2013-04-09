@@ -1,6 +1,6 @@
 #summary The morphia release process
 
-= The morphia release process =
+= The morphia Release Process =
 
 
 Please do these steps for any new release candidates and stable version of morphia:
