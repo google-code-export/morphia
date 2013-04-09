@@ -1,21 +1,14 @@
 #summary The morphia release process
 
-= Doing a release =
+= The morphia release process =
 
-These are the steps for doing a release
 
-== Section 1 ==
+Please do these steps for any new release candidates and stable version of morphia:
 
-Please do these steps:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
-
-== Section 2 ==
-
-After the first section is done we can move on to this.
-
-{{{
-command1
-command2
-}}}
+  # Update 6 pom.xml files to .100; increment parent number
+  # Update driver dependency to 2.10.x (to be confirmed)
+  # Update release notes
+  # Upload new download to Morphia Wiki
+  # Upload to Maven Central
+  # Release candidate will be announced on Morphia Wiki
+  # Stable version to be officially announced on Morphia Wiki and [https://groups.google.com/forum/?fromgroups#!forum/mongodb-announce mongodb-announce Google Group]
