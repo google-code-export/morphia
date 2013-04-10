@@ -6,9 +6,9 @@
 = 1.00 =
 *unreleased*:
 
-= 0.100 =
+= 0.101.0 =
 *unreleased*:
-  * *Requires* mongodb java driver 2.11+
+  * *Requires* mongodb java driver 2.10.1+
   * stuff
   * https://code.google.com/p/morphia/issues/list?can=1&q=label%3AMilestone-Release0.99.1
   
