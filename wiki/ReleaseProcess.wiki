@@ -4,15 +4,15 @@
 
 == Pre-Release ==
 
-  * Before any release a snapshot and pre-release (release candidate will be done).
-  * The steps are basically the same as the Release steps except
+  * Before any release (snapshot) or pre-release (like a release candidate) will be done.
+  * Follow the steps same as the Release, except
     * Don't announce on mongodb-announce
 
 == Release ==
 
 === Preparation ===
   * Update all pom.xml files to new version (.100) + increment parent number
-  * Update java driver dependency (to 2.10.x -- to be confirmed)
+  * Update java driver dependency (ex. 2.10.x)
   * Update ReleaseNotes
 === Deployment ===
   * Upload new release to downloads
