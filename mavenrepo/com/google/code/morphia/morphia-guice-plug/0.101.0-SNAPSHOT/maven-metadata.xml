@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata modelVersion="1.1.0">
+  <groupId>com.google.code.morphia</groupId>
+  <artifactId>morphia-guice-plug</artifactId>
+  <version>0.101.0-SNAPSHOT</version>
+  <versioning>
+    <snapshot>
+      <timestamp>20130429.000847</timestamp>
+      <buildNumber>1</buildNumber>
+    </snapshot>
+    <lastUpdated>20130429000847</lastUpdated>
+    <snapshotVersions>
+      <snapshotVersion>
+        <extension>jar</extension>
+        <value>0.101.0-20130429.000847-1</value>
+        <updated>20130429000847</updated>
+      </snapshotVersion>
+      <snapshotVersion>
+        <extension>pom</extension>
+        <value>0.101.0-20130429.000847-1</value>
+        <updated>20130429000847</updated>
+      </snapshotVersion>
+    </snapshotVersions>
+  </versioning>
+</metadata>
