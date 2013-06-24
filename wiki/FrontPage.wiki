@@ -1,3 +1,6 @@
+=NOTICE=
+This project has been migrated to [https://github.com/mongodb/morphia github].  All the source code and issues have been migrated to the new site.  Development will continue there.  Mailing lists and discussion will remain here.
+ ----
 *Morphia* is a lightweight type-safe library for mapping Java objects to/from [http://mongodb.org MongoDB]:
 <wiki:gadget url="http://www.ohloh.net/p/morphia/widgets/project_partner_badge.xml" height="55" border="0" />
  * Easy to use, and very *lightweight*; reflection is used once per type and cached for *good performance*.
