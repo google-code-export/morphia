@@ -1,9 +1,1 @@
-#summary Projects/Companies using Morphia
-
-= Who is using morphia? =
-The following projects and/or companies are using morphia for their persistence needs.
-
- * Shutterfly
- * [http://bugfix.me/ Bugfix.me], desktop based Bugtracker
- * [http://www.bookdiscounter.nl/ Bookdiscounter] A book price comparison website in The Netherlands
- * Many more...
+This project has moved to github.  You can find the new documentation [https://github.com/mongodb/morphia/wiki/UsingMorphia here]

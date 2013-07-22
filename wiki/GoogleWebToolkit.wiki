@@ -1,10 +1,1 @@
-#summary Using Morphia with GWT
-#labels Extension
-
-= Using Morphia with GWT =
-
-To use morphia with GWT all you need to do is download the gwt module jar and add this to your {{{.gwt.xml}}} file:
-
-{{{
-   <inherits name='com.google.code.morphia.Morphia' />
-}}}
+This project has moved to github.  You can find the new documentation [https://github.com/mongodb/morphia/wiki/GoogleWebToolkit here]
